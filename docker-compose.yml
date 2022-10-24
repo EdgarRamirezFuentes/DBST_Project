@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  mssql:
+    image: "mcr.microsoft.com/mssql/server:2019-latest"
+    ports:
+      - 1433:1433
+    environment:
+      SA_PASSWORD: "catDBST2022Ñ"
+      ACCEPT_EULA: "Y"
+    volumes:
+      - mssql-data:/var/opt/mssql
+  app:
+    build: .
+    ports:
+      - 3000:3000
+    environment:
+      - env_file=.env
+    volumes:
+      - ./escom_hotel:/app
+    depends_on:
+      - mssql
+    command:
+      sh -c "npm install && npm start"
+volumes:
+  mssql-data:
