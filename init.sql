@@ -291,3 +291,66 @@ CREATE TABLE Tarea (
     FOREIGN KEY (idEstadoTarea)
     REFERENCES EstadoTarea (idEstadoTarea)
 );
+
+
+----------------------
+-- TABLAS PARA Logs --
+----------------------
+
+CREATE TABLE HabitacionLogs (
+    idHabitacionLogs INT NOT NULL,
+    idUsuario INT NOT NULL, 
+    idHabitacion INT NOT NULL, 
+    fecha TIMESTAMP NOT NULL,
+    -- PRIMARY KEY  Habitacionlogs
+    CONSTRAINT PK_HabitacionLogs_idHabitacionLogs
+    PRIMARY KEY CLUSTERED (idHabitacionLogs)
+);
+
+
+CREATE TABLE TareaLogs (
+    idTareaLogs INT NOT NULL, 
+    idTarea INT NOT NULL, 
+    idTrabajador INT NOT NULL, -- El último que actualizó la tarea
+    estadoTarea VARCHAR (50) NOT NULL, -- Estado actual de la tarea
+    fecha TIMESTAMP NOT NULL, 
+    -- PRIMARY KEY TareaLogs
+    CONSTRAINT PK_TareaLogs_idTareaLogs
+    PRIMARY KEY CLUSTERED (idTareaLogs)
+);
+
+
+CREATE TABLE ReservacionLogs (
+    idReservacionLogs INT NOT NULL,
+    idReservacion INT NOT NULL,
+    idTrabajador INT NOT NULL,
+    fecha TIMESTAMP NOT NULL,
+    -- PRIMARY KEY ReservacionLogs
+    CONSTRAINT PK_ReservacionLogs_idReservacionLogs
+    PRIMARY KEY CLUSTERED (idReservacionLogs)
+);
+
+
+CREATE TABLE ClienteLogs (
+    idClienteLogs INT NOT NULL,
+    idUsuario INT NOT NULL,
+    idCliente INT NOT NULL,
+    fecha TIMESTAMP NOT NULL,
+    -- PRIMARY KEY ClienteLogs
+    CONSTRAINT PK_ClienteLogs_idClienteLogs
+    PRIMARY KEY CLUSTERED (idClienteLogs)
+);
+
+
+CREATE TABLE UsuarioLogs (
+    idUsuarioLogs INT NOT NULL,
+    idUsuario INT NOT NULL,
+    fecha TIMESTAMP NOT NULL,
+    -- PRIMARY KEY UsuariosLogs
+    CONSTRAINT PK_UsuariosLogs_idUsuariosLogs
+    PRIMARY KEY CLUSTERED (idUsuarioLogs)
+);
+
+--------------
+-- TRIGGERS --
+--------------
