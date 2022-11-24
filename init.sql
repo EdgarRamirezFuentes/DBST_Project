@@ -299,46 +299,77 @@ CREATE TABLE Tarea (
 
 CREATE TABLE HabitacionLogs (
     idHabitacionLogs INT NOT NULL,
-    idUsuario INT NOT NULL, 
+    idTrabajador INT NOT NULL, 
     idHabitacion INT NOT NULL, 
     fecha TIMESTAMP NOT NULL,
     -- PRIMARY KEY  Habitacionlogs
     CONSTRAINT PK_HabitacionLogs_idHabitacionLogs
-    PRIMARY KEY CLUSTERED (idHabitacionLogs)
+    PRIMARY KEY CLUSTERED (idHabitacionLogs),
+    -- FOREIGN KEY Habitacion
+    CONSTRAINT FK_HabitacionLogs_Habitacion
+    FOREIGN KEY (idHabitacion)
+    REFERENCES Habitacion (idHabitacion), 
+    -- FOREIGN KEY Trabajador
+    CONSTRAINT FK_HabitacionesLogs_Trabajador
+    FOREIGN KEY Trabajador (idTrabajador)
 );
 
 
 CREATE TABLE TareaLogs (
     idTareaLogs INT NOT NULL, 
     idTarea INT NOT NULL, 
-    idTrabajador INT NOT NULL, -- El último que actualizó la tarea
-    estadoTarea VARCHAR (50) NOT NULL, -- Estado actual de la tarea
+    idTrabajador INT NOT NULL,
     fecha TIMESTAMP NOT NULL, 
     -- PRIMARY KEY TareaLogs
     CONSTRAINT PK_TareaLogs_idTareaLogs
-    PRIMARY KEY CLUSTERED (idTareaLogs)
+    PRIMARY KEY CLUSTERED (idTareaLogs),
+    -- FOREIGN KEY Tarea
+    CONSTRAINT FK_TareaLogs_Tarea
+    FOREIGN KEY (idTarea)
+    REFERENCES Tarea (idTarea),
+    -- FOREIGN KEY Trabajador
+    CONSTRAINT FK_TareaLogs_Trabajador
+    FOREIGN KEY (idTrabajador)
+    REFERENCES Trabajador (idTrabajador)
 );
 
 
 CREATE TABLE ReservacionLogs (
     idReservacionLogs INT NOT NULL,
     idReservacion INT NOT NULL,
-    idTrabajador INT NOT NULL,
+    idTrabajador INT,
     fecha TIMESTAMP NOT NULL,
     -- PRIMARY KEY ReservacionLogs
     CONSTRAINT PK_ReservacionLogs_idReservacionLogs
-    PRIMARY KEY CLUSTERED (idReservacionLogs)
+    PRIMARY KEY CLUSTERED (idReservacionLogs),
+    -- FOREIGN KEY Reservacion
+    CONSTRAINT FK_ReservacionLogs_Reservacion
+    FOREIGN KEY (idReservacion)
+    REFERENCES Reservacion (idReservacion),
+    -- FOREIGN KEY Trabajador
+    CONSTRAINT FK_ReservacionLogs_Trabajador
+    FOREIGN KEY (idTrabajador) 
+    REFERENCES Trabajador (idTrabajador)
 );
 
 
 CREATE TABLE ClienteLogs (
     idClienteLogs INT NOT NULL,
-    idUsuario INT NOT NULL,
+    idTrabajador INT,
     idCliente INT NOT NULL,
     fecha TIMESTAMP NOT NULL,
     -- PRIMARY KEY ClienteLogs
     CONSTRAINT PK_ClienteLogs_idClienteLogs
-    PRIMARY KEY CLUSTERED (idClienteLogs)
+    PRIMARY KEY CLUSTERED (idClienteLogs),
+    -- FOREIGN KEY Trabajador
+    CONSTRAINT FK_ClienteLogs_Trabajador
+    FOREIGN KEY (idTrabajador)
+    REFERENCES Trabajador (idTrabajador),
+    -- FOREIGN KEY Cliente
+    CONSTRAINT FK_ClienteLogs_Cliente
+    FOREIGN KEY (idCliente)
+    REFERENCES Clientes (idCliente)
+
 );
 
 
