@@ -3,7 +3,7 @@ const  sql = require('mssql');
 // DB setup
 const dbConfig = {
     user: 'sa',
-    password: 'catDBST202Ñ',
+    password: 'catDBST2022Ñ',
     server: 'mssql',
     database: 'ESCOM_HOTEL',
     options: {

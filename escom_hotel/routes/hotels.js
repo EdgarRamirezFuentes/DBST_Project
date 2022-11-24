@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const sql = require('mssql');
-const { ExecuteSQL } = require('../utils/dbOperations');
+const { ExecuteSQL } = require('../utils/db-operations');
 
 
 
