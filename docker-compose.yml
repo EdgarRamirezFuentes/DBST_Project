@@ -12,14 +12,18 @@ services:
   app:
     build: .
     ports:
-      - 3000:3000
+      - 5000:5000
     environment:
-      - env_file=.env
+      - SERVER=mssql
+      - USERNAME=sa
+      - PASSWORD=catDBST2022Ñ 
+      - DATABASE=ESCOM_HOTEL
+      - JWT_SECRET_KEY=hWyxDiAm9lGr_BuBAvN_KCrHbI3cpjRg0foiE44_LUkvVger7Lj5KiYrPRdMS9g3JlyDdiZWALkGynIP5YYBYdjnEM1QYLTqWkZRbkNMDTbSnUw67b7AbsNqz6sCZk1F70a2Oc3OU1vUkZxJloAtGZszg9gBam8A76lKgze0WDr5mkvnVY6mn4GbcTqxldzbqf_cicFKTgylSiqekyvjNsnW0xHHy9jJk8TPj2rqEl3S5-C8X34tN0cXcxwARRcRYY39plzxuq48tv_bRMF2AFHm0U-9LuwXj3KxY1OtnJV83B2OE_UtdVoYmY6EcwNu27BTtsKxQ9r15n2CfFgHQw
     volumes:
-      - ./escom_hotel:/app
+      - ./escom-hotel:/escom-hotel
     depends_on:
       - mssql
     command:
-      sh -c "npm install && npm start"
+      sh -c "python app.py"
 volumes:
   mssql-data:
