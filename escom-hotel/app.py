@@ -170,26 +170,13 @@ def role():
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                try:
+                cursor.callproc('sp_rol_crud', (None, None, 'SELECT'))
+                response = cursor.fetchall() 
+                
+                return jsonify(response), 200
 
-                    cursor.callproc('sp_rol_crud', (None, None, 'SELECT'))
-                    response = cursor.fetchall() 
-                    
-                    return jsonify(response), 200
-                except OperationalError as e:
+        except OperationalError as e:
                     return jsonify({}), 200
-                except (IntegrityError, DatabaseError,
-                        OperationalError, InternalError,
-                        ProgrammingError, NotSupportedError,
-                        ColumnsWithoutNamesError) as e:
-                    app.logger.error(str(e))
-                    return jsonify({'message' : 'Error' }), 500
-                except Warning as w:
-                    app.logger.warning(str(w))
-                    return jsonify({'message' : 'Error' }), 500
-                except DataError as e:
-                    return jsonify({'message' : f'Error: {e}' }), 500
-
         except (IntegrityError, DatabaseError, InternalError,
                 ProgrammingError, NotSupportedError,
                 ColumnsWithoutNamesError) as e:
@@ -222,35 +209,18 @@ def role():
             with conn.cursor(as_dict=True) as cursor:
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
-                
-                try:
 
-                    cursor.callproc('sp_rol_crud', (None, role_name, 'INSERT'))
-                    response = cursor.fetchone()
-                    conn.commit()
+                cursor.callproc('sp_rol_crud', (None, role_name, 'INSERT'))
+                response = cursor.fetchone()
+                conn.commit()
 
-                    return jsonify(response), 201
+                return jsonify(response), 201   
 
-                except (IntegrityError, DatabaseError,
-                        OperationalError, InternalError,
-                        ProgrammingError, NotSupportedError,
-                        ColumnsWithoutNamesError) as e:
-                    app.logger.error(str(e))
-                    conn.rollback()
-                    return jsonify({'message' : 'Error' }), 500
-                except Warning as w:
-                    app.logger.warning(str(w))
-                    conn.rollback()
-                    return jsonify({'message' : 'Error' }), 500
-                except DataError as e:
-                    conn.rollback()
-                    return jsonify({'message' : f'Error: {e}' }), 500    
-
-        except (IntegrityError, DatabaseError,
-                OperationalError, InternalError,
+        except (IntegrityError, DatabaseError, InternalError,
                 ProgrammingError, NotSupportedError,
                 ColumnsWithoutNamesError) as e:
             app.logger.error(str(e))
+            conn.rollback()
             return jsonify({'message' : 'Error' }), 500
         except Warning as w:
             app.logger.warning(str(w))
@@ -289,29 +259,14 @@ def role_by_id(id : int):
             with conn.cursor(as_dict=True) as cursor:
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
-                
-                try:
 
-                    cursor.callproc('sp_rol_crud', (id, None, 'FIND'))
+                cursor.callproc('sp_rol_crud', (id, None, 'FIND'))
 
-                    response = cursor.fetchone()
-                    return jsonify(response), 200
-
-                except OperationalError as e:
+                response = cursor.fetchone()
+                return jsonify(response), 200  
+        except OperationalError as e:
                     return jsonify({'msg':f'There is no role with id {id}'}), 404
-                except (IntegrityError, DatabaseError, InternalError,
-                        ProgrammingError, NotSupportedError,
-                        ColumnsWithoutNamesError) as e:
-                    app.logger.error(str(e))
-                    return jsonify({'message' : 'Error' }), 500
-                except Warning as w:
-                    app.logger.warning(str(w))
-                    return jsonify({'message' : 'Error' }), 500
-                except DataError as e:
-                    return jsonify({'message' : f'Error: {e}' }), 500    
-
-        except (IntegrityError, DatabaseError,
-                OperationalError, InternalError,
+        except (IntegrityError, DatabaseError, InternalError,
                 ProgrammingError, NotSupportedError,
                 ColumnsWithoutNamesError) as e:
             app.logger.error(str(e))
@@ -342,35 +297,19 @@ def role_by_id(id : int):
             with conn.cursor(as_dict=True) as cursor:
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
-                
-                try:
 
-                    cursor.callproc('sp_rol_crud', (id, role_name, 'UPDATE'))
-                    response = cursor.fetchone()
-                    conn.commit()
-                    return jsonify(response), 200
-                except OperationalError as e:
+                cursor.callproc('sp_rol_crud', (id, role_name, 'UPDATE'))
+                response = cursor.fetchone()
+                conn.commit()
+                return jsonify(response), 200
+
+        except OperationalError as e:
                     return jsonify({'msg' : f'There is no role with id {id}'}), 404
-                except (IntegrityError, DatabaseError,
-                        InternalError,
-                        ProgrammingError, NotSupportedError,
-                        ColumnsWithoutNamesError) as e:
-                    app.logger.error(str(e))
-                    conn.rollback()
-                    return jsonify({'message' : 'Error' }), 500
-                except Warning as w:
-                    app.logger.warning(str(w))
-                    conn.rollback()
-                    return jsonify({'message' : 'Error' }), 500
-                except DataError as e:
-                    conn.rollback()
-                    return jsonify({'message' : f'Error: {e}' }), 500    
-
-        except (IntegrityError, DatabaseError,
-                OperationalError, InternalError,
+        except (IntegrityError, DatabaseError, InternalError,
                 ProgrammingError, NotSupportedError,
                 ColumnsWithoutNamesError) as e:
             app.logger.error(str(e))
+            conn.rollback()
             return jsonify({'message' : 'Error' }), 500
         except Warning as w:
             app.logger.warning(str(w))
@@ -396,36 +335,19 @@ def role_by_id(id : int):
             with conn.cursor(as_dict=True) as cursor:
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
-                
-                try:
 
-                    cursor.callproc('sp_rol_crud', (id, None, 'DELETE'))
-                    response = cursor.fetchone()
-                    conn.commit()
+                cursor.callproc('sp_rol_crud', (id, None, 'DELETE'))
+                response = cursor.fetchone()
+                conn.commit()
 
-                    return jsonify(response), 200
+                return jsonify(response), 200
 
-                except OperationalError as e:
+        except OperationalError as e:
                     return jsonify({'msg':f'There is no role with id {id}'}), 404
-
-                except (IntegrityError, DatabaseError, InternalError,
-                        ProgrammingError, NotSupportedError,
-                        ColumnsWithoutNamesError) as e:
-                    app.logger.error(str(e))
-                    conn.rollback()
-                    return jsonify({'message' : 'Error' }), 500
-                except Warning as w:
-                    app.logger.warning(str(w))
-                    conn.rollback()
-                    return jsonify({'message' : 'Error' }), 500
-                except DataError as e:
-                    conn.rollback()
-                    return jsonify({'message' : f'Error: {e}' }), 500    
-
-        except (IntegrityError, DatabaseError,
-                OperationalError, InternalError,
+        except (IntegrityError, DatabaseError, InternalError,
                 ProgrammingError, NotSupportedError,
                 ColumnsWithoutNamesError) as e:
+            conn.rollback()
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
         except Warning as w:
