@@ -442,6 +442,7 @@ BEGIN
         UPDATE Rol
         SET nombre = @nombre
         WHERE  idRol = @idRol
+        SELECT * FROM Rol WHERE idRol = @idRol
     END
     ELSE IF @accion = 'DELETE'
     BEGIN
@@ -458,3 +459,14 @@ BEGIN
     END
 END
 
+-------------------------
+-- DATABASE POPULATION --
+-------------------------
+
+-- ROL TABLE
+INSERT INTO Rol (nombre) 
+VALUES 
+('admin'),
+('recepcionist'),
+('room service'),
+('customer')

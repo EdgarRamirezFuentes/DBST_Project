@@ -1,9 +1,22 @@
-import os
 from pymssql import (
-    Error
+    IntegrityError,
+    ProgrammingError,
+    DataError,
+    OperationalError,
+    NotSupportedError,
+    ColumnsWithoutNamesError, 
+    DataError,
+    DatabaseError,
+    Warning,
+    InternalError
 )
-from flask import Flask, jsonify, request
-from util import DatabaseConnector
+
+from flask import (
+    Flask, 
+    jsonify, 
+    request,
+)
+
 from datetime import ( 
     timedelta,
     datetime, 
@@ -21,11 +34,44 @@ from flask_jwt_extended import (
     unset_jwt_cookies,
 )
 
+
+
+import os
+from logging.config import dictConfig
+from util import DatabaseConnector
+
+
+# DB Setup
 db = DatabaseConnector(
         os.environ.get('USERNAME'), 
         os.environ.get('PASSWORD'),
         os.environ.get('SERVER'),
         os.environ.get('DATABASE'))
+
+# Logger Setup
+dictConfig({
+    'version': 1,
+    'formatters': {'default': {
+        'format': '[%(asctime)s] %(levelname)s in %(module)s: %(message)s',
+    }},
+    'handlers': {
+        'wsgi': {
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://flask.logging.wsgi_errors_stream',
+            'formatter': 'default'
+        },
+        'file' : {
+            'class' : 'logging.handlers.RotatingFileHandler',
+            'formatter': 'default',
+            'filename': 'logconfig.log',
+        }
+    },
+    'root': {
+        'level': 'INFO',
+        'handlers': ['wsgi', 'file']
+    },
+})
+
 
 app = Flask(__name__)
 
@@ -77,55 +123,322 @@ def login():
     if not email or not password:
         return jsonify({'msg':'email and password are required'}), 400
 
-    response = jsonify({'msg' : 'login successful.'})
     access_token = create_access_token(identity={'email' : email, 'role': 'admin'})
+    response = jsonify({'msg' : 'login successful.'})
     set_access_cookies(response, access_token)
+    app.logger.info(f'{email} logged in successfully')
     return response
 
 
 @app.route('/api/v1/auth/logout', methods=['POST'])
+@jwt_required()
 def logout():
+    email = get_jwt_identity()['email']
     response = jsonify({'msg': 'logout successful.'})
     unset_jwt_cookies(response)
+    app.logger.info(f'{email} logged out successfully')
     return response
 
 
 ##################
 # ADMIN SECTION #
 ################
-@app.route('/api/v1/admin/role/register', methods=['POST'])
+
+####### Role
+@app.route('/api/v1/admin/role/', methods=['GET', 'POST'])
 @jwt_required()
-def register_role():
+def role():
     user = get_jwt_identity()
 
-    if not user['role'] == 'admin':
+    user_role = user['role']
+    user_email = user['email']
+
+    if not user_role == 'admin':
+        app.logger.warning( f'<{user_email}> tried to access to an unauthorized endpoint')
         return jsonify({'msg':'unauthorized access.'}), 401
 
-    name = request.json.get('role_name', '')
+    if request .method == 'GET':
+        try: 
 
-    if not name:
-        return jsonify({'msg' : 'Role name required.'}), 400
-    
-    try:
-        conn = db.connect()
-        if not conn:
-            return jsonify({'msg': 'Service unavailable.'}), 500
+            conn = db.connect()
 
-        with conn.cursor(as_dict=True) as cursor:
-            if not cursor:
+            if not conn:
+                app.logger.critical( f'Database unavailable')
                 return jsonify({'msg': 'Service unavailable.'}), 500
 
-            cursor.callproc('sp_rol_crud', (None, name, 'INSERT'))
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
 
-            inserted = cursor.fetchone()
+                try:
 
-            conn.commit()
+                    cursor.callproc('sp_rol_crud', (None, None, 'SELECT'))
+                    response = cursor.fetchall() 
+                    
+                    return jsonify(response), 200
+                except OperationalError as e:
+                    return jsonify({}), 200
+                except (IntegrityError, DatabaseError,
+                        OperationalError, InternalError,
+                        ProgrammingError, NotSupportedError,
+                        ColumnsWithoutNamesError) as e:
+                    app.logger.error(str(e))
+                    return jsonify({'message' : 'Error' }), 500
+                except Warning as w:
+                    app.logger.warning(str(w))
+                    return jsonify({'message' : 'Error' }), 500
+                except DataError as e:
+                    return jsonify({'message' : f'Error: {e}' }), 500
 
-            return jsonify(inserted), 201
-    except Error  as e:
-        return jsonify({'msg': str(e)}), 500
-    finally:
-        db.close()
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info( f'<{user_email}> retrieved the Role table data')
+            cursor.close()
+            conn.close()
+            
+
+    if request.method == 'POST':
+        role_name = request.json.get('role_name', '')
+
+        if not role_name:
+            return jsonify({'msg' : 'Role name required.'}), 400
+        
+        try:
+
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+                
+                try:
+
+                    cursor.callproc('sp_rol_crud', (None, role_name, 'INSERT'))
+                    response = cursor.fetchone()
+                    conn.commit()
+
+                    return jsonify(response), 201
+
+                except (IntegrityError, DatabaseError,
+                        OperationalError, InternalError,
+                        ProgrammingError, NotSupportedError,
+                        ColumnsWithoutNamesError) as e:
+                    app.logger.error(str(e))
+                    conn.rollback()
+                    return jsonify({'message' : 'Error' }), 500
+                except Warning as w:
+                    app.logger.warning(str(w))
+                    conn.rollback()
+                    return jsonify({'message' : 'Error' }), 500
+                except DataError as e:
+                    conn.rollback()
+                    return jsonify({'message' : f'Error: {e}' }), 500    
+
+        except (IntegrityError, DatabaseError,
+                OperationalError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500  
+        finally:
+            app.logger.info(f'<{user_email}> inserted the {role_name} role into the Rol table')
+            cursor.close()
+            db.close()
+
+
+####### Role by id
+@app.route('/api/v1/admin/role/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+@jwt_required()
+def role_by_id(id : int):
+    user = get_jwt_identity()
+    user_email = user['email']
+    user_role = user['role']
+
+    if user_role != 'admin':
+        app.logger.warning( f'<{user_email}> tried to access to an unauthorized endpoint')
+        return jsonify({'msg':'unauthorized access.'}), 401
+
+    if request.method == 'GET':
+        conn = db.connect()
+
+        try:
+
+            conn = db.connect()
+            if not conn:
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+                
+                try:
+
+                    cursor.callproc('sp_rol_crud', (id, None, 'FIND'))
+
+                    response = cursor.fetchone()
+                    return jsonify(response), 200
+
+                except OperationalError as e:
+                    return jsonify({'msg':f'There is no role with id {id}'}), 404
+                except (IntegrityError, DatabaseError, InternalError,
+                        ProgrammingError, NotSupportedError,
+                        ColumnsWithoutNamesError) as e:
+                    app.logger.error(str(e))
+                    return jsonify({'message' : 'Error' }), 500
+                except Warning as w:
+                    app.logger.warning(str(w))
+                    return jsonify({'message' : 'Error' }), 500
+                except DataError as e:
+                    return jsonify({'message' : f'Error: {e}' }), 500    
+
+        except (IntegrityError, DatabaseError,
+                OperationalError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500  
+        finally:
+            app.logger.info(f'<{user_email}> retrieved the role with id {id}')
+            cursor.close()
+            db.close()
+
+    if request.method == 'PUT':
+        role_name = request.json.get('role_name', '')
+
+        if not role_name:
+            return jsonify({'msg' : 'Role name required.'}), 400
+        
+        try:
+
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+                
+                try:
+
+                    cursor.callproc('sp_rol_crud', (id, role_name, 'UPDATE'))
+                    response = cursor.fetchone()
+                    conn.commit()
+                    return jsonify(response), 200
+                except OperationalError as e:
+                    return jsonify({'msg' : f'There is no role with id {id}'}), 404
+                except (IntegrityError, DatabaseError,
+                        InternalError,
+                        ProgrammingError, NotSupportedError,
+                        ColumnsWithoutNamesError) as e:
+                    app.logger.error(str(e))
+                    conn.rollback()
+                    return jsonify({'message' : 'Error' }), 500
+                except Warning as w:
+                    app.logger.warning(str(w))
+                    conn.rollback()
+                    return jsonify({'message' : 'Error' }), 500
+                except DataError as e:
+                    conn.rollback()
+                    return jsonify({'message' : f'Error: {e}' }), 500    
+
+        except (IntegrityError, DatabaseError,
+                OperationalError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500  
+        finally:
+            app.logger.info(f'<{user_email}> inserted the {role_name} role into the Rol table')
+            cursor.close()
+            db.close()
+
+    if request.method == 'DELETE':
+        conn = db.connect()
+
+        try:
+
+            conn = db.connect()
+            if not conn:
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+                
+                try:
+
+                    cursor.callproc('sp_rol_crud', (id, None, 'DELETE'))
+                    response = cursor.fetchone()
+                    conn.commit()
+
+                    return jsonify(response), 200
+
+                except OperationalError as e:
+                    return jsonify({'msg':f'There is no role with id {id}'}), 404
+
+                except (IntegrityError, DatabaseError, InternalError,
+                        ProgrammingError, NotSupportedError,
+                        ColumnsWithoutNamesError) as e:
+                    app.logger.error(str(e))
+                    conn.rollback()
+                    return jsonify({'message' : 'Error' }), 500
+                except Warning as w:
+                    app.logger.warning(str(w))
+                    conn.rollback()
+                    return jsonify({'message' : 'Error' }), 500
+                except DataError as e:
+                    conn.rollback()
+                    return jsonify({'message' : f'Error: {e}' }), 500    
+
+        except (IntegrityError, DatabaseError,
+                OperationalError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500  
+        finally:
+            app.logger.info(f'<{user_email}> deleted the role with id {id}')
+            cursor.close()
+            db.close()
 
 
 #########################
@@ -142,92 +455,10 @@ def register_role():
 # CUSTOMER SECTION #
 ###################
 
-@app.route('/api/v1/customer/signup', methods=['POST'])
-def signin():
-    """
-        Usuario info = {
-            nombre, * 
-            apPaterno, *  
-            apMaterno, *
-            fechaNacimiento, *  
-            curp, *
-            rfc, 
-            telefono, * 
-            correo, *
-            contrasenia, * 
-            idRol, * 
-            isActive *
-        }
-
-        Contacto emergencia info = {
-            nombre, *
-            apPaterno, *
-            apMaterno, *
-            telefono, *
-            idUsuario *
-        }
-
-        Direccion Info = {
-            calle, *
-            numExterior, *
-            numInterior, *
-            colonia, *
-            estado, *
-            alcaldia, *
-            codigoPostal, *
-            idUsuario *
-        }
-
-        Cliento Info= {
-            idUsuario *
-        }
-        Metodo de pago Info = {
-            nombreEnTarjeta, * 
-            numeroTarjeta, *
-            cvv, *
-            fechaVencimiento, * 
-            idCliente *
-        }
-
-    """
-
 
 #################
 # USER SECTION #
 ###############
-@app.route('/api/v1/user/info', methods=['GET'])
-@jwt_required()
-def get_user_data():
-    try:
-        jwt = get_jwt_identity()
-        email = jwt['email']
-        print(email)
-
-
-        cursor = db.connect()
-
-        if not cursor:
-            return jsonify({'msg': 'Service unavailable.'}), 500
-
-        cursor.execute(
-            """
-            SELECT idUsuario, correo, contrasenia 
-            FROM Usuario
-            WHERE correo = %s
-            """, 
-            (email, ))
-
-        response = cursor.fetchone()
-
-        if not response:
-            return jsonify({'msg':'User does not exists'}), 400
-            
-        return jsonify(response), 200
-    except:
-        pass
-    finally:
-        db.close()
-
 
 
 if __name__ == '__main__':
