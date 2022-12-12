@@ -1,21 +1,22 @@
--- INIT SCRIPT PARA ESCOM_HOTEL DB
+-- INIT SCRIPT FOR ESCOM_HOTEL DB
 
 CREATE DATABASE ESCOM_HOTEL;
 
 USE ESCOM_HOTEL;
 
--------------------------
--- TABLAS PARA USUARIO --
--------------------------
+-----------------
+-- USER TABLES --
+-----------------
 
 CREATE TABLE Rol (
     idRol INT IDENTITY(1,1) NOT NULL,
     nombre  VARCHAR(50) NOT NULL,
     -- PRIMARY KEY Rol
-    CONSTRAINT PK_Rol_idRol 
+    CONSTRAINT PK_Rol_idRol
     PRIMARY KEY CLUSTERED (idRol)
 );
 
+GO
 
 CREATE TABLE Usuario (
     idUsuario INT IDENTITY(1,1) NOT NULL,
@@ -23,23 +24,26 @@ CREATE TABLE Usuario (
     apPaterno VARCHAR (100) NOT NULL,
     apMaterno VARCHAR (100) NOT NULL,
     fechaNacimiento DATE NOT NULL,
+    sexo VARCHAR (1) NOT NULL,
     curp VARCHAR (18) NOT NULL UNIQUE,
     rfc VARCHAR (13) UNIQUE,
     telefono VARCHAR (10) NOT NULL,
     correo VARCHAR (100) NOT NULL,
-    contrasenia VARCHAR (50) NOT NULL,
+    contrasenia BINARY(64) NOT NULL,
     idRol INT,
-    isActive BIT NOT NULL,
+    fechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
+    activo BIT NOT NULL DEFAULT 1,
     -- PRIMARY KEY Usuario
-    CONSTRAINT PK_Usuario_idUsuario 
+    CONSTRAINT PK_Usuario_idUsuario
     PRIMARY KEY CLUSTERED (idUsuario),
     -- FOREIGN KEY Rol
-    CONSTRAINT FK_Usuario_Rol 
+    CONSTRAINT FK_Usuario_Rol
     FOREIGN KEY (idRol)
     REFERENCES Rol (idRol)
     ON DELETE SET NULL
 );
 
+GO
 
 CREATE TABLE ContactoEmergencia (
     idContactoEmergencia INT IDENTITY(1,1) NOT NULL,
@@ -49,7 +53,7 @@ CREATE TABLE ContactoEmergencia (
     telefono VARCHAR (10) NOT NULL,
     idUsuario INT NOT NULL,
     -- PRIMARY KEY ContactoEmergencia
-    CONSTRAINT PK_ContantoEmergencia_idContactoEmergencia 
+    CONSTRAINT PK_ContantoEmergencia_idContactoEmergencia
     PRIMARY KEY CLUSTERED (idContactoEmergencia),
     -- FOREIGN KEY Usuario
     CONSTRAINT FK_ContactoEmergencia_Usuario
@@ -58,6 +62,7 @@ CREATE TABLE ContactoEmergencia (
     ON DELETE CASCADE
 );
 
+GO
 
 CREATE TABLE Direccion (
     idDireccion INT IDENTITY(1,1) NOT NULL,
@@ -65,12 +70,12 @@ CREATE TABLE Direccion (
     numExterior VARCHAR (15) NOT NULL,
     numInterior VARCHAR (15),
     colonia VARCHAR (50) NOT NULL,
-    estado VARCHAR (50) NOT NULL, 
+    estado VARCHAR (50) NOT NULL,
     alcaldia VARCHAR (50) NOT NULL,
     codigoPostal VARCHAR (6) NOT NULL,
     idUsuario INT NOT NULL,
     -- PRIMARY KEY Direccion
-    CONSTRAINT PK_Direccion_idDireccion 
+    CONSTRAINT PK_Direccion_idDireccion
     PRIMARY KEY CLUSTERED (idDireccion),
     -- FOREIGN KEY Usuario
     CONSTRAINT FK_Direccion_Usuario
@@ -79,70 +84,27 @@ CREATE TABLE Direccion (
     ON DELETE CASCADE
 );
 
-
----------------------------
--- TABLAS PARA OPERACION --
----------------------------
-CREATE TABLE Modulo (
-    idModulo INT IDENTITY(1,1) NOT NULL,
-    nombre VARCHAR (50) NOT NULL, 
-    -- PRIMARY KEY Modulo
-    CONSTRAINT PK_Modulo_idModulo 
-    PRIMARY KEY CLUSTERED (idModulo)
-)
+GO
 
 
-CREATE TABLE Operacion (
-    idOperacion INT IDENTITY(1,1) NOT NULL,
-    nombre VARCHAR (50) NOT NULL,
-    idModulo INT NOT NULL
-    -- PRIMARY KEY Operacion
-    CONSTRAINT PK_Operacion_idOperacion 
-    PRIMARY KEY CLUSTERED (idOperacion),
-        -- FOREIGN KEY Modulo
-    CONSTRAINT FK_Operacion_Modulo
-    FOREIGN KEY (idModulo)
-    REFERENCES Modulo (idModulo)
-    ON DELETE CASCADE
-)
-
-
-CREATE TABLE RolOperacion (
-    idRolOperacion INT IDENTITY(1,1) NOT NULL,
-    idOperacion INT NOT NULL,
-    idRol INT NOT NULL, 
-    -- PRIMARY KEY RolOperacion
-    CONSTRAINT PK_RolOperacion_idRolOperacion
-    PRIMARY KEY CLUSTERED (idRolOperacion),
-    -- FOREIGN KEY Operacion
-    CONSTRAINT FK_RolOperacion_Operacion
-    FOREIGN KEY (idOperacion)
-    REFERENCES Operacion (idOperacion)
-    ON DELETE CASCADE,
-    -- FOREIGN KEY Rol
-    CONSTRAINT FK_RolOperacion_Rol
-    FOREIGN KEY (idRol)
-    REFERENCES Rol (idRol)
-    ON DELETE CASCADE
-)
-
--------------------------
--- TABLAS PARA CLIENTE --
--------------------------
+---------------------
+-- CUSTOMER TABLES --
+---------------------
 
 CREATE TABLE Cliente (
     idCliente INT IDENTITY(1,1) NOT NULL,
     idUsuario INT NOT NULL,
     -- PRIMARY KEY Cliente
-    CONSTRAINT PK_Cliente_idCliente 
+    CONSTRAINT PK_Cliente_idCliente
     PRIMARY KEY CLUSTERED (idCliente),
     -- FOREIGN KEY Usuario
-    CONSTRAINT FK_Cliente_Usuario 
+    CONSTRAINT FK_Cliente_Usuario
     FOREIGN KEY (idUsuario)
     REFERENCES Usuario (idUsuario)
     ON DELETE CASCADE
 );
 
+GO
 
 CREATE TABLE MetodoPago (
     idMetodoPago INT IDENTITY(1,1) NOT NULL,
@@ -161,19 +123,21 @@ CREATE TABLE MetodoPago (
     ON DELETE CASCADE
 );
 
+GO
 
-----------------------------
--- TABLAS PARA TRABAJADOR --
-----------------------------
+--------------------
+-- EMPLOYEE TABLE --
+--------------------
 
 CREATE TABLE Area (
     idArea INT IDENTITY(1,1) NOT NULL,
     nombre VARCHAR (100) NOT NULL,
     idEncargado INT,
-    CONSTRAINT PK_Area_idArea 
+    CONSTRAINT PK_Area_idArea
     PRIMARY KEY CLUSTERED (idArea)
 );
 
+GO
 
 CREATE TABLE Trabajador (
     idTrabajador INT IDENTITY(1,1) NOT NULL,
@@ -184,21 +148,22 @@ CREATE TABLE Trabajador (
     CONSTRAINT PK_Trabajador_idTrabajador
     PRIMARY KEY CLUSTERED (idTrabajador),
     -- FOREIGN KEY Usuario
-    CONSTRAINT FK_Trabajador_Usuario 
+    CONSTRAINT FK_Trabajador_Usuario
     FOREIGN KEY (idUsuario)
     REFERENCES Usuario (idUsuario)
     ON DELETE CASCADE,
     -- FOREIGN KEY Area
-    CONSTRAINT FK_Trabajador_Area 
+    CONSTRAINT FK_Trabajador_Area
     FOREIGN KEY (idArea)
     REFERENCES Area (idArea)
     ON DELETE SET NULL
 );
 
+GO
 
-------------------------------
--- TABLAS PARA HABITACIONES --
-------------------------------
+-----------------
+-- ROOM TABLES --
+-----------------
 
 CREATE TABLE TipoHabitacion (
     idTipoHabitacion INT IDENTITY(1,1) NOT NULL,
@@ -211,6 +176,7 @@ CREATE TABLE TipoHabitacion (
     PRIMARY KEY CLUSTERED (idTipoHabitacion)
 );
 
+GO
 
 CREATE TABLE Habitacion (
     idHabitacion INT IDENTITY(1,1) NOT NULL,
@@ -228,10 +194,11 @@ CREATE TABLE Habitacion (
     ON DELETE SET NULL
 );
 
+GO
 
------------------------------
--- TABLAS PARA Reservacion --
------------------------------
+------------------------
+-- RESERVATION TABLES --
+------------------------
 
 CREATE TABLE Reservacion (
     idReservacion INT IDENTITY(1,1) NOT NULL,
@@ -252,6 +219,7 @@ CREATE TABLE Reservacion (
     REFERENCES Habitacion (idHabitacion)
 );
 
+GO
 
 CREATE TABLE Ticket (
     idTicket INT IDENTITY(1,1) NOT NULL,
@@ -268,6 +236,7 @@ CREATE TABLE Ticket (
     ON DELETE CASCADE
 );
 
+GO
 
 CREATE TABLE CargoExtra (
     idCargoExtra INT IDENTITY(1,1) NOT NULL,
@@ -278,6 +247,7 @@ CREATE TABLE CargoExtra (
     PRIMARY KEY CLUSTERED(idCargoExtra)
 );
 
+GO
 
 CREATE TABLE TicketCargoExtra (
     idTicketCargoExtra INT IDENTITY(1,1) NOT NULL,
@@ -299,10 +269,11 @@ CREATE TABLE TicketCargoExtra (
     ON DELETE CASCADE
 );
 
+GO
 
------------------------
--- TABLAS PARA Tarea --
------------------------
+-----------------
+-- TASK TABLES --
+-----------------
 
 CREATE TABLE EstadoTarea (
     idEstadoTarea INT IDENTITY(1,1) NOT NULL,
@@ -312,6 +283,7 @@ CREATE TABLE EstadoTarea (
     PRIMARY KEY CLUSTERED (idEstadoTarea)
 );
 
+GO
 
 CREATE TABLE Tarea (
     idTarea INT IDENTITY(1,1) NOT NULL,
@@ -335,15 +307,16 @@ CREATE TABLE Tarea (
     REFERENCES EstadoTarea (idEstadoTarea)
 );
 
+GO
 
-----------------------
--- TABLAS PARA Logs --
-----------------------
+----------------
+-- LOG TABLES --
+----------------
 
 CREATE TABLE HabitacionLogs (
     idHabitacionLogs INT IDENTITY(1,1) NOT NULL,
-    idTrabajador INT, 
-    idHabitacion INT NOT NULL, 
+    idTrabajador INT,
+    idHabitacion INT NOT NULL,
     fecha TIMESTAMP NOT NULL,
     -- PRIMARY KEY  Habitacionlogs
     CONSTRAINT PK_HabitacionLogs_idHabitacionLogs
@@ -352,7 +325,7 @@ CREATE TABLE HabitacionLogs (
     CONSTRAINT FK_HabitacionLogs_Habitacion
     FOREIGN KEY (idHabitacion)
     REFERENCES Habitacion (idHabitacion)
-    ON DELETE CASCADE, 
+    ON DELETE CASCADE,
     -- FOREIGN KEY Trabajador
     CONSTRAINT FK_HabitacionesLogs_Trabajador
     FOREIGN KEY (idTrabajador)
@@ -360,12 +333,13 @@ CREATE TABLE HabitacionLogs (
     ON DELETE SET NULL
 );
 
+GO
 
 CREATE TABLE TareaLogs (
-    idTareaLogs INT IDENTITY(1,1) NOT NULL, 
-    idTarea INT NOT NULL, 
+    idTareaLogs INT IDENTITY(1,1) NOT NULL,
+    idTarea INT NOT NULL,
     idTrabajador INT,
-    fecha TIMESTAMP NOT NULL, 
+    fecha TIMESTAMP NOT NULL,
     -- PRIMARY KEY TareaLogs
     CONSTRAINT PK_TareaLogs_idTareaLogs
     PRIMARY KEY CLUSTERED (idTareaLogs),
@@ -381,6 +355,7 @@ CREATE TABLE TareaLogs (
     ON DELETE SET NULL
 );
 
+GO
 
 CREATE TABLE ReservacionLogs (
     idReservacionLogs INT IDENTITY(1,1) NOT NULL,
@@ -397,76 +372,9 @@ CREATE TABLE ReservacionLogs (
     ON DELETE CASCADE,
     -- FOREIGN KEY Trabajador
     CONSTRAINT FK_ReservacionLogs_Trabajador
-    FOREIGN KEY (idTrabajador) 
+    FOREIGN KEY (idTrabajador)
     REFERENCES Trabajador (idTrabajador)
     ON DELETE SET NULL
 );
 
-
------------------------
--- STORED PROCEDURES --
------------------------
-
-CREATE PROCEDURE sp_rol_crud
-    @idRol INT,
-    @nombre VARCHAR(50),
-    @accion NVARCHAR(20) = ''
-AS
-BEGIN
-    IF @accion = 'INSERT'
-    BEGIN
-        DECLARE @inserted TABLE (
-            idRol INT,
-            nombre VARCHAR(50)
-        );
-        INSERT INTO Rol (nombre)
-        OUTPUT INSERTED.*
-        INTO @inserted
-        VALUES (@nombre)
-        SELECT * FROM @inserted
-    END
-
-    IF @accion = 'SELECT'
-    BEGIN
-        SELECT *
-        FROM Rol
-    END
-    IF @accion = 'FIND'
-    BEGIN
-        SELECT * 
-        FROM Rol 
-        WHERE idRol = @idRol
-    END
-    IF @accion = 'UPDATE'
-        BEGIN
-        UPDATE Rol
-        SET nombre = @nombre
-        WHERE  idRol = @idRol
-        SELECT * FROM Rol WHERE idRol = @idRol
-    END
-    ELSE IF @accion = 'DELETE'
-    BEGIN
-        DECLARE @deleted TABLE (
-            idRol INT,
-            nombre VARCHAR(50)
-        );
-
-        DELETE FROM Rol
-        OUTPUT DELETED.*
-        INTO @deleted
-        WHERE  idRol = @idRol
-        SELECT * FROM @deleted
-    END
-END
-
--------------------------
--- DATABASE POPULATION --
--------------------------
-
--- ROL TABLE
-INSERT INTO Rol (nombre) 
-VALUES 
-('admin'),
-('recepcionist'),
-('room service'),
-('customer')
+GO

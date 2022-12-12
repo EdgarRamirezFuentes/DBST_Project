@@ -1,41 +1,15 @@
 # ESCOM HOTEL ENDPOINTS
 
-## Admin endpoints
+## **Auth endpoints**
 
-#### Customer
--   **/api/v1/admin/customer**
-    - GET - Get all the custormer list
-    - POST - Register a customer
-- **/api/v1/admin/customer/\<int:id\>**
-    - GET - Get a customer by id
-    - PUT - Update a customer by id
-    - DELETE - Delete a customer by id
-
-#### Role
-- **/api/v1/admin/role/**
-    - GET - Get all the roles list
-    - POST - Register a role
-- **/api/v1/admin/role/\<int:id\>**
-    - GET - Get a role by id
-    - PUT - Update a role by id
-    - DELETE - Deletea a role by id
-
-#### Module
-- **/api/v1/admin/module**
-    - GET - Get all the modules list
-    - POST - Register a module
-- **/api/v1/admin/modules/\<int:id\>**
-    - GET - Get a module by id
-    - PUT - Update a module by id
-    - DELETE - Delete a module by id
-
-#### Operation
-- **/api/v1/admin/operation**
-    - GET - Get all the operations list
-    - POST - Register an operation
-- **/api/v1/admin/operation/\<int:id\>**
-    - GET - Get an operation by id
-    - PUT - Update an operation by id
-    - DELETE - Delete an operation by id
-
+|  Module |  Submodule  |    Endpoint    |     HTTP    |  CSRF TOKEN  | JSON body | Description |
+|:-------:|:----------:|:--------------:|:-----------:|:------------:|:----------:|:------------:|
+| **Auth** | Login | **/api/v1/auth/login** | POST | NO | ```{"email" : "email@example.com", "password" : "example_password"}``` | Sign in |
+| **Auth** | Logout | **/api/v1/auth/login** | POST | YES | ```{}``` | Sign out |
+| **Admin** | Role | **/api/v1/auth/role** | GET | YES | ```{}``` | Get  all the roles |
+| **Admin** | Role | **/api/v1/auth/role** | POST | YES | ```{"role_name" : "example role"}``` | Register a new role |
+| **Admin** | Role | **/api/v1/admin/role/\<int:id>** | GET | YES | ```{}``` | Get the role |
+| **Admin** | Role | **/api/v1/admin/role/\<int:id>** | PUT | YES | ```{"role_name" : "update role"}``` | Update the role |
+| **Admin** | Role | **/api/v1/admin/role/\<int:id>** | DELETE | YES | ```{}``` | Delete the role |
+| **Admin** | Employee | **/api/v1/auth/employee** | GET | YES | ```{}``` | Get  all the employees |
 
