@@ -84,15 +84,16 @@ app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
 # If true this will only allow the cookies that contain your JWTs to be sent
 # over https. In production, this should always be set to True
 #https://flask-jwt-extended.readthedocs.io/en/stable/refreshing_tokens/
-app.config['JWT_COOKIE_SECURE'] = False
+app.config['JWT_COOKIE_SECURE'] = True
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
+app.config['JWT_COOKIE_SAMESITE'] = "None"
 
 
 jwt  = JWTManager(app)
 
 # Setup CORS
-CORS(app, resources={r"api/v1/*": {"origins": "localhost:3000"}})
+CORS(app, supports_credentials=True)
 
 @app.route('/api/v1')
 def main():
@@ -172,10 +173,10 @@ def login():
         return jsonify({'message' : f'Error: {e}' }), 500
     finally:
         app.logger.info( f'<{email}> tried to login.')
-        if cursor:
-            cursor.close()
-        if db:
-            conn.close()
+        # if cursor:
+        #     cursor.close()
+        # if db:
+        #     conn.close()
 
 
 @app.route('/api/v1/auth/logout', methods=['POST'])
