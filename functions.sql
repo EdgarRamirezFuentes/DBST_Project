@@ -39,7 +39,8 @@ BEGIN
     SELECT @idUsuario = idUsuario
     FROM Usuario
     WHERE correo = @correo
-    AND contrasenia = HASHBYTES('SHA2_256', @contrasenia);
+    AND contrasenia = HASHBYTES('SHA2_256', @contrasenia)
+    AND activo = 1;
 
     IF @idUsuario IS NULL
         SET @idUsuario = -1

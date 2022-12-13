@@ -19,10 +19,7 @@
     - [ ] PUT
     - [ ] DELETE
 ### In Progress
-- **/api/v1/admin/employee/\<int:id\>** (Edgar)
-    - [ ] GET
-    - [ ] PUT
-    - [ ] DELETE
+
 ### Done ✓
 - **/api/v1/admin/role** (Edgar)
     - [x] GET
@@ -34,6 +31,10 @@
 - **/api/v1/admin/employee** (Edgar)
     - [x] GET
     - [x] POST
+- **/api/v1/admin/employee/\<int:id\>** (Edgar)
+    - [x] GET
+    - [X] PUT
+    - [x] DELETE
 
 ## Database
 

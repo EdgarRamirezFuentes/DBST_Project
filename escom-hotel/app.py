@@ -218,7 +218,7 @@ def role():
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
-                    return jsonify({'msg': 'No tiene permiso para realizar esta acción.'}), 401
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
 
                 cursor.callproc('sp_rol_crud', (None, None, 'FINDALL'))
@@ -269,7 +269,7 @@ def role():
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
-                    return jsonify({'msg': 'No tiene permiso para realizar esta acción.'}), 401
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
                 cursor.callproc('sp_rol_crud', (None, role_name.lower(), 'INSERT'))
                 response = cursor.fetchone()
@@ -324,7 +324,7 @@ def role_by_id(id : int):
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
-                    return jsonify({'msg': 'No tiene permiso para realizar esta acción.'}), 401
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
                 cursor.callproc('sp_rol_crud', (id, None, 'FIND'))
 
@@ -372,7 +372,7 @@ def role_by_id(id : int):
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
-                    return jsonify({'msg': 'No tiene permiso para realizar esta acción.'}), 401
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
                 cursor.callproc('sp_rol_crud', (id, role_name.lower(), 'UPDATE'))
                 response = cursor.fetchone()
@@ -420,7 +420,7 @@ def role_by_id(id : int):
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
-                    return jsonify({'msg': 'No tiene permiso para realizar esta acción.'}), 401
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
                 cursor.callproc('sp_rol_crud', (id, None, 'DELETE'))
                 response = cursor.fetchone()
@@ -462,10 +462,12 @@ def employee():
         try:
             conn = db.connect()
             if not conn:
+                app.logger.critical( f'Database unavailable')
                 return jsonify({'msg': 'Service unavailable.'}), 500
 
             with conn.cursor(as_dict=True) as cursor:
                 if not cursor:
+                    app.logger.critical( f'Database unavailable')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
                 cursor.callproc('sp_obtenerRolUsuario', (user_id,))
@@ -474,7 +476,7 @@ def employee():
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
-                    return jsonify({'msg': 'No tiene permiso para realizar esta acción.'}), 401
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
                 cursor.callproc('sp_empleado_crud',
                 (
@@ -511,7 +513,6 @@ def employee():
 
     elif request.method == 'POST':
         data = request.get_json()
-        print(data)
 
         employee_name = data['nombre'].lower()
         employee_last_name = data['apPaterno'].lower()
@@ -595,7 +596,7 @@ def employee():
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
-                    return jsonify({'msg': 'No tiene permiso para realizar esta acción.'}), 401
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
                 cursor.callproc('sp_empleado_crud',
                 (
@@ -632,6 +633,257 @@ def employee():
             return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> registered a new employee')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+
+####### Employee by id
+@app.route('/api/v1/admin/employee/<int:employee_id>', methods=['GET', 'PUT', 'DELETE'])
+@jwt_required()
+def employee_by_id(employee_id):
+    user_id = get_jwt_identity()['user_id']
+
+    if request.method == 'GET':
+        try:
+            conn = db.connect()
+            if not conn:
+                app.logger.critical('Database unavailable.')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical('Database unavailable.')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+                print(user_id)
+                cursor.callproc('sp_empleado_crud',
+                (
+                    employee_id, # idUsuario
+                    None, None, None, None, ## User data
+                    None, None, None,None,
+                    None, None, None,
+                    None, None, None, None, ## Address data
+                    None, None, None,
+                    None,None, None, None, ## Contact data
+                    None, None, ## Employee data
+                    'FIND' ## Action
+                ))
+                response = cursor.fetchone()
+                return jsonify(response), 200
+        except OperationalError as e:
+            print(e)
+            return jsonify({'msg':f'There is no employee with id {employee_id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> accessed employee ID({employee_id})')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+    elif request.method == 'PUT':
+        data = request.get_json()
+
+        employee_name = data['nombre'].lower()
+        employee_last_name = data['apPaterno'].lower()
+        employee_second_last_name = data['apMaterno'].lower()
+        employee_birth_date = data['fechaNacimiento']
+        employee_gender = data['genero'].lower()
+        employee_curp = data['curp'].upper()
+        employee_rfc = data['rfc'] if data['rfc'].upper() else  None
+        employee_phone = data['telefono']
+        employee_email = data['correo']
+        employee_password = data['contrasenia']
+        employee_role = data['idRol']
+
+        if (
+            not employee_name
+            or not employee_last_name
+            or not employee_second_last_name
+            or not employee_birth_date
+            or not employee_gender
+            or not employee_curp
+            or not employee_phone
+            or not employee_email
+            or not employee_password
+            or not employee_role
+        ):
+            return jsonify({'msg': 'Missing user data.'}), 400
+
+        employee_street = data['calle'].lower()
+        employee_ext_number = data['numeroExterior']
+        employee_int_number = data['numeroInterior']
+        employee_neighborhood = data['colonia'].lower()
+        employee_state = data['estado'].lower()
+        employee_district = data['alcaldia'].lower()
+        employee_postal_code = data['codigoPostal']
+
+
+        if (
+            not employee_street
+            or not employee_ext_number
+            or not employee_neighborhood
+            or not employee_state
+            or not employee_district
+            or not employee_postal_code
+        ):
+            return jsonify({'msg': 'Missing address data.'}), 400
+
+        employee_emergency_contact_name = data['nombreContactoEmergencia'].lower()
+        employee_emergency_contact_last_name = data['apPaternoContactoEmergencia'].lower()
+        employee_emergency_contact_second_last_name = data['apMaternoContactoEmergencia'].lower()
+        employee_emergency_contact_phone = data['telefonoContactoEmergencia']
+
+        if (
+            not employee_emergency_contact_name
+            or not employee_emergency_contact_last_name
+            or not employee_emergency_contact_second_last_name
+            or not employee_emergency_contact_phone
+        ):
+            return jsonify({'msg': 'Missing emergency contact data.'}), 400
+
+        employee_salary = data['salario']
+        employee_area = data['idArea']
+
+        if (
+            not employee_salary
+            or not employee_area
+        ):
+            return jsonify({'msg': 'Missing employee data.'}), 400
+
+        try:
+            conn = db.connect()
+            if not conn:
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_empleado_crud',
+                (
+                    employee_id, # idUsuario
+                    employee_name, employee_last_name, employee_second_last_name, ## User data
+                    employee_birth_date, employee_gender, employee_curp, employee_rfc,
+                    employee_phone, employee_email, employee_password, employee_role,
+                    employee_street, employee_ext_number, employee_int_number, employee_neighborhood, ## Address data
+                    employee_state, employee_district, employee_postal_code,
+                    employee_emergency_contact_name, employee_emergency_contact_last_name, ## Contact data
+                    employee_emergency_contact_second_last_name, employee_emergency_contact_phone,
+                    employee_salary, employee_area, ## Employee data
+                    'UPDATE' ## Action
+                ))
+
+                response = cursor.fetchone()
+
+                conn.commit()
+
+                return jsonify(response), 200
+
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError, OperationalError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> registered a new employee')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+    elif request.method == 'DELETE':
+        conn = db.connect()
+
+        try:
+
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_empleado_crud',
+                (
+                    employee_id, # idUsuario
+                    None, None, None, None, ## User data
+                    None, None, None,None,
+                    None, None, None,
+                    None, None, None, None, ## Address data
+                    None, None, None,
+                    None,None, None, None, ## Contact data
+                    None, None, ## Employee data
+                    'DELETE' ## Action
+                ))
+                response = cursor.fetchone()
+                conn.commit()
+
+
+                return jsonify(response), 200
+
+        except OperationalError as e:
+                    return jsonify({'msg':f'There is no role with id {id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            conn.rollback()
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}) deleted the role with id {id}')
             if cursor:
                 cursor.close()
             if db:
