@@ -8,7 +8,7 @@ INSERT INTO Rol (nombre) VALUES ('administrador');
 
 GO
 
-INSERT INTO Rol (nombre) VALUES ('Trabajador');
+INSERT INTO Rol (nombre) VALUES ('trabajador');
 
 GO
 
@@ -16,6 +16,14 @@ INSERT INTO Rol (nombre) VALUES ('cliente');
 
 GO
 
+-- TABLA AREA
+INSERT INTO Area (nombre) VALUES ('recepcion');
+
+GO
+
+INSERT INTO Area (nombre) VALUES ('limpieza');
+
+GO
 
 -- ADDING ADMIN USER --
 INSERT INTO Usuario
@@ -36,3 +44,5 @@ VALUES
 'admin@admin.com', HASHBYTES('SHA2_256', 'sudoDBST2022Ñ'),
 1, 1
 );
+
+GO

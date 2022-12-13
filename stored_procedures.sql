@@ -274,7 +274,7 @@ BEGIN
 
         DECLARE @userID INT;
 
-        INSERT @inserted EXEC sp_usuario_crud
+        INSERT INTO @inserted EXEC sp_usuario_crud
             @idUsuario, @nombre, @apPaterno,
             @apMaterno, @fechaNacimiento, @sexo,
             @curp, @rfc, @telefono, @correo,
@@ -350,7 +350,7 @@ BEGIN
             activo BIT
         );
 
-        INSERT @updated EXEC sp_usuario_crud
+        INSERT INTO @updated EXEC sp_usuario_crud
             @idUsuario, @nombre, @apPaterno,
             @apMaterno, @fechaNacimiento, @sexo,
             @curp, @rfc, @telefono, @correo,
