@@ -155,7 +155,11 @@ def login():
                     'user_role' : user_role
                 })
 
-            response = jsonify({'msg' : 'login successful.'})
+            response = jsonify({
+                'msg' : 'login successful.',
+                'user_id' : user_id,
+                'user_role' : user_role
+            })
             set_access_cookies(response, access_token)
             app.logger.info(f'User ID({user_id}) logged in successfully')
         return response
