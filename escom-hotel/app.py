@@ -92,7 +92,7 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 jwt  = JWTManager(app)
 
 # Setup CORS
-CORS(app)
+CORS(app, supports_credentials=True)
 
 @app.route('/api/v1')
 def main():
