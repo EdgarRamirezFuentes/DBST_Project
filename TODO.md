@@ -4,20 +4,6 @@
 
 ### TODO
 
-- **/api/v1/admin/customer** (Tony)
-    - [ ] GET
-    - [ ] POST
-- **/api/v1/admin/customer/\<int:id\>** (Tony)
-    - [ ] GET
-    - [ ] PUT
-    - [ ] DELETE
-- **/api/v1/admin/module** (Tony)
-    - [ ] GET
-    - [ ] POST
-- [ ] **/api/v1/admin/module/\<int:id\>** (Tony)
-    - [ ] GET
-    - [ ] PUT
-    - [ ] DELETE
 ### In Progress
 
 ### Done ✓
@@ -34,6 +20,13 @@
 - **/api/v1/admin/employee/\<int:id\>** (Edgar)
     - [x] GET
     - [X] PUT
+    - [x] DELETE
+- **/api/v1/admin/customer** (Tony)
+    - [x] GET
+    - [x] POST
+- **/api/v1/admin/customer/\<int:id\>** (Tony)
+    - [x] GET
+    - [x] PUT
     - [x] DELETE
 
 ## Database

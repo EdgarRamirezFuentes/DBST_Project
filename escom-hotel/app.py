@@ -893,6 +893,422 @@ def employee_by_id(employee_id):
             if db:
                 db.close()
 
+####### Customer
+@app.route('/api/v1/admin/customer', methods=['GET', 'POST'])
+@jwt_required()
+def customer():
+    user_id = get_jwt_identity()['user_id']
+
+    if request.method == 'GET':
+        conn = db.connect()
+
+        try:
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_cliente_crud',
+                (
+                    None, # idUsuario
+                    None, None, None, None, ## User data
+                    None, None, None,None,
+                    None, None, None,
+                    None, None, None, None, ## Address data
+                    None, None, None,
+                    None,None, None, None, ## Contact data
+                    'FINDALL' ## Action
+                ))
+                response = cursor.fetchall()
+                return jsonify(response), 200
+        except OperationalError as e:
+            return jsonify({}), 200
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}) retrieved all employees')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+    elif request.method == 'POST':
+        data = request.get_json()
+
+        customer_name = data['nombre'].lower()
+        customer_last_name = data['apPaterno'].lower()
+        customer_second_last_name = data['apMaterno'].lower()
+        customer_birth_date = data['fechaNacimiento']
+        customer_gender = data['genero'].lower()
+        customer_curp = data['curp'].upper()
+        customer_rfc = data['rfc'] if data['rfc'].upper() else  None
+        customer_phone = data['telefono']
+        customer_email = data['correo']
+        customer_password = data['contrasenia']
+        customer_role = data['idRol']
+
+        if (
+            not customer_name
+            or not customer_last_name
+            or not customer_second_last_name
+            or not customer_birth_date
+            or not customer_gender
+            or not customer_curp
+            or not customer_phone
+            or not customer_email
+            or not customer_password
+            or not customer_role
+        ):
+            return jsonify({'msg': 'Missing user data.'}), 400
+
+        customer_street = data['calle'].lower()
+        customer_ext_number = data['numeroExterior']
+        customer_int_number = data['numeroInterior']
+        customer_neighborhood = data['colonia'].lower()
+        customer_state = data['estado'].lower()
+        customer_district = data['alcaldia'].lower()
+        customer_postal_code = data['codigoPostal']
+
+
+        if (
+            not customer_street
+            or not customer_ext_number
+            or not customer_neighborhood
+            or not customer_state
+            or not customer_district
+            or not customer_postal_code
+        ):
+            return jsonify({'msg': 'Missing address data.'}), 400
+
+        customer_emergency_contact_name = data['nombreContactoEmergencia'].lower()
+        customer_emergency_contact_last_name = data['apPaternoContactoEmergencia'].lower()
+        customer_emergency_contact_second_last_name = data['apMaternoContactoEmergencia'].lower()
+        customer_emergency_contact_phone = data['telefonoContactoEmergencia']
+
+        if (
+            not customer_emergency_contact_name
+            or not customer_emergency_contact_last_name
+            or not customer_emergency_contact_second_last_name
+            or not customer_emergency_contact_phone
+        ):
+            return jsonify({'msg': 'Missing emergency contact data.'}), 400
+
+        try:
+            conn = db.connect()
+            if not conn:
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_cliente_crud',
+                (
+                    None, # idUsuario
+                    customer_name, customer_last_name, customer_second_last_name, ## User data
+                    customer_birth_date, customer_gender, customer_curp, customer_rfc,
+                    customer_phone, customer_email, customer_password, customer_role,
+                    customer_street, customer_ext_number, customer_int_number, customer_neighborhood, ## Address data
+                    customer_state, customer_district, customer_postal_code,
+                    customer_emergency_contact_name, customer_emergency_contact_last_name, ## Contact data
+                    customer_emergency_contact_second_last_name, customer_emergency_contact_phone,
+                    'INSERT' ## Action
+                ))
+
+                response = cursor.fetchone()
+
+                conn.commit()
+
+                return jsonify(response), 200
+
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError, OperationalError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> registered a new employee')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+
+### Customer by id
+@app.route('/api/v1/admin/customer/<int:customer_id>', methods=['GET','PUT','DELETE'])
+@jwt_required()
+def customer_by_id(customer_id):
+    user_id = get_jwt_identity()['user_id']
+
+    if request.method == 'GET':
+        try:
+            conn = db.connect()
+            if not conn:
+                app.logger.critical('Database unavailable.')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical('Database unavailable.')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+                print(user_id)
+                cursor.callproc('sp_cliente_crud',
+                (
+                    customer_id, # idUsuario
+                    None, None, None, None, ## User data
+                    None, None, None,None,
+                    None, None, None,
+                    None, None, None, None, ## Address data
+                    None, None, None,
+                    None,None, None, None, ## Contact data
+                    'FIND' ## Action
+                ))
+                response = cursor.fetchone()
+                return jsonify(response), 200
+        except OperationalError as e:
+            print(e)
+            return jsonify({'msg':f'There is no customer with id {customer_id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> accessed employee ID({customer_id})')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+    if request.method == 'PUT':
+        data = request.get_json()
+
+        customer_name = data['nombre'].lower()
+        customer_last_name = data['apPaterno'].lower()
+        customer_second_last_name = data['apMaterno'].lower()
+        customer_birth_date = data['fechaNacimiento']
+        customer_gender = data['genero'].lower()
+        customer_curp = data['curp'].upper()
+        customer_rfc = data['rfc'] if data['rfc'].upper() else  None
+        customer_phone = data['telefono']
+        customer_email = data['correo']
+        customer_password = data['contrasenia']
+        customer_role = data['idRol']
+
+        if (
+            not customer_name
+            or not customer_last_name
+            or not customer_second_last_name
+            or not customer_birth_date
+            or not customer_gender
+            or not customer_curp
+            or not customer_phone
+            or not customer_email
+            or not customer_password
+            or not customer_role
+        ):
+            return jsonify({'msg': 'Missing user data.'}), 400
+
+        customer_street = data['calle'].lower()
+        customer_ext_number = data['numeroExterior']
+        customer_int_number = data['numeroInterior']
+        customer_neighborhood = data['colonia'].lower()
+        customer_state = data['estado'].lower()
+        customer_district = data['alcaldia'].lower()
+        customer_postal_code = data['codigoPostal']
+
+
+        if (
+            not customer_street
+            or not customer_ext_number
+            or not customer_neighborhood
+            or not customer_state
+            or not customer_district
+            or not customer_postal_code
+        ):
+            return jsonify({'msg': 'Missing address data.'}), 400
+
+        customer_emergency_contact_name = data['nombreContactoEmergencia'].lower()
+        customer_emergency_contact_last_name = data['apPaternoContactoEmergencia'].lower()
+        customer_emergency_contact_second_last_name = data['apMaternoContactoEmergencia'].lower()
+        customer_emergency_contact_phone = data['telefonoContactoEmergencia']
+
+        if (
+            not customer_emergency_contact_name
+            or not customer_emergency_contact_last_name
+            or not customer_emergency_contact_second_last_name
+            or not customer_emergency_contact_phone
+        ):
+            return jsonify({'msg': 'Missing emergency contact data.'}), 400
+        
+        try:
+            conn = db.connect()
+            if not conn:
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_cliente_crud',
+                (
+                    customer_id, # idUsuario
+                    customer_name, customer_last_name, customer_second_last_name, ## User data
+                    customer_birth_date, customer_gender, customer_curp, customer_rfc,
+                    customer_phone, customer_email, customer_password, customer_role,
+                    customer_street, customer_ext_number, customer_int_number, customer_neighborhood, ## Address data
+                    customer_state, customer_district, customer_postal_code,
+                    customer_emergency_contact_name, customer_emergency_contact_last_name, ## Contact data
+                    customer_emergency_contact_second_last_name, customer_emergency_contact_phone,
+                    'UPDATE' ## Action
+                ))
+
+                response = cursor.fetchone()
+
+                conn.commit()
+
+                return jsonify(response), 200
+
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError, OperationalError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> registered a new employee')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+    
+    if request.method == 'DELETE':
+        conn = db.connect()
+
+        try:
+
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_cliente_crud',
+                (
+                    customer_id, # idUsuario
+                    None, None, None, None, ## User data
+                    None, None, None,None,
+                    None, None, None,
+                    None, None, None, None, ## Address data
+                    None, None, None,
+                    None,None, None, None, ## Contact data
+                    'DELETE' ## Action
+                ))
+                response = cursor.fetchone()
+                conn.commit()
+
+
+                return jsonify(response), 200
+
+        except OperationalError as e:
+                    return jsonify({'msg':f'There is no customer with id {id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            conn.rollback()
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}) deleted the role with id {id}')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+        
 
 
 #########################
@@ -908,6 +1324,7 @@ def employee_by_id(employee_id):
 #####################
 # CUSTOMER SECTION #
 ###################
+
 
 
 #################
