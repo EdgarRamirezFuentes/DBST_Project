@@ -84,7 +84,7 @@ app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
 # If true this will only allow the cookies that contain your JWTs to be sent
 # over https. In production, this should always be set to True
 #https://flask-jwt-extended.readthedocs.io/en/stable/refreshing_tokens/
-app.config['JWT_COOKIE_SECURE'] = True
+app.config['JWT_COOKIE_SECURE'] = False
 app.config['JWT_TOKEN_LOCATION'] = ['cookies']
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
 app.config['JWT_COOKIE_SAMESITE'] = 'None'
@@ -948,7 +948,7 @@ def customer():
         except DataError as e:
             return jsonify({'message' : f'Error: {e}' }), 500
         finally:
-            app.logger.info(f'User ID({user_id}) retrieved all employees')
+            app.logger.info(f'User ID({user_id}) retrieved all customers')
             if cursor:
                 cursor.close()
             if db:
@@ -1065,7 +1065,7 @@ def customer():
             conn.rollback()
             return jsonify({'message' : f'Error: {e}' }), 500
         finally:
-            app.logger.info(f'User ID({user_id}> registered a new employee')
+            app.logger.info(f'User ID({user_id}> registered a new customer')
             if cursor:
                 cursor.close()
             if db:
@@ -1125,7 +1125,7 @@ def customer_by_id(customer_id):
         except DataError as e:
             return jsonify({'message' : f'Error: {e}' }), 500
         finally:
-            app.logger.info(f'User ID({user_id}> accessed employee ID({customer_id})')
+            app.logger.info(f'User ID({user_id}> accessed customer ID({customer_id})')
             if cursor:
                 cursor.close()
             if db:
@@ -1242,7 +1242,7 @@ def customer_by_id(customer_id):
             conn.rollback()
             return jsonify({'message' : f'Error: {e}' }), 500
         finally:
-            app.logger.info(f'User ID({user_id}> registered a new employee')
+            app.logger.info(f'User ID({user_id}> registered a new customer')
             if cursor:
                 cursor.close()
             if db:
@@ -1304,13 +1304,124 @@ def customer_by_id(customer_id):
             conn.rollback()
             return jsonify({'message' : f'Error: {e}' }), 500
         finally:
-            app.logger.info(f'User ID({user_id}) deleted the role with id {id}')
+            app.logger.info(f'User ID({user_id}) deleted the customer with id {id}')
             if cursor:
                 cursor.close()
             if db:
                 db.close()
         
+###### Type Room
+@app.route('/api/v1/admin/typeroom', methods=['GET','POST'])
+@jwt_required()
+def type_room():
+    user_id = get_jwt_identity()['user_id']
 
+    if request.method == 'GET':
+        try:
+            conn = db.connect()
+
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access role without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+
+                cursor.callproc('sp_tipo_habitacion_crud', (None, None ,None ,None , None, 'FINDALL'))
+                response = cursor.fetchall()
+
+                return jsonify(response), 200
+
+        except OperationalError as e:
+                    return jsonify({}), 200
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info( f'User ID({user_id}) retrieved the type room table type')
+            if cursor:
+                cursor.close()
+            if db:
+                conn.close()
+    
+    elif request.method == 'POST':
+        data = request.get_json()
+
+        type_room_name = data['nombre'].lower()
+        type_room_camas = data['numCamas']
+        type_room_personas = data['numPersonas']
+        type_room_precio = data['precio']
+
+        if( not type_room_name
+            or not type_room_camas
+            or not type_room_personas
+            or not type_room_precio
+        ):
+            return jsonify({'msg' : 'Missing data type room'}), 400
+
+        try:
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access role without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_tipo_habitacion_crud', (None, 
+                type_room_name, type_room_camas, 
+                type_room_personas, type_room_precio, 'INSERT'))
+
+                response = cursor.fetchone()
+                conn.commit()
+
+                return jsonify(response), 201
+
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}) inserted the {type_room_name} type room into the type room table')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
 
 #########################
 # RECEPCIONIST SECTION #

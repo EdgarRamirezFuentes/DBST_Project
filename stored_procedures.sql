@@ -563,52 +563,39 @@ GO
         SELECT * FROM @deleted
     END
 END
---     ELSE IF @accion = 'UPDATE'
---     BEGIN
---         DECLARE @updated TABLE (
---             idUsuario INT,
---             nombre VARCHAR(50),
---             apPaterno VARCHAR(50),
---             apMaterno VARCHAR(50),
---             activo BIT
---         );
 
---         INSERT @updated EXEC sp_usuario_crud
---             @idUsuario, @nombre, @apPaterno,
---             @apMaterno, @fechaNacimiento, @sexo,
---             @curp, @rfc, @telefono, @correo,
---             NULL, @idRol, 'UPDATE'
+---------------------------------
+-- Type Room STORED PROCEDURES --
+---------------------------------
 
---         UPDATE Direccion
---         SET calle = @calle, numExterior = @numeroExterior,
---             numInterior = @numeroInterior, colonia = @colonia,
---             estado = @estado, alcaldia = @alcaldia, codigoPostal = @codigoPostal
---         WHERE idUsuario = @idUsuario
 
---         UPDATE ContactoEmergencia
---         SET nombre = @nombreContacto, apPaterno = @apPaternoContacto,
---             apMaterno = @apMaternoContacto, telefono = @telefonoContacto
---         WHERE idUsuario = @idUsuario
+CREATE PROCEDURE sp_tipo_habitacion_crud
+@idTipoHabitacion INT,
+@nombre VARCHAR(50),
+@numCamas INT,
+@numPersonas INT,
+@precio MONEY,
+@accion VARCHAR(15)
+AS
+BEGIN
+	IF @accion = 'FINDALL'
+	BEGIN
+		SELECT * FROM TipoHabitacion 
+	END
+	ELSE IF @accion = 'INSERT'
+	BEGIN
+		DECLARE @inserted TABLE (
+            idTipoHabitacion INT,
+            nombre VARCHAR(50),
+            numCamas INT,
+			numPersonas INT,
+			precio MONEY
+        );
+        INSERT INTO TipoHabitacion(nombre,numCamas,numPersonas,precio)
+        OUTPUT INSERTED.*
+        INTO @inserted
+        VALUES (@nombre, @numCamas, @numPersonas, @precio)
 
---         SELECT * FROM @updated
---     END
-
---     ELSE IF @accion = 'DELETE'
---     BEGIN
---         DECLARE @deleted TABLE (
---             idUsuario INT,
---             nombre VARCHAR(50),
---             apPaterno VARCHAR(50),
---             apMaterno VARCHAR(50),
---             activo BIT
---         );
-
---         INSERT @deleted EXEC sp_usuario_crud
---             @idUsuario, NULL, NULL,
---             NULL, NULL, NULL,
---             NULL, NULL, NULL, NULL,
---             NULL, NULL, 'DELETE'
-
---         SELECT * FROM @deleted
---     END
--- END
+        SELECT * FROM @inserted
+	END
+END
