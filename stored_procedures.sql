@@ -510,7 +510,7 @@ GO
      ELSE IF @accion = 'FIND'
     BEGIN
         SELECT 
-		u.idUsuario, u.nombre, u.apPaterno, u.apMaterno, u.fechaNacimiento, u.sexo, u.curp, u.rfc, u.telefono, u.correo, u.fechaRegistro,
+		u.idUsuario, u.nombre, u.apPaterno, u.apMaterno, u.fechaNacimiento, u.sexo as genero, u.curp, u.rfc, u.telefono, u.correo, u.fechaRegistro,
 		d.calle, d.numExterior, d.numInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal  
 		FROM Usuario u 
 		INNER JOIN Direccion d
