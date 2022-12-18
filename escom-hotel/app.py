@@ -1422,6 +1422,173 @@ def type_room():
             if db:
                 db.close()
 
+
+@app.route('/api/v1/admin/typeroom/<int:typeroom_id>', methods=['GET','PUT','DELETE'])
+@jwt_required()
+def type_room_id(typeroom_id):
+    user_id = get_jwt_identity()['user_id']
+
+    if request.method == 'GET':
+        conn = db.connect()
+
+        try:
+
+            conn = db.connect()
+            if not conn:
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access role without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_tipo_habitacion_crud', (typeroom_id, None ,None ,None , None, 'FIND'))
+
+                response = cursor.fetchone()
+                return jsonify(response), 200
+        except OperationalError as e:
+                    return jsonify({'msg':f'There is no type room with id {typeroom_id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}) retrieved the type room with id {id}')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+    elif request.method == 'PUT':
+        data = request.get_json()
+
+        nombre_tipo = data['nombre'].lower()
+        camas_tipo = data['numCamas']
+        personas_tipo = data['numPersonas']
+        precio_tipo = data['precio']
+
+        if (
+            not nombre_tipo or not camas_tipo or not personas_tipo or not precio_tipo
+        ):
+            return jsonify({'msg': 'Missing type room data.'}), 400
+
+        try:
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access role without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_tipo_habitacion_crud', 
+                (typeroom_id, nombre_tipo.lower(), camas_tipo
+                ,personas_tipo , precio_tipo,'UPDATE'))
+                response = cursor.fetchone()
+                conn.commit()
+                return jsonify(response), 200
+
+        except OperationalError as e:
+                    return jsonify({'msg' : f'There is no type room with id {typeroom_id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> inserted the {nombre_tipo} type room into the type room table')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+    
+    elif request.method == 'DELETE':
+        conn = db.connect()
+
+        try:
+
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_tipo_habitacion_crud',
+                (
+                    typeroom_id, # idUsuario
+                    None, None, None, None, ## User data
+                    'DELETE' ## Action
+                ))
+                response = cursor.fetchone()
+                conn.commit()
+
+
+                return jsonify(response), 200
+
+        except OperationalError as e:
+                    return jsonify({'msg':f'There is no type room with id {typeroom_id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            conn.rollback()
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}) deleted the type room with id {typeroom_id}')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
 #########################
 # RECEPCIONIST SECTION #
 #######################

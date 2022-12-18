@@ -598,4 +598,46 @@ BEGIN
 
         SELECT * FROM @inserted
 	END
+	ELSE IF @accion = 'FIND'
+	BEGIN
+		SELECT * FROM TipoHabitacion where idTipoHabitacion = @idTipoHabitacion
+	END
+	ELSE IF @accion = 'UPDATE'
+	BEGIN
+		DECLARE @updated TABLE (
+            idTipoHabitacion INT,
+            nombre VARCHAR(50),
+            numCamas INT,
+            numPersonas INT,
+            precio MONEY
+        );
+
+        UPDATE TipoHabitacion 
+        SET nombre = @nombre,
+        numCamas = @numCamas,
+        numPersonas = @numPersonas,
+        precio = @precio
+        OUTPUT INSERTED.*
+        INTO @updated
+        WHERE idTipoHabitacion = @idTipoHabitacion
+
+        SELECT * FROM @updated
+	END
+	ELSE IF @accion = 'DELETE'
+    BEGIN
+        DECLARE @deleted TABLE (
+            idRol INT,
+            nombre VARCHAR(50),
+            numCamas INT,
+            numPersonas INT,
+            precio MONEY
+        );
+
+        DELETE FROM TipoHabitacion 
+        OUTPUT DELETED.*
+        INTO @deleted
+        WHERE idTipoHabitacion = @idTipoHabitacion
+
+        SELECT * FROM @deleted
+    END
 END
