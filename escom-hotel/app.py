@@ -1589,6 +1589,286 @@ def type_room_id(typeroom_id):
             if db:
                 db.close()
 
+        
+###### Room
+@app.route('/api/v1/admin/room', methods=['GET','POST'])
+@jwt_required()
+def room():
+    user_id = get_jwt_identity()['user_id']
+
+    if request.method == 'GET':
+        try:
+            conn = db.connect()
+
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access role without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+
+                cursor.callproc('sp_habitacion_crud', (None, None ,None ,None,None , 'FINDALL'))
+                response = cursor.fetchall()
+
+                return jsonify(response), 200
+
+        except OperationalError as e:
+                    return jsonify({}), 200
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info( f'User ID({user_id}) retrieved the room table type')
+            if cursor:
+                cursor.close()
+            if db:
+                conn.close()
+    
+    elif request.method == 'POST':
+        data = request.get_json()
+
+        room_name = data['nombre'].lower()
+        room_descripcion = data['descripcion'].lower()
+        room_idtipo_Habitacion = data['idTipoHabitacion']
+
+        if( not room_name
+            or not room_descripcion
+            or not room_idtipo_Habitacion
+        ):
+            return jsonify({'msg' : 'Missing data room'}), 400
+
+        try:
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access role without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_habitacion_crud', (None, 
+                room_name, room_descripcion, 1,
+                room_idtipo_Habitacion, 'INSERT'))
+
+                response = cursor.fetchone()
+                conn.commit()
+
+                return jsonify(response), 201
+
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}) inserted the {room_name} room into the room table')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+@app.route('/api/v1/admin/room/<int:room_id>', methods=['GET','PUT','DELETE'])
+@jwt_required()
+def room_id(room_id):
+    user_id = get_jwt_identity()['user_id']
+
+    if request.method == 'GET':
+        conn = db.connect()
+
+        try:
+
+            conn = db.connect()
+            if not conn:
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access role without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_habitacion_crud', (room_id, None ,None ,None , None, 'FIND'))
+
+                response = cursor.fetchone()
+                return jsonify(response), 200
+        except OperationalError as e:
+                    return jsonify({'msg':f'There is no room with id {room_id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}) retrieved the type room with id {id}')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+    
+    elif request.method == 'PUT':
+        data = request.get_json()
+
+        room_name = data['nombre'].lower()
+        room_descripcion = data['descripcion'].lower()
+        room_idtipo_Habitacion = data['idTipoHabitacion']
+
+        if (
+            not room_name or not room_descripcion or not room_idtipo_Habitacion
+        ):
+            return jsonify({'msg': 'Missing room data.'}), 400
+
+        try:
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access role without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_habitacion_crud', 
+                (room_id, room_name.lower(), room_descripcion.lower()
+                ,1 , room_idtipo_Habitacion,'UPDATE'))
+                response = cursor.fetchone()
+                conn.commit()
+                return jsonify(response), 200
+
+        except OperationalError as e:
+                    return jsonify({'msg' : f'There is no room with id {room_id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> inserted the {room_name} room into the room table')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+
+    elif request.method == 'DELETE':
+        conn = db.connect()
+
+        try:
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
+
+                user_role = cursor.fetchone()['rol'].lower()
+
+                if not user_role or user_role != "administrador":
+                    app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
+                    return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
+
+                cursor.callproc('sp_habitacion_crud',
+                (
+                    room_id, # idUsuario
+                    None, None, None, None, ## User data
+                    'DELETE' ## Action
+                ))
+                response = cursor.fetchone()
+                conn.commit()
+
+
+                return jsonify(response), 200
+
+        except OperationalError as e:
+                    return jsonify({'msg':f'There is no room with id {room_id}'}), 404
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            conn.rollback()
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}) deleted the room with id {room_id}')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+
+
+
 #########################
 # RECEPCIONIST SECTION #
 #######################

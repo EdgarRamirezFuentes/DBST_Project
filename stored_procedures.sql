@@ -331,12 +331,20 @@ BEGIN
 
     ELSE IF @accion = 'FIND'
     BEGIN
-        SELECT s.idUsuario, CONCAT(s.nombre, ' ', s.apPaterno, ' ', s.apMaterno) AS Nombre, a.nombre AS area
+        SELECT s.idUsuario, CONCAT(s.nombre, ' ', s.apPaterno, ' ', s.apMaterno) AS Nombre, 
+        s.fechaNacimiento ,s.sexo ,s.curp ,s.rfc, s.telefono, s.correo s,
+        a.nombre AS area,
+        d.calle, d.numExterior, d.numInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal,
+        CONCAT(ce.nombre,' ',ce.apPaterno,' ',ce.apMaterno) AS 'Nombre contacto emergencia',ce.telefono 
         FROM Usuario s
         INNER JOIN Trabajador t
         ON s.idUsuario = t.idUsuario
         INNER JOIN Area a
         ON t.idArea = a.idArea
+        INNER JOIN Direccion d 
+        ON d.idUsuario = s.idUsuario 
+        INNER JOIN ContactoEmergencia ce 
+        ON ce.idUsuario = s.idUsuario 
         WHERE s.activo = 1
         AND s.idUsuario = @idUsuario
     END
@@ -641,4 +649,165 @@ BEGIN
 
         SELECT * FROM @deleted
     END
+END
+
+---------------------------------
+-- Type Room STORED PROCEDURES --
+---------------------------------
+
+CREATE PROCEDURE sp_habitacion_crud
+@idHabitacion INT,
+@nombre VARCHAR(50),
+@numCamas INT,
+@numPersonas INT,
+@precio MONEY,
+@accion VARCHAR(15)
+AS
+BEGIN
+	IF @accion = 'FINDALL'
+	BEGIN
+		SELECT * FROM TipoHabitacion 
+	END
+	ELSE IF @accion = 'INSERT'
+	BEGIN
+		DECLARE @inserted TABLE (
+            idTipoHabitacion INT,
+            nombre VARCHAR(50),
+            numCamas INT,
+			numPersonas INT,
+			precio MONEY
+        );
+        INSERT INTO TipoHabitacion(nombre,numCamas,numPersonas,precio)
+        OUTPUT INSERTED.*
+        INTO @inserted
+        VALUES (@nombre, @numCamas, @numPersonas, @precio)
+
+        SELECT * FROM @inserted
+	END
+	ELSE IF @accion = 'FIND'
+	BEGIN
+		SELECT * FROM TipoHabitacion where idTipoHabitacion = @idTipoHabitacion
+	END
+	ELSE IF @accion = 'UPDATE'
+	BEGIN
+		DECLARE @updated TABLE (
+            idTipoHabitacion INT,
+            nombre VARCHAR(50),
+            numCamas INT,
+            numPersonas INT,
+            precio MONEY
+        );
+
+        UPDATE TipoHabitacion 
+        SET nombre = @nombre,
+        numCamas = @numCamas,
+        numPersonas = @numPersonas,
+        precio = @precio
+        OUTPUT INSERTED.*
+        INTO @updated
+        WHERE idTipoHabitacion = @idTipoHabitacion
+
+        SELECT * FROM @updated
+	END
+	ELSE IF @accion = 'DELETE'
+    BEGIN
+        DECLARE @deleted TABLE (
+            idRol INT,
+            nombre VARCHAR(50),
+            numCamas INT,
+            numPersonas INT,
+            precio MONEY
+        );
+
+        DELETE FROM TipoHabitacion 
+        OUTPUT DELETED.*
+        INTO @deleted
+        WHERE idTipoHabitacion = @idTipoHabitacion
+
+        SELECT * FROM @deleted
+    END
+END
+
+
+---------------------------------
+---- Room STORED PROCEDURES -----
+---------------------------------
+
+CREATE PROCEDURE sp_habitacion_crud
+@idHabitacion INT,
+@nombre VARCHAR(100),
+@descripcion VARCHAR(100),
+@isActive BIT,
+@idTipoHabitacion INT,
+@accion VARCHAR(50)
+AS
+BEGIN
+	IF @accion = 'FINDALL'
+	BEGIN
+		SELECT * FROM Habitacion 
+	END
+	ELSE IF @accion = 'INSERT'
+	BEGIN
+		DECLARE @inserted TABLE (
+            idHabitacion INT,
+            nombre VARCHAR(50),
+            descripcion VARCHAR(50),
+            isActive BIT,
+            idTipoHabitacion INT
+        );
+
+        INSERT INTO Habitacion (nombre,descripcion,isActive,idTipoHabitacion)
+        OUTPUT INSERTED.*
+        INTO @inserted
+        VALUES (@nombre,@descripcion,@isActive,@idTipoHabitacion)
+
+        SELECT * FROM @inserted
+	END
+    ELSE IF @accion = 'FIND'
+	BEGIN
+		SELECT h.idHabitacion,h.nombre,h.descripcion, th.nombre AS 'Tipo de habitacion', th.numCamas, th.numPersonas, th.precio  
+		FROM Habitacion h
+		INNER JOIN TipoHabitacion th 
+		ON th.idTipoHabitacion = h.idTipoHabitacion 
+		where h.idHabitacion  = @idHabitacion
+		and h.isActive = 1
+	END
+	ELSE IF @accion = 'UPDATE'
+	BEGIN
+		DECLARE @updated TABLE (
+            idHabitacion INT,
+            nombre VARCHAR(100),
+            descripcion VARCHAR(100),
+            isActive BIT,
+            idTipoHabitacion INT
+        );
+
+        UPDATE Habitacion 
+        SET nombre = @nombre,
+        descripcion  = @descripcion,
+        isActive = @isActive,
+        idTipoHabitacion  = @idTipoHabitacion
+        OUTPUT INSERTED.*
+        INTO @updated
+        WHERE idHabitacion = @idHabitacion
+
+        SELECT * FROM @updated
+	END
+    ELSE IF @accion = 'DELETE'
+	BEGIN
+		DECLARE @deleted TABLE (
+            idHabitacion INT,
+            nombre VARCHAR(100),
+            descripcion VARCHAR(100),
+            isActive BIT,
+            idTipoHabitacion INT
+        );
+
+        DELETE FROM Habitacion 
+        OUTPUT DELETED.*
+        INTO @deleted
+        WHERE idHabitacion = @idHabitacion
+
+        SELECT * FROM @deleted
+	END
 END
