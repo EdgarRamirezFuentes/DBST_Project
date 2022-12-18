@@ -501,12 +501,13 @@ GO
 
      ELSE IF @accion = 'FIND'
     BEGIN
-        SELECT s.idUsuario, CONCAT(s.nombre, ' ', s.apPaterno, ' ', s.apMaterno) AS Nombre, s.telefono ,s.correo
-        FROM Usuario s
-        INNER JOIN Cliente c
-        ON s.idUsuario = c.idUsuario
-        WHERE s.activo = 1
-        AND s.idUsuario = @idUsuario
+        SELECT 
+		u.idUsuario, u.nombre, u.apPaterno, u.apMaterno, u.fechaNacimiento, u.sexo, u.curp, u.rfc, u.telefono, u.correo, u.fechaRegistro,
+		d.calle, d.numExterior, d.numInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal  
+		FROM Usuario u 
+		INNER JOIN Direccion d
+		ON d.idUsuario = u.idUsuario 
+		where u.idUsuario = @idUsuario
     END
 
     ELSE IF @accion = 'UPDATE'
