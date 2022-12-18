@@ -332,7 +332,7 @@ BEGIN
     ELSE IF @accion = 'FIND'
     BEGIN
         SELECT s.idUsuario, CONCAT(s.nombre, ' ', s.apPaterno, ' ', s.apMaterno) AS Nombre, 
-        s.fechaNacimiento ,s.sexo ,s.curp ,s.rfc, s.telefono, s.correo s,
+        s.fechaNacimiento ,s.sexo as genero ,s.curp ,s.rfc, s.telefono, s.correo s,
         a.nombre AS area,
         d.calle, d.numExterior, d.numInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal,
         CONCAT(ce.nombre,' ',ce.apPaterno,' ',ce.apMaterno) AS 'Nombre contacto emergencia',ce.telefono 
@@ -658,7 +658,7 @@ GO
 -- Type Room STORED PROCEDURES --
 ---------------------------------
 
-CREATE PROCEDURE sp_habitacion_crud
+CREATE PROCEDURE sp_tipo_habitacion_crud
 @idHabitacion INT,
 @nombre VARCHAR(50),
 @numCamas INT,
