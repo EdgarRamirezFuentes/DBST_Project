@@ -573,6 +573,7 @@ GO
     END
 END
 
+GO
 ---------------------------------
 -- Type Room STORED PROCEDURES --
 ---------------------------------
@@ -651,6 +652,8 @@ BEGIN
     END
 END
 
+GO
+
 ---------------------------------
 -- Type Room STORED PROCEDURES --
 ---------------------------------
@@ -661,6 +664,7 @@ CREATE PROCEDURE sp_habitacion_crud
 @numCamas INT,
 @numPersonas INT,
 @precio MONEY,
+@idTipoHabitacion INT,
 @accion VARCHAR(15)
 AS
 BEGIN
@@ -728,6 +732,7 @@ BEGIN
     END
 END
 
+GO
 
 ---------------------------------
 ---- Room STORED PROCEDURES -----
@@ -811,3 +816,5 @@ BEGIN
         SELECT * FROM @deleted
 	END
 END
+
+GO
