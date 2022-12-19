@@ -332,10 +332,10 @@ BEGIN
     ELSE IF @accion = 'FIND'
     BEGIN
         SELECT s.idUsuario, s.nombre, s.apPaterno, s.apMaterno , 
-        s.fechaNacimiento ,s.sexo as genero ,s.curp ,s.rfc, s.telefono, s.correo s,
+        s.fechaNacimiento ,s.sexo AS genero ,s.curp ,s.rfc, s.telefono, s.correo,
         a.nombre AS area,
-        d.calle, d.numExterior, d.numInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal,
-        ce.nombre AS nombreContactoEmergencia, ce.apPaterno AS apPaternoContactoEmergencia, ce.apMaterno AS apMaternoContactoEmergencia, ce.telefono 
+        d.calle, d.numExterior AS numeroExterior, d.numInterior AS numeroInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal,
+        ce.nombre AS nombreContactoEmergencia, ce.apPaterno AS apPaternoContactoEmergencia, ce.apMaterno AS apMaternoContactoEmergencia, ce.telefono AS telefonoContactoEmergencia 
         FROM Usuario s
         INNER JOIN Trabajador t
         ON s.idUsuario = t.idUsuario
