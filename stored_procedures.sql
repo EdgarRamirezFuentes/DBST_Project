@@ -511,12 +511,17 @@ GO
      ELSE IF @accion = 'FIND'
     BEGIN
         SELECT 
-		u.idUsuario, u.nombre, u.apPaterno, u.apMaterno, u.fechaNacimiento, u.sexo as genero, u.curp, u.rfc, u.telefono, u.correo, u.fechaRegistro,
-		d.calle, d.numExterior, d.numInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal  
+		u.idUsuario, u.nombre, u.apPaterno, u.apMaterno, u.fechaNacimiento, u.sexo AS genero, u.curp, u.rfc, u.telefono, u.correo, u.fechaRegistro,
+		d.calle, d.numExterior AS numeroExterior, d.numInterior AS numeroInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal,
+        ce.nombre AS nombreContactoEmergencia, ce.apPaterno AS apPaternoContactoEmergencia, ce.apMaterno AS apMaternoContactoEmergencia, 
+        ce.telefono AS telefonoContactoEmergencia
 		FROM Usuario u 
 		INNER JOIN Direccion d
-		ON d.idUsuario = u.idUsuario 
-		where u.idUsuario = @idUsuario
+		ON d.idUsuario = u.idUsuario
+        INNER JOIN ContactoEmergencia ce 
+        ON ce.idUsuario = u.idUsuario 
+		WHERE u.activo = 1
+        AND u.idUsuario = @idUsuario
     END
 
     ELSE IF @accion = 'UPDATE'
