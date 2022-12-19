@@ -336,7 +336,7 @@ BEGIN
         a.nombre AS area,
         d.calle, d.numExterior AS numeroExterior, d.numInterior AS numeroInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal,
         ce.nombre AS nombreContactoEmergencia, ce.apPaterno AS apPaternoContactoEmergencia, ce.apMaterno AS apMaternoContactoEmergencia, 
-        ce.telefono AS telefonoContactoEmergencia, t.sueldo AS salario
+        ce.telefono AS telefonoContactoEmergencia, t.sueldo AS salario, t.idArea
         FROM Usuario s
         INNER JOIN Trabajador t
         ON s.idUsuario = t.idUsuario
