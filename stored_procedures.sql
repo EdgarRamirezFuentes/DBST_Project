@@ -331,11 +331,11 @@ BEGIN
 
     ELSE IF @accion = 'FIND'
     BEGIN
-        SELECT s.idUsuario, CONCAT(s.nombre, ' ', s.apPaterno, ' ', s.apMaterno) AS Nombre, 
+        SELECT s.idUsuario, s.nombre, s.apPaterno, s.apMaterno , 
         s.fechaNacimiento ,s.sexo as genero ,s.curp ,s.rfc, s.telefono, s.correo s,
         a.nombre AS area,
         d.calle, d.numExterior, d.numInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal,
-        CONCAT(ce.nombre,' ',ce.apPaterno,' ',ce.apMaterno) AS 'Nombre contacto emergencia',ce.telefono 
+        ce.nombre AS nombreContactoEmergencia, ce.apPaterno AS apPaternoContactoEmergencia, ce.apMaterno AS apMaternoContactoEmergencia, ce.telefono 
         FROM Usuario s
         INNER JOIN Trabajador t
         ON s.idUsuario = t.idUsuario
