@@ -661,86 +661,6 @@ END
 GO
 
 ---------------------------------
--- Type Room STORED PROCEDURES --
----------------------------------
-
-CREATE PROCEDURE sp_tipo_habitacion_crud
-@idHabitacion INT,
-@nombre VARCHAR(50),
-@numCamas INT,
-@numPersonas INT,
-@precio MONEY,
-@idTipoHabitacion INT,
-@accion VARCHAR(15)
-AS
-BEGIN
-	IF @accion = 'FINDALL'
-	BEGIN
-		SELECT * FROM TipoHabitacion 
-	END
-	ELSE IF @accion = 'INSERT'
-	BEGIN
-		DECLARE @inserted TABLE (
-            idTipoHabitacion INT,
-            nombre VARCHAR(50),
-            numCamas INT,
-			numPersonas INT,
-			precio MONEY
-        );
-        INSERT INTO TipoHabitacion(nombre,numCamas,numPersonas,precio)
-        OUTPUT INSERTED.*
-        INTO @inserted
-        VALUES (@nombre, @numCamas, @numPersonas, @precio)
-
-        SELECT * FROM @inserted
-	END
-	ELSE IF @accion = 'FIND'
-	BEGIN
-		SELECT * FROM TipoHabitacion where idTipoHabitacion = @idTipoHabitacion
-	END
-	ELSE IF @accion = 'UPDATE'
-	BEGIN
-		DECLARE @updated TABLE (
-            idTipoHabitacion INT,
-            nombre VARCHAR(50),
-            numCamas INT,
-            numPersonas INT,
-            precio MONEY
-        );
-
-        UPDATE TipoHabitacion 
-        SET nombre = @nombre,
-        numCamas = @numCamas,
-        numPersonas = @numPersonas,
-        precio = @precio
-        OUTPUT INSERTED.*
-        INTO @updated
-        WHERE idTipoHabitacion = @idTipoHabitacion
-
-        SELECT * FROM @updated
-	END
-	ELSE IF @accion = 'DELETE'
-    BEGIN
-        DECLARE @deleted TABLE (
-            idRol INT,
-            nombre VARCHAR(50),
-            numCamas INT,
-            numPersonas INT,
-            precio MONEY
-        );
-
-        DELETE FROM TipoHabitacion 
-        OUTPUT DELETED.*
-        INTO @deleted
-        WHERE idTipoHabitacion = @idTipoHabitacion
-
-        SELECT * FROM @deleted
-    END
-END
-
-GO
-
----------------------------------
 ---- Room STORED PROCEDURES -----
 ---------------------------------
 
@@ -755,7 +675,11 @@ AS
 BEGIN
 	IF @accion = 'FINDALL'
 	BEGIN
-		SELECT * FROM Habitacion 
+		SELECT h.idHabitacion, h.nombre, h.descripcion, h.isActive, th.nombre as 'tipoHabitacion', h.idTipoHabitacion 
+        FROM Habitacion h
+        INNER JOIN TipoHabitacion th 
+		ON th.idTipoHabitacion = h.idTipoHabitacion 
+		WHERE h.isActive = 1
 	END
 	ELSE IF @accion = 'INSERT'
 	BEGIN
@@ -776,7 +700,7 @@ BEGIN
 	END
     ELSE IF @accion = 'FIND'
 	BEGIN
-		SELECT h.idHabitacion,h.nombre,h.descripcion, th.nombre AS 'Tipo de habitacion', th.numCamas, th.numPersonas, th.precio  
+		SELECT h.idHabitacion,h.nombre,h.descripcion, th.nombre AS 'tipoHabitacion', th.numCamas, th.numPersonas, th.precio  
 		FROM Habitacion h
 		INNER JOIN TipoHabitacion th 
 		ON th.idTipoHabitacion = h.idTipoHabitacion 
