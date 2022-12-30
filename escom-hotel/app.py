@@ -1190,7 +1190,7 @@ def customer_by_id(customer_id):
             or not customer_emergency_contact_phone
         ):
             return jsonify({'msg': 'Missing emergency contact data.'}), 400
-        
+
         try:
             conn = db.connect()
             if not conn:
@@ -1246,7 +1246,7 @@ def customer_by_id(customer_id):
                 cursor.close()
             if db:
                 db.close()
-    
+
     if request.method == 'DELETE':
         conn = db.connect()
 
@@ -1308,7 +1308,7 @@ def customer_by_id(customer_id):
                 cursor.close()
             if db:
                 db.close()
-        
+
 ###### Type Room
 @app.route('/api/v1/admin/typeroom', methods=['GET','POST'])
 @jwt_required()
@@ -1359,7 +1359,7 @@ def type_room():
                 cursor.close()
             if db:
                 conn.close()
-    
+
     elif request.method == 'POST':
         data = request.get_json()
 
@@ -1393,8 +1393,8 @@ def type_room():
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
                     return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
-                cursor.callproc('sp_tipo_habitacion_crud', (None, 
-                type_room_name, type_room_camas, 
+                cursor.callproc('sp_tipo_habitacion_crud', (None,
+                type_room_name, type_room_camas,
                 type_room_personas, type_room_precio, 'INSERT'))
 
                 response = cursor.fetchone()
@@ -1503,7 +1503,7 @@ def type_room_id(typeroom_id):
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
                     return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
-                cursor.callproc('sp_tipo_habitacion_crud', 
+                cursor.callproc('sp_tipo_habitacion_crud',
                 (typeroom_id, nombre_tipo.lower(), camas_tipo
                 ,personas_tipo , precio_tipo,'UPDATE'))
                 response = cursor.fetchone()
@@ -1531,7 +1531,7 @@ def type_room_id(typeroom_id):
                 cursor.close()
             if db:
                 db.close()
-    
+
     elif request.method == 'DELETE':
         conn = db.connect()
 
@@ -1589,7 +1589,7 @@ def type_room_id(typeroom_id):
             if db:
                 db.close()
 
-        
+
 ###### Room
 @app.route('/api/v1/admin/room', methods=['GET','POST'])
 @jwt_required()
@@ -1640,7 +1640,7 @@ def room():
                 cursor.close()
             if db:
                 conn.close()
-    
+
     elif request.method == 'POST':
         data = request.get_json()
 
@@ -1672,7 +1672,7 @@ def room():
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
                     return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
-                cursor.callproc('sp_habitacion_crud', (None, 
+                cursor.callproc('sp_habitacion_crud', (None,
                 room_name, room_descripcion, 1,
                 room_idtipo_Habitacion, 'INSERT'))
 
@@ -1749,7 +1749,7 @@ def room_id(room_id):
                 cursor.close()
             if db:
                 db.close()
-    
+
     elif request.method == 'PUT':
         data = request.get_json()
 
@@ -1780,7 +1780,7 @@ def room_id(room_id):
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
                     return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
-                cursor.callproc('sp_habitacion_crud', 
+                cursor.callproc('sp_habitacion_crud',
                 (room_id, room_name.lower(), room_descripcion.lower()
                 ,1 , room_idtipo_Habitacion,'UPDATE'))
                 response = cursor.fetchone()
@@ -1841,7 +1841,6 @@ def room_id(room_id):
                 response = cursor.fetchone()
                 conn.commit()
 
-
                 return jsonify(response), 200
 
         except OperationalError as e:
@@ -1867,8 +1866,6 @@ def room_id(room_id):
                 db.close()
 
 
-
-
 #########################
 # RECEPCIONIST SECTION #
 #######################
@@ -1884,10 +1881,180 @@ def room_id(room_id):
 ###################
 
 
-
 #################
 # USER SECTION #
 ###############
+
+
+##########################
+# RESERVATION ENDPOINTS #
+########################
+
+@app.route('/api/v1/reservation', methods=['GET', 'POST'])
+@jwt_required()
+def reservation():
+    user_id = get_jwt_identity()['user_id']
+
+    if request.method == 'GET':
+        try:
+            conn = db.connect()
+
+            active = request.args.get('active', None)
+
+            print(active)
+
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                cursor.callproc('sp_reservacion_crud', (None, None, None, None, None, 'FINDALL' if not active else 'FINDALLACTIVE'))
+                response = cursor.fetchall()
+
+                return jsonify(response), 200
+        except OperationalError as e:
+                    return jsonify({}), 200
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info( f'User ID({user_id}) retrieved the reservations')
+            if cursor:
+                cursor.close()
+            if db:
+                conn.close()
+
+    if request.method == 'POST':
+        try:
+            conn = db.connect()
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                data = request.get_json()
+
+                if not data:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+                begin_date = data['begin_date']
+                end_date = data['end_date']
+                room_id = data['room_id']
+                client_id = data['client_id']
+                current_date = datetime.now().strftime('%Y-%m-%d')
+
+
+                if not begin_date or not end_date or not room_id:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+                if begin_date < current_date or end_date < current_date:
+                    return jsonify({'msg': 'Invalid dates.'}), 400
+
+                if begin_date > end_date:
+                    return jsonify({'msg': 'Invalid dates.'}), 400
+
+                cursor.callproc('sp_reservacion_crud',
+                (
+                    None,
+                    begin_date,
+                    end_date,
+                    room_id,
+                    client_id,
+                    'INSERT'
+                ))
+                response = cursor.fetchone()
+                conn.commit()
+
+                return jsonify(response), 200
+
+        except (IntegrityError, DatabaseError, InternalError,
+                ProgrammingError, NotSupportedError, OperationalError,
+                ColumnsWithoutNamesError) as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except Warning as w:
+            app.logger.warning(str(w))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        except DataError as e:
+            conn.rollback()
+            return jsonify({'message' : f'Error: {e}' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> registered a new reservation')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+@app.route('/api/v1/reservation/get-available-rooms', methods=['GET'])
+@jwt_required()
+def get_available_rooms():
+    user_id = get_jwt_identity()['user_id']
+
+    try:
+        conn = db.connect()
+        if not conn:
+            app.logger.critical( f'Database unavailable')
+            return jsonify({'msg': 'Service unavailable.'}), 500
+
+        with conn.cursor(as_dict=True) as cursor:
+            if not cursor:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            dates = request.get_json()
+
+            if not dates:
+                return jsonify({'msg': 'Missing dates.'}), 400
+
+            begin_date = dates['begin_date']
+            end_date = dates['end_date']
+
+            if not begin_date or not end_date:
+                return jsonify({'msg': 'Missing dates.'}), 400
+
+            current_date = datetime.now().strftime('%Y-%m-%d')
+
+            if begin_date < current_date or end_date < current_date:
+                return jsonify({'msg': 'Invalid dates.'}), 400
+
+            if begin_date > end_date:
+                return jsonify({'msg': 'Invalid dates.'}), 400
+
+            cursor.callproc('sp_obtenerHabitacionesDisponibles', (begin_date, end_date))
+
+            response = cursor.fetchall()
+
+            return jsonify(response), 200
+
+    except OperationalError as e:
+                    return jsonify({}), 200
+    except (IntegrityError, DatabaseError, InternalError,
+            ProgrammingError, NotSupportedError,
+            ColumnsWithoutNamesError) as e:
+        app.logger.error(str(e))
+        return jsonify({'message' : 'Error' }), 500
+    except Warning as w:
+        app.logger.warning(str(w))
+        return jsonify({'message' : 'Error' }), 500
+    except DataError as e:
+        return jsonify({'message' : f'Error: {e}' }), 500
+    finally:
+        app.logger.info( f'User ID({user_id}) retrieved the available rooms')
+        if cursor:
+            cursor.close()
+        if db:
+            conn.close()
 
 
 if __name__ == '__main__':

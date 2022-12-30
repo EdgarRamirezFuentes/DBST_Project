@@ -331,21 +331,21 @@ BEGIN
 
     ELSE IF @accion = 'FIND'
     BEGIN
-        SELECT s.idUsuario, s.nombre, s.apPaterno, s.apMaterno , 
+        SELECT s.idUsuario, s.nombre, s.apPaterno, s.apMaterno ,
         s.fechaNacimiento ,s.sexo AS genero ,s.curp ,s.rfc, s.telefono, s.correo,
         a.nombre AS area,
         d.calle, d.numExterior AS numeroExterior, d.numInterior AS numeroInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal,
-        ce.nombre AS nombreContactoEmergencia, ce.apPaterno AS apPaternoContactoEmergencia, ce.apMaterno AS apMaternoContactoEmergencia, 
+        ce.nombre AS nombreContactoEmergencia, ce.apPaterno AS apPaternoContactoEmergencia, ce.apMaterno AS apMaternoContactoEmergencia,
         ce.telefono AS telefonoContactoEmergencia, t.sueldo AS salario, t.idArea
         FROM Usuario s
         INNER JOIN Trabajador t
         ON s.idUsuario = t.idUsuario
         INNER JOIN Area a
         ON t.idArea = a.idArea
-        INNER JOIN Direccion d 
-        ON d.idUsuario = s.idUsuario 
-        INNER JOIN ContactoEmergencia ce 
-        ON ce.idUsuario = s.idUsuario 
+        INNER JOIN Direccion d
+        ON d.idUsuario = s.idUsuario
+        INNER JOIN ContactoEmergencia ce
+        ON ce.idUsuario = s.idUsuario
         WHERE s.activo = 1
         AND s.idUsuario = @idUsuario
     END
@@ -510,16 +510,16 @@ GO
 
      ELSE IF @accion = 'FIND'
     BEGIN
-        SELECT 
+        SELECT
 		u.idUsuario, u.nombre, u.apPaterno, u.apMaterno, u.fechaNacimiento, u.sexo AS genero, u.curp, u.rfc, u.telefono, u.correo, u.fechaRegistro,
 		d.calle, d.numExterior AS numeroExterior, d.numInterior AS numeroInterior, d.colonia, d.estado, d.alcaldia, d.codigoPostal,
-        ce.nombre AS nombreContactoEmergencia, ce.apPaterno AS apPaternoContactoEmergencia, ce.apMaterno AS apMaternoContactoEmergencia, 
+        ce.nombre AS nombreContactoEmergencia, ce.apPaterno AS apPaternoContactoEmergencia, ce.apMaterno AS apMaternoContactoEmergencia,
         ce.telefono AS telefonoContactoEmergencia
-		FROM Usuario u 
+		FROM Usuario u
 		INNER JOIN Direccion d
 		ON d.idUsuario = u.idUsuario
-        INNER JOIN ContactoEmergencia ce 
-        ON ce.idUsuario = u.idUsuario 
+        INNER JOIN ContactoEmergencia ce
+        ON ce.idUsuario = u.idUsuario
 		WHERE u.activo = 1
         AND u.idUsuario = @idUsuario
     END
@@ -596,7 +596,7 @@ AS
 BEGIN
 	IF @accion = 'FINDALL'
 	BEGIN
-		SELECT * FROM TipoHabitacion 
+		SELECT * FROM TipoHabitacion
 	END
 	ELSE IF @accion = 'INSERT'
 	BEGIN
@@ -628,7 +628,7 @@ BEGIN
             precio MONEY
         );
 
-        UPDATE TipoHabitacion 
+        UPDATE TipoHabitacion
         SET nombre = @nombre,
         numCamas = @numCamas,
         numPersonas = @numPersonas,
@@ -649,7 +649,7 @@ BEGIN
             precio MONEY
         );
 
-        DELETE FROM TipoHabitacion 
+        DELETE FROM TipoHabitacion
         OUTPUT DELETED.*
         INTO @deleted
         WHERE idTipoHabitacion = @idTipoHabitacion
@@ -675,10 +675,10 @@ AS
 BEGIN
 	IF @accion = 'FINDALL'
 	BEGIN
-		SELECT h.idHabitacion, h.nombre, h.descripcion, h.isActive, th.nombre as 'tipoHabitacion', h.idTipoHabitacion 
+		SELECT h.idHabitacion, h.nombre, h.descripcion, h.isActive, th.nombre as 'tipoHabitacion', h.idTipoHabitacion
         FROM Habitacion h
-        INNER JOIN TipoHabitacion th 
-		ON th.idTipoHabitacion = h.idTipoHabitacion 
+        INNER JOIN TipoHabitacion th
+		ON th.idTipoHabitacion = h.idTipoHabitacion
 		WHERE h.isActive = 1
 	END
 	ELSE IF @accion = 'INSERT'
@@ -700,10 +700,10 @@ BEGIN
 	END
     ELSE IF @accion = 'FIND'
 	BEGIN
-		SELECT h.idHabitacion,h.nombre,h.descripcion, th.nombre AS 'tipoHabitacion', th.numCamas, th.numPersonas, th.precio  
+		SELECT h.idHabitacion,h.nombre,h.descripcion, th.nombre AS 'tipoHabitacion', th.numCamas, th.numPersonas, th.precio
 		FROM Habitacion h
-		INNER JOIN TipoHabitacion th 
-		ON th.idTipoHabitacion = h.idTipoHabitacion 
+		INNER JOIN TipoHabitacion th
+		ON th.idTipoHabitacion = h.idTipoHabitacion
 		where h.idHabitacion  = @idHabitacion
 		and h.isActive = 1
 	END
@@ -717,7 +717,7 @@ BEGIN
             idTipoHabitacion INT
         );
 
-        UPDATE Habitacion 
+        UPDATE Habitacion
         SET nombre = @nombre,
         descripcion  = @descripcion,
         isActive = @isActive,
@@ -738,13 +738,151 @@ BEGIN
             idTipoHabitacion INT
         );
 
-        DELETE FROM Habitacion 
+        DELETE FROM Habitacion
         OUTPUT DELETED.*
         INTO @deleted
         WHERE idHabitacion = @idHabitacion
 
         SELECT * FROM @deleted
 	END
+END
+
+GO
+
+
+----------------------------
+-- RESERVATION PROCEDURES --
+----------------------------
+
+CREATE PROCEDURE sp_reservacion_crud
+@idReservacion INT,
+@fechaInicio DATE,
+@fechaFin DATE,
+@idHabitacion INT,
+@idCliente INT,
+@accion VARCHAR(50)
+AS
+BEGIN
+    IF @accion = 'FINDALL'
+    BEGIN
+        SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
+        h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
+        FROM Reservacion r
+        INNER JOIN Habitacion h
+        ON h.idHabitacion = r.idHabitacion
+        INNER JOIN Cliente c
+        ON c.idCliente = r.idCliente
+        INNER JOIN Usuario u
+        ON u.idUsuario = c.idUsuario
+        WHERE r.fechaFin >= GETDATE()
+        ORDER BY r.fechaInicio DESC
+    END
+    ELSE IF @accion = 'FINDALLACTIVE'
+    BEGIN
+        SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
+        h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
+        FROM Reservacion r
+        INNER JOIN Habitacion h
+        ON h.idHabitacion = r.idHabitacion
+        INNER JOIN Cliente c
+        ON c.idCliente = r.idCliente
+        INNER JOIN Usuario u
+        ON u.idUsuario = c.idUsuario
+        WHERE r.fechaFin >= GETDATE()
+        ORDER BY r.fechaInicio DESC
+    END
+    ELSE IF @accion = 'FINDALLBYUSER'
+    BEGIN
+        SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
+        h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
+        FROM Reservacion r
+        INNER JOIN Habitacion h
+        ON h.idHabitacion = r.idHabitacion
+        INNER JOIN Cliente c
+        ON c.idCliente = r.idCliente
+        INNER JOIN Usuario u
+        ON u.idUsuario = c.idUsuario
+        WHERE r.idCliente = @idCliente
+        ORDER BY r.fechaInicio DESC
+    END
+    ELSE IF @accion = 'INSERT'
+    BEGIN
+        DECLARE @inserted TABLE (
+            idReservacion INT,
+            fechaInicio DATE,
+            fechaFin DATE,
+            idHabitacion INT,
+            idCliente INT
+        );
+
+        INSERT INTO Reservacion (fechaInicio,fechaFin,idHabitacion,idCliente)
+        OUTPUT INSERTED.*
+        INTO @inserted
+        VALUES (@fechaInicio,@fechaFin,@idHabitacion,@idCliente)
+
+        SELECT * FROM @inserted
+    END
+    ELSE IF @accion = 'FIND'
+    BEGIN
+        SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
+        h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
+        FROM Reservacion r
+        INNER JOIN Habitacion h
+        ON h.idHabitacion = r.idHabitacion
+        INNER JOIN Cliente c
+        ON c.idCliente = r.idCliente
+        INNER JOIN Usuario u
+        ON u.idUsuario = c.idUsuario
+        where r.idReservacion = @idReservacion
+    END
+    ELSE IF @accion = 'UPDATE'
+    BEGIN
+        DECLARE @updated TABLE (
+            idReservacion INT,
+            fechaInicio DATE,
+            fechaFin DATE,
+            idHabitacion INT,
+            idCliente INT
+        );
+
+        UPDATE Reservacion
+        SET fechaInicio = @fechaInicio,
+        fechaFin  = @fechaFin,
+        idHabitacion = @idHabitacion,
+        idCliente  = @idCliente
+        OUTPUT INSERTED.*
+        INTO @updated
+        WHERE idReservacion = @idReservacion
+
+        SELECT * FROM @updated
+    END
+    ELSE IF @accion = 'DELETE'
+    BEGIN
+        DECLARE @deleted TABLE (
+            idReservacion INT,
+            fechaInicio DATE,
+            fechaFin DATE,
+            idHabitacion INT,
+            idCliente INT
+        );
+
+        DELETE FROM Reservacion
+        OUTPUT DELETED.*
+        INTO @deleted
+        WHERE idReservacion = @idReservacion
+
+        SELECT * FROM @deleted
+    END
+END
+
+GO
+
+CREATE PROCEDURE sp_obtenerHabitacionesDisponibles
+@fechaInicio DATE,
+@fechaFin DATE
+AS
+BEGIN
+    SELECT * FROM fn_obtenerHabitacionesDisponibles(@fechaInicio,@fechaFin)
 END
 
 GO

@@ -50,3 +50,44 @@ END
 
 GO
 
+
+---------------------------
+-- RESERVATION FUNCTIONS --
+---------------------------
+
+CREATE FUNCTION fn_obtenerHabitacionesDisponibles
+(
+    @fechaInicio DATETIME,
+    @fechaFin DATETIME
+)
+RETURNS @habitacionesDisponibles TABLE
+(
+	idHabitacion INT,
+	nombre VARCHAR(50),
+    descripcion VARCHAR(50),
+    nombreTipo VARCHAR(50),
+    numCamas INT,
+    numPersonas INT,
+    precio MONEY
+)
+AS
+BEGIN
+    INSERT INTO @habitacionesDisponibles
+    SELECT h.idHabitacion, h.nombre, h.descripcion,
+    th.nombre AS nombreTipo, th.numCamas, th.numPersonas, th.precio FROM Habitacion h
+    LEFT JOIN Reservacion r
+    ON h.idHabitacion = r.idHabitacion
+    INNER JOIN TipoHabitacion th
+    ON h.idTipoHabitacion = th.idTipoHabitacion
+    WHERE
+    r.idHabitacion IS NULL -- NOT RESERVED
+    OR
+    ( -- AVAILABLE IN THAT DATE
+    @fechaInicio NOT BETWEEN r.fechaInicio AND DATEADD(DAY, -1, r.fechaFin)
+    AND
+    @fechaFin NOT BETWEEN DATEADD(DAY, 1, r.fechaInicio) AND r.fechaFin
+    )
+    RETURN
+END
+
+GO
