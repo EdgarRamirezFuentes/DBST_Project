@@ -6,6 +6,7 @@ USE ESCOM_HOTEL;
 -- HELPER STORED PROCEDURES --
 ------------------------------
 
+
 -------------------------------
 --  AUTH STORED PROCEDURES --
 -------------------------------
@@ -373,6 +374,7 @@ BEGIN
         WHERE s.activo = 1
         AND s.idUsuario = @idUsuario
     END
+
     ELSE IF @accion = 'UPDATE'
     BEGIN
         BEGIN TRANSACTION
@@ -492,8 +494,10 @@ BEGIN
                 GOTO TRANSACTION_ERROR
             END
 
-            DELETE FROM Usuario
-            OUTPUT DELETED.idUsuario, DELETED.nombre, DELETED.apPaterno, DELETED.apMaterno, DELETED.activo
+            UPDATE Usuario
+            SET activo = 0
+            OUTPUT INSERTED.idUsuario, INSERTED.nombre,
+            INSERTED.apPaterno, INSERTED.apMaterno, INSERTED.activo
             INTO @data
             WHERE idUsuario = @idUsuario
 
@@ -523,92 +527,163 @@ GO
 -- CUSTOMER STORED PROCEDURES --
 --------------------------------
 
- CREATE PROCEDURE sp_cliente_crud
-     -- Usuario Data --
-     @idUsuario INT,
-     @nombre VARCHAR(50),
-     @apPaterno VARCHAR(50),
-     @apMaterno VARCHAR(50),
-     @fechaNacimiento DATE,
-     @sexo VARCHAR(1),
-     @curp VARCHAR(18),
-     @rfc VARCHAR(13),
-     @telefono VARCHAR(10),
-     @correo VARCHAR(50),
-     @contrasenia VARCHAR(50),
-     @idRol INT,
-     -- Direccion Data --
-     @calle VARCHAR(50),
-     @numeroExterior VARCHAR(10),
-     @numeroInterior VARCHAR(10),
-     @colonia VARCHAR(50),
-     @estado VARCHAR(50),
-     @alcaldia VARCHAR(50),
-     @codigoPostal VARCHAR(5),
-     -- Contacto emergencia Data --
-     @nombreContacto VARCHAR(50),
-     @apPaternoContacto VARCHAR(50),
-     @apMaternoContacto VARCHAR(50),
-     @telefonoContacto VARCHAR(10),
-     @accion NVARCHAR(20) = ''
- AS
- BEGIN
-     IF @accion = 'INSERT'
-     BEGIN
-         DECLARE @inserted TABLE (
-             idUsuario INT,
-             nombre VARCHAR(50),
-             apPaterno VARCHAR(50),
-             apMaterno VARCHAR(50),
-             activo BIT
-         );
+CREATE PROCEDURE sp_cliente_crud
+    -- Usuario Data --
+    @idUsuario INT,
+    @nombre VARCHAR(50),
+    @apPaterno VARCHAR(50),
+    @apMaterno VARCHAR(50),
+    @fechaNacimiento DATE,
+    @sexo VARCHAR(1),
+    @curp VARCHAR(18),
+    @rfc VARCHAR(13),
+    @telefono VARCHAR(10),
+    @correo VARCHAR(50),
+    @contrasenia VARCHAR(50),
+    @idRol INT,
+    -- Direccion Data --
+    @calle VARCHAR(50),
+    @numeroExterior VARCHAR(10),
+    @numeroInterior VARCHAR(10),
+    @colonia VARCHAR(50),
+    @estado VARCHAR(50),
+    @alcaldia VARCHAR(50),
+    @codigoPostal VARCHAR(5),
+    -- Contacto emergencia Data --
+    @nombreContacto VARCHAR(50),
+    @apPaternoContacto VARCHAR(50),
+    @apMaternoContacto VARCHAR(50),
+    @telefonoContacto VARCHAR(10),
+    @accion NVARCHAR(20) = 'FINDALL'
+AS
+BEGIN
+    DECLARE @MSG VARCHAR(50);
+    DECLARE @ERROR INT;
+    DECLARE @data TABLE (
+        idUsuario INT,
+        nombre VARCHAR(50),
+        apPaterno VARCHAR(50),
+        apMaterno VARCHAR(50),
+        activo BIT
+    );
 
-         DECLARE @userID INT;
-         DECLARE @customerID INT;
+    IF @accion = 'INSERT'
+    BEGIN
+        BEGIN TRANSACTION
 
-         INSERT @inserted EXEC sp_usuario_crud
-             @idUsuario, @nombre, @apPaterno,
-             @apMaterno, @fechaNacimiento, @sexo,
-             @curp, @rfc, @telefono, @correo,
-             @contrasenia, @idRol, 'INSERT'
+            IF @nombre IS NULL OR @nombre = '' OR @apPaterno IS NULL OR @apPaterno = ''
+            OR @apMaterno IS NULL OR @apMaterno = '' OR @fechaNacimiento IS NULL OR
+            @sexo IS NULL OR @sexo = '' OR @curp IS NULL OR @curp = ''
+            OR @telefono IS NULL OR @telefono = '' OR @correo IS NULL OR @correo = ''
+            OR @contrasenia IS NULL OR @contrasenia = ''
+            BEGIN
+                SET @MSG = 'The user data is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-         SET @userID = (SELECT idUsuario FROM @inserted)
+            -- User creation --
+            INSERT INTO Usuario
+            (
+                nombre, apPaterno, apMaterno,
+                fechaNacimiento, sexo, curp,
+                rfc, telefono, correo, contrasenia,
+                idRol, activo
+            )
+            OUTPUT INSERTED.idUsuario, INSERTED.nombre, INSERTED.apPaterno, INSERTED.apMaterno, INSERTED.activo
+            INTO @data
+            VALUES
+            (
+                @nombre, @apPaterno, @apMaterno,
+                @fechaNacimiento, @sexo, @curp,
+                @rfc, @telefono, @correo, HASHBYTES('SHA2_256', @contrasenia),
+                @idRol, 1
+            )
 
-         INSERT INTO Direccion
-         (
-             idUsuario, calle, numExterior,
-             numInterior, colonia, estado,
-             alcaldia, codigoPostal
-         )
-         VALUES
-         (
-             @userID, @calle, @numeroExterior,
-             @numeroInterior, @colonia, @estado,
-             @alcaldia, @codigoPostal
-         )
-         INSERT INTO ContactoEmergencia
-         (
-             idUsuario, nombre, apPaterno,
-             apMaterno, telefono
-         )
-         VALUES
-         (
-             @userID, @nombreContacto, @apPaternoContacto,
-             @apMaternoContacto, @telefonoContacto
-         )
-         INSERT INTO Cliente
-         (
-             idUsuario
-         )
-         VALUES
-         (
-             @userID
-         )
-         SELECT * FROM @inserted
-     END
+            SELECT @ERROR = @@ERROR;
 
-     ELSE IF @accion = 'FINDALL'
-     BEGIN
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to insert the user data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SET @idUsuario = (SELECT idUsuario FROM @data)
+
+            -- Address creation --
+
+            IF @calle IS NULL OR @calle = '' OR @numeroExterior IS NULL
+            OR @numeroExterior = '' OR @colonia IS NULL OR @colonia = ''
+            OR @estado IS NULL OR @estado = '' OR @alcaldia IS NULL
+            OR @alcaldia = '' OR @codigoPostal IS NULL OR @codigoPostal = ''
+            BEGIN
+                SET @MSG = 'The address data is required'
+                GOTO TRANSACTION_ERROR
+            END
+
+            INSERT INTO Direccion
+            (
+                idUsuario, calle, numExterior,
+                numInterior, colonia, estado,
+                alcaldia, codigoPostal
+            )
+            VALUES
+            (
+                @idUsuario, @calle, @numeroExterior,
+                @numeroInterior, @colonia, @estado,
+                @alcaldia, @codigoPostal
+            )
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to insert the address data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            -- Emergency contact creation --
+
+            IF @nombreContacto IS NULL OR @nombreContacto = '' OR @apPaternoContacto IS NULL
+            OR @apPaternoContacto = '' OR @apMaternoContacto IS NULL OR @apMaternoContacto = ''
+            OR @telefonoContacto IS NULL OR @telefonoContacto = ''
+            BEGIN
+                SET @MSG = 'The emergency contact data is required'
+                GOTO TRANSACTION_ERROR
+            END
+
+            INSERT INTO ContactoEmergencia
+            (
+                idUsuario, nombre, apPaterno,
+                apMaterno, telefono
+            )
+            VALUES
+            (
+                @idUsuario, @nombreContacto, @apPaternoContacto,
+                @apMaternoContacto, @telefonoContacto
+            )
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to insert the emergency contact data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to insert the employee data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
+    END
+
+    ELSE IF @accion = 'FINDALL'
+    BEGIN
         SELECT s.idUsuario,
         CONCAT(s.nombre, ' ', s.apPaterno, ' ', s.apMaterno) AS Nombre,
         s.telefono ,s.correo
@@ -616,63 +691,162 @@ GO
         INNER JOIN Cliente c
         ON s.idUsuario = c.idUsuario
         WHERE s.activo = 1
-     END
+    END
 
-     ELSE IF @accion = 'FIND'
+    ELSE IF @accion = 'FIND'
     BEGIN
-        IF @idUsuario IS NULL
+        IF @idUsuario IS NULL OR @idUsuario < 1
         BEGIN
             RAISERROR('The id is required', 16, 1)
             RETURN
         END
 
         SELECT
-		u.idUsuario, u.nombre, u.apPaterno,
+        u.idUsuario, u.nombre, u.apPaterno,
         u.apMaterno, u.fechaNacimiento,
         u.sexo AS genero, u.curp, u.rfc,
         u.telefono, u.correo, u.fechaRegistro,
-		d.calle, d.numExterior AS numeroExterior,
+        d.calle, d.numExterior AS numeroExterior,
         d.numInterior AS numeroInterior, d.colonia,
         d.estado, d.alcaldia, d.codigoPostal,
         ce.nombre AS nombreContactoEmergencia,
         ce.apPaterno AS apPaternoContactoEmergencia,
         ce.apMaterno AS apMaternoContactoEmergencia,
         ce.telefono AS telefonoContactoEmergencia
-		FROM Usuario u
-		INNER JOIN Direccion d
-		ON d.idUsuario = u.idUsuario
+        FROM Usuario u
+        INNER JOIN Direccion d
+        ON d.idUsuario = u.idUsuario
         INNER JOIN ContactoEmergencia ce
         ON ce.idUsuario = u.idUsuario
-		WHERE u.activo = 1
+        WHERE u.activo = 1
         AND u.idUsuario = @idUsuario
     END
 
     ELSE IF @accion = 'UPDATE'
     BEGIN
         BEGIN TRANSACTION
+            IF @idUsuario IS NULL OR @idUsuario < 1
+            BEGIN
+                SET @MSG = 'The user id is required'
+                GOTO TRANSACTION_ERROR
+            END
 
+            IF @nombre IS NULL OR @nombre = '' OR @apPaterno IS NULL OR @apPaterno = ''
+            OR @apMaterno IS NULL OR @apMaterno = '' OR @fechaNacimiento IS NULL OR
+            @sexo IS NULL OR @sexo = '' OR @curp IS NULL OR @curp = ''
+            OR @telefono IS NULL OR @telefono = '' OR @correo IS NULL OR @correo = ''
+            BEGIN
+                SET @MSG = 'The user data is required'
+                GOTO TRANSACTION_ERROR
+            END
+
+            -- User update --
+            UPDATE Usuario
+            SET nombre = @nombre, apPaterno = @apPaterno, apMaterno = @apMaterno,
+            fechaNacimiento = @fechaNacimiento, sexo = @sexo, curp = @curp,
+            rfc = @rfc, telefono = @telefono, correo = @correo
+            OUTPUT INSERTED.idUsuario, INSERTED.nombre, INSERTED.apPaterno, INSERTED.apMaterno, INSERTED.activo
+            INTO @data
+            WHERE idUsuario = @idUsuario
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to update the user data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            -- Address update --
+
+            IF @calle IS NULL OR @calle = '' OR @numeroExterior IS NULL
+            OR @numeroExterior = '' OR @colonia IS NULL OR @colonia = ''
+            OR @estado IS NULL OR @estado = '' OR @alcaldia IS NULL
+            OR @alcaldia = '' OR @codigoPostal IS NULL OR @codigoPostal = ''
+            BEGIN
+                SET @MSG = 'The address data is required'
+                GOTO TRANSACTION_ERROR
+            END
+
+            UPDATE Direccion
+            SET calle = @calle, numExterior = @numeroExterior, numInterior = @numeroInterior,
+            colonia = @colonia, estado = @estado, alcaldia = @alcaldia,
+            codigoPostal = @codigoPostal
+            WHERE idUsuario = @idUsuario
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to update the address data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            -- Emergency contact update --
+
+            IF @nombreContacto IS NULL OR @nombreContacto = '' OR @apPaternoContacto IS NULL
+            OR @apPaternoContacto = '' OR @apMaternoContacto IS NULL OR @apMaternoContacto = ''
+            OR @telefonoContacto IS NULL OR @telefonoContacto = ''
+            BEGIN
+                SET @MSG = 'The emergency contact data is required'
+                GOTO TRANSACTION_ERROR
+            END
+
+            UPDATE ContactoEmergencia
+            SET nombre = @nombreContacto, apPaterno = @apPaternoContacto, apMaterno = @apMaternoContacto,
+            telefono = @telefonoContacto
+            WHERE idUsuario = @idUsuario
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to update the emergency contact data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
     END
+
     ELSE IF @accion = 'DELETE'
     BEGIN
-        DECLARE @deleted TABLE (
-            idUsuario INT,
-            nombre VARCHAR(50),
-            apPaterno VARCHAR(50),
-            apMaterno VARCHAR(50),
-            activo BIT
-        );
+        BEGIN TRANSACTION
+            IF @idUsuario IS NULL OR @idUsuario < 1
+            BEGIN
+                SET @MSG = 'The user id is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        INSERT @deleted EXEC sp_usuario_crud
-            @idUsuario, NULL, NULL,
-            NULL, NULL, NULL,
-            NULL, NULL, NULL, NULL,
-            NULL, NULL, 'DELETE'
+            UPDATE Usuario
+            SET activo = 0
+            OUTPUT INSERTED.idUsuario, INSERTED.nombre,
+            INSERTED.apPaterno, INSERTED.apMaterno, INSERTED.activo
+            INTO @data
+            WHERE idUsuario = @idUsuario
 
-        SELECT * FROM @deleted
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to delete the user data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
     END
+
+    TRANSACTION_ERROR:
+        IF @ERROR <> 0
+        BEGIN
+            ROLLBACK TRANSACTION
+            RAISERROR(@MSG, 16, 1)
+        END
 END
 
 GO
+
 ---------------------------------
 -- Type Room STORED PROCEDURES --
 ---------------------------------
@@ -684,71 +858,130 @@ CREATE PROCEDURE sp_tipo_habitacion_crud
 @numCamas INT,
 @numPersonas INT,
 @precio MONEY,
-@accion VARCHAR(15)
+@accion VARCHAR(15) = 'FINDALL'
 AS
 BEGIN
+    DECLARE @MSG VARCHAR(100);
+    DECLARE @ERROR INT;
+    DECLARE @data TABLE (
+        idTipoHabitacion INT,
+        nombre VARCHAR(50),
+        numCamas INT,
+        numPersonas INT,
+        precio MONEY
+    );
+
 	IF @accion = 'FINDALL'
 	BEGIN
 		SELECT * FROM TipoHabitacion
 	END
+
 	ELSE IF @accion = 'INSERT'
 	BEGIN
-		DECLARE @inserted TABLE (
-            idTipoHabitacion INT,
-            nombre VARCHAR(50),
-            numCamas INT,
-			numPersonas INT,
-			precio MONEY
-        );
-        INSERT INTO TipoHabitacion(nombre,numCamas,numPersonas,precio)
-        OUTPUT INSERTED.*
-        INTO @inserted
-        VALUES (@nombre, @numCamas, @numPersonas, @precio)
+		BEGIN TRANSACTION
+            IF @nombre IS NULL OR @nombre = '' OR @numCamas IS NULL OR @numCamas < 1
+            OR @numPersonas IS NULL OR @numPersonas < 1 OR @precio IS NULL OR @precio < 1
+            BEGIN
+                SET @MSG = 'The room type data is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        SELECT * FROM @inserted
+            INSERT INTO TipoHabitacion (nombre, numCamas, numPersonas, precio)
+            OUTPUT INSERTED.*
+            INTO @data
+            VALUES (@nombre, @numCamas, @numPersonas, @precio)
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to insert the room type';
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
 	END
+
 	ELSE IF @accion = 'FIND'
 	BEGIN
-		SELECT * FROM TipoHabitacion where idTipoHabitacion = @idTipoHabitacion
+        IF @idTipoHabitacion IS NULL OR @idTipoHabitacion < 1
+        BEGIN
+            SET @MSG = 'The room type id is required'
+            GOTO TRANSACTION_ERROR
+        END
+
+		SELECT * FROM TipoHabitacion
+        WHERE idTipoHabitacion = @idTipoHabitacion
 	END
+
 	ELSE IF @accion = 'UPDATE'
 	BEGIN
-		DECLARE @updated TABLE (
-            idTipoHabitacion INT,
-            nombre VARCHAR(50),
-            numCamas INT,
-            numPersonas INT,
-            precio MONEY
-        );
+		BEGIN TRANSACTION
+            IF @idTipoHabitacion IS NULL OR @idTipoHabitacion < 1
+            BEGIN
+                SET @MSG = 'The room type id is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        UPDATE TipoHabitacion
-        SET nombre = @nombre,
-        numCamas = @numCamas,
-        numPersonas = @numPersonas,
-        precio = @precio
-        OUTPUT INSERTED.*
-        INTO @updated
-        WHERE idTipoHabitacion = @idTipoHabitacion
+            IF @nombre IS NULL OR @nombre = '' OR @numCamas IS NULL OR @numCamas < 1
+            OR @numPersonas IS NULL OR @numPersonas < 1 OR @precio IS NULL OR @precio < 1
+            BEGIN
+                SET @MSG = 'The room type data is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        SELECT * FROM @updated
+            UPDATE TipoHabitacion
+            SET nombre = @nombre, numCamas = @numCamas,
+            numPersonas = @numPersonas, precio = @precio
+            OUTPUT INSERTED.*
+            INTO @data
+            WHERE idTipoHabitacion = @idTipoHabitacion
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to update the room type data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
 	END
+
 	ELSE IF @accion = 'DELETE'
     BEGIN
-        DECLARE @deleted TABLE (
-            idRol INT,
-            nombre VARCHAR(50),
-            numCamas INT,
-            numPersonas INT,
-            precio MONEY
-        );
+        BEGIN TRANSACTION
+            IF @idTipoHabitacion IS NULL OR @idTipoHabitacion < 1
+            BEGIN
+                SET @MSG = 'The room type id is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        DELETE FROM TipoHabitacion
-        OUTPUT DELETED.*
-        INTO @deleted
-        WHERE idTipoHabitacion = @idTipoHabitacion
+            DELETE FROM TipoHabitacion
+            OUTPUT DELETED.*
+            INTO @data
+            WHERE idTipoHabitacion = @idTipoHabitacion
 
-        SELECT * FROM @deleted
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to delete the room type data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
     END
+
+    TRANSACTION_ERROR:
+        IF @ERROR <> 0
+        BEGIN
+            ROLLBACK TRANSACTION
+            RAISERROR(@MSG, 16, 1)
+        END
 END
 
 GO
@@ -766,78 +999,157 @@ CREATE PROCEDURE sp_habitacion_crud
 @accion VARCHAR(50)
 AS
 BEGIN
+    DECLARE @MSG VARCHAR(100);
+    DECLARE @ERROR INT;
+    DECLARE @data TABLE (
+        idHabitacion INT,
+        nombre VARCHAR(50),
+        descripcion VARCHAR(50),
+        isActive BIT,
+        idTipoHabitacion INT
+    );
+
 	IF @accion = 'FINDALL'
 	BEGIN
-		SELECT h.idHabitacion, h.nombre, h.descripcion, h.isActive, th.nombre as 'tipoHabitacion', h.idTipoHabitacion
+		SELECT h.idHabitacion, h.nombre,
+        h.descripcion, h.isActive,
+        th.nombre as 'tipoHabitacion', h.idTipoHabitacion
         FROM Habitacion h
         INNER JOIN TipoHabitacion th
 		ON th.idTipoHabitacion = h.idTipoHabitacion
 		WHERE h.isActive = 1
 	END
+
+    ELSE IF @accion = 'FINDALLINACTIVE'
+    BEGIN
+        SELECT h.idHabitacion, h.nombre,
+        h.descripcion, h.isActive,
+        th.nombre as 'tipoHabitacion', h.idTipoHabitacion
+        FROM Habitacion h
+        INNER JOIN TipoHabitacion th
+        ON th.idTipoHabitacion = h.idTipoHabitacion
+        WHERE h.isActive = 0
+    END
+
 	ELSE IF @accion = 'INSERT'
 	BEGIN
-		DECLARE @inserted TABLE (
-            idHabitacion INT,
-            nombre VARCHAR(50),
-            descripcion VARCHAR(50),
-            isActive BIT,
-            idTipoHabitacion INT
-        );
+        BEGIN TRANSACTION
+            IF @nombre IS NULL OR @nombre = '' OR @descripcion IS NULL OR @descripcion = ''
+            OR @idTipoHabitacion IS NULL OR @idTipoHabitacion < 1
+            BEGIN
+                SET @MSG = 'The room data is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        INSERT INTO Habitacion (nombre,descripcion,isActive,idTipoHabitacion)
-        OUTPUT INSERTED.*
-        INTO @inserted
-        VALUES (@nombre,@descripcion,@isActive,@idTipoHabitacion)
+            INSERT INTO Habitacion (nombre, descripcion, isActive, idTipoHabitacion)
+            OUTPUT INSERTED.*
+            INTO @data
+            VALUES (@nombre, @descripcion, 1, @idTipoHabitacion)
 
-        SELECT * FROM @inserted
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to insert the room'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
 	END
+
     ELSE IF @accion = 'FIND'
 	BEGIN
-		SELECT h.idHabitacion,h.nombre,h.descripcion, th.nombre AS 'tipoHabitacion', th.numCamas, th.numPersonas, th.precio
+		SELECT h.idHabitacion,h.nombre,h.descripcion,
+        th.nombre AS 'tipoHabitacion', th.numCamas,
+        th.numPersonas, th.precio
 		FROM Habitacion h
 		INNER JOIN TipoHabitacion th
 		ON th.idTipoHabitacion = h.idTipoHabitacion
-		where h.idHabitacion  = @idHabitacion
-		and h.isActive = 1
+		WHERE h.idHabitacion  = @idHabitacion
+		AND h.isActive = 1
 	END
+
+    ELSE IF @accion = 'FINDINACTIVE'
+    BEGIN
+        SELECT h.idHabitacion,h.nombre,h.descripcion,
+        th.nombre AS 'tipoHabitacion', th.numCamas,
+        th.numPersonas, th.precio
+        FROM Habitacion h
+        INNER JOIN TipoHabitacion th
+        ON th.idTipoHabitacion = h.idTipoHabitacion
+        WHERE h.idHabitacion  = @idHabitacion
+        AND h.isActive = 0
+    END
+
 	ELSE IF @accion = 'UPDATE'
 	BEGIN
-		DECLARE @updated TABLE (
-            idHabitacion INT,
-            nombre VARCHAR(100),
-            descripcion VARCHAR(100),
-            isActive BIT,
-            idTipoHabitacion INT
-        );
+		BEGIN TRANSACTION
+            IF @idHabitacion IS NULL OR @idHabitacion < 1
+            BEGIN
+                SET @MSG = 'The room id is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        UPDATE Habitacion
-        SET nombre = @nombre,
-        descripcion  = @descripcion,
-        isActive = @isActive,
-        idTipoHabitacion  = @idTipoHabitacion
-        OUTPUT INSERTED.*
-        INTO @updated
-        WHERE idHabitacion = @idHabitacion
+            IF @nombre IS NULL OR @nombre = '' OR @descripcion IS NULL OR @descripcion = ''
+            OR @idTipoHabitacion IS NULL OR @idTipoHabitacion < 1
+            BEGIN
+                SET @MSG = 'The room data is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        SELECT * FROM @updated
+            UPDATE Habitacion
+            SET nombre = @nombre, descripcion = @descripcion,
+            idTipoHabitacion = @idTipoHabitacion
+            OUTPUT INSERTED.*
+            INTO @data
+            WHERE idHabitacion = @idHabitacion
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to update the room data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
 	END
+
     ELSE IF @accion = 'DELETE'
 	BEGIN
-		DECLARE @deleted TABLE (
-            idHabitacion INT,
-            nombre VARCHAR(100),
-            descripcion VARCHAR(100),
-            isActive BIT,
-            idTipoHabitacion INT
-        );
+		BEGIN TRANSACTION
+            IF @idHabitacion IS NULL OR @idHabitacion < 1
+            BEGIN
+                SET @MSG = 'The room id is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        DELETE FROM Habitacion
-        OUTPUT DELETED.*
-        INTO @deleted
-        WHERE idHabitacion = @idHabitacion
+            UPDATE Habitacion
+            SET isActive = 0
+            OUTPUT INSERTED.*
+            INTO @data
+            WHERE idHabitacion = @idHabitacion
 
-        SELECT * FROM @deleted
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to delete the room data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
 	END
+
+    TRANSACTION_ERROR:
+        IF @ERROR <> 0
+        BEGIN
+            ROLLBACK TRANSACTION
+            RAISERROR(@MSG, 16, 1)
+        END
 END
 
 GO

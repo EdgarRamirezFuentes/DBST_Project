@@ -981,10 +981,10 @@ def customer():
                 conn.commit()
 
                 return jsonify(response), 200
-
         except DatabaseError as e:
             app.logger.error(str(e))
             response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            print(e)
             conn.rollback()
             return jsonify({'message' : response}), 500
         except Error as e:
@@ -1149,7 +1149,8 @@ def customer_by_id(customer_id):
                 conn.commit()
 
                 return jsonify(response), 200
-
+        except OperationalError as e:
+                return jsonify({'msg':f'There is no customer with id {customer_id}'}), 404
         except DatabaseError as e:
             app.logger.error(str(e))
             response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
@@ -1200,7 +1201,6 @@ def customer_by_id(customer_id):
                 ))
                 response = cursor.fetchone()
                 conn.commit()
-
 
                 return jsonify(response), 200
 
