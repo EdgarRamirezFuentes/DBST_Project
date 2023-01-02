@@ -1,14 +1,7 @@
 from pymssql import (
-    IntegrityError,
-    ProgrammingError,
-    DataError,
-    OperationalError,
-    NotSupportedError,
-    ColumnsWithoutNamesError,
-    DataError,
+    Error,
     DatabaseError,
-    Warning,
-    InternalError
+    OperationalError,
 )
 
 from flask import (
@@ -163,23 +156,20 @@ def login():
             set_access_cookies(response, access_token)
             app.logger.info(f'User ID({user_id}) logged in successfully')
         return response
-
-    except (IntegrityError, DatabaseError, InternalError,
-            ProgrammingError, NotSupportedError,
-            OperationalError, ColumnsWithoutNamesError) as e:
+    except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+    except Error as e:
         app.logger.error(str(e))
         return jsonify({'message' : 'Error' }), 500
-    except Warning as w:
-        app.logger.warning(str(w))
-        return jsonify({'message' : 'Error' }), 500
-    except DataError as e:
-        return jsonify({'message' : f'Error: {e}' }), 500
     finally:
         app.logger.info( f'<{email}> tried to login.')
-        # if cursor:
-        #     cursor.close()
-        # if db:
-        #     conn.close()
+        if cursor:
+            cursor.close()
+        if db:
+            conn.close()
 
 
 @app.route('/api/v1/auth/logout', methods=['POST'])
@@ -216,9 +206,7 @@ def role():
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -232,16 +220,14 @@ def role():
 
         except OperationalError as e:
                     return jsonify({}), 200
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info( f'User ID({user_id}) retrieved the Role table data')
             if cursor:
@@ -267,9 +253,7 @@ def role():
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -280,20 +264,15 @@ def role():
                 conn.commit()
 
                 return jsonify(response), 201
-
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) inserted the {role_name} role into the Rol table')
             if cursor:
@@ -322,9 +301,7 @@ def role_by_id(id : int):
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -336,16 +313,14 @@ def role_by_id(id : int):
                 return jsonify(response), 200
         except OperationalError as e:
                     return jsonify({'msg':f'There is no role with id {id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) retrieved the role with id {id}')
             if cursor:
@@ -370,9 +345,7 @@ def role_by_id(id : int):
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -385,19 +358,15 @@ def role_by_id(id : int):
 
         except OperationalError as e:
                     return jsonify({'msg' : f'There is no role with id {id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> inserted the {role_name} role into the Rol table')
             if cursor:
@@ -418,9 +387,7 @@ def role_by_id(id : int):
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -434,19 +401,15 @@ def role_by_id(id : int):
 
         except OperationalError as e:
                     return jsonify({'msg':f'There is no role with id {id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             conn.rollback()
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) deleted the role with id {id}')
             if cursor:
@@ -458,6 +421,7 @@ def role_by_id(id : int):
 @app.route('/api/v1/admin/employee', methods=['GET', 'POST'])
 @jwt_required()
 def employee():
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
@@ -474,15 +438,13 @@ def employee():
                     app.logger.critical( f'Database unavailable')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
                     return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
-                cursor.callproc('sp_empleado_crud',
+                cursor.callproc('sp_trabajador_crud',
                 (
                     None, # idUsuario
                     None, None, None, None, ## User data
@@ -498,16 +460,14 @@ def employee():
                 return jsonify(response), 200
         except OperationalError as e:
             return jsonify({}), 200
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) retrieved all employees')
             if cursor:
@@ -594,15 +554,13 @@ def employee():
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
                     return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
-                cursor.callproc('sp_empleado_crud',
+                cursor.callproc('sp_trabajador_crud',
                 (
                     None, # idUsuario
                     employee_name, employee_last_name, employee_second_last_name, ## User data
@@ -621,20 +579,16 @@ def employee():
                 conn.commit()
 
                 return jsonify(response), 200
-
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError, OperationalError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            print("Erroesd", e.args)
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> registered a new employee')
             if cursor:
@@ -647,6 +601,7 @@ def employee():
 @app.route('/api/v1/admin/employee/<int:employee_id>', methods=['GET', 'PUT', 'DELETE'])
 @jwt_required()
 def employee_by_id(employee_id):
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
@@ -661,15 +616,13 @@ def employee_by_id(employee_id):
                     app.logger.critical('Database unavailable.')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
                     return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
                 print(user_id)
-                cursor.callproc('sp_empleado_crud',
+                cursor.callproc('sp_trabajador_crud',
                 (
                     employee_id, # idUsuario
                     None, None, None, None, ## User data
@@ -684,18 +637,15 @@ def employee_by_id(employee_id):
                 response = cursor.fetchone()
                 return jsonify(response), 200
         except OperationalError as e:
-            print(e)
             return jsonify({'msg':f'There is no employee with id {employee_id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> accessed employee ID({employee_id})')
             if cursor:
@@ -782,15 +732,13 @@ def employee_by_id(employee_id):
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
                     return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
-                cursor.callproc('sp_empleado_crud',
+                cursor.callproc('sp_trabajador_crud',
                 (
                     employee_id, # idUsuario
                     employee_name, employee_last_name, employee_second_last_name, ## User data
@@ -809,20 +757,15 @@ def employee_by_id(employee_id):
                 conn.commit()
 
                 return jsonify(response), 200
-
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError, OperationalError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> registered a new employee')
             if cursor:
@@ -845,15 +788,13 @@ def employee_by_id(employee_id):
                     app.logger.critical( f'Database unavailable')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
                     return jsonify({'msg': 'You have no permissions to execute this action.'}), 401
 
-                cursor.callproc('sp_empleado_crud',
+                cursor.callproc('sp_trabajador_crud',
                 (
                     employee_id, # idUsuario
                     None, None, None, None, ## User data
@@ -873,19 +814,15 @@ def employee_by_id(employee_id):
 
         except OperationalError as e:
                     return jsonify({'msg':f'There is no role with id {id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             conn.rollback()
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) deleted the role with id {id}')
             if cursor:
@@ -897,6 +834,7 @@ def employee_by_id(employee_id):
 @app.route('/api/v1/admin/customer', methods=['GET', 'POST'])
 @jwt_required()
 def customer():
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
@@ -913,9 +851,7 @@ def customer():
                     app.logger.critical( f'Database unavailable')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
@@ -936,16 +872,14 @@ def customer():
                 return jsonify(response), 200
         except OperationalError as e:
             return jsonify({}), 200
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) retrieved all customers')
             if cursor:
@@ -1023,9 +957,7 @@ def customer():
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
@@ -1050,19 +982,15 @@ def customer():
 
                 return jsonify(response), 200
 
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError, OperationalError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> registered a new customer')
             if cursor:
@@ -1075,6 +1003,7 @@ def customer():
 @app.route('/api/v1/admin/customer/<int:customer_id>', methods=['GET','PUT','DELETE'])
 @jwt_required()
 def customer_by_id(customer_id):
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
@@ -1089,9 +1018,7 @@ def customer_by_id(customer_id):
                     app.logger.critical('Database unavailable.')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
@@ -1110,19 +1037,17 @@ def customer_by_id(customer_id):
                 ))
                 response = cursor.fetchone()
                 return jsonify(response), 200
+
         except OperationalError as e:
-            print(e)
             return jsonify({'msg':f'There is no customer with id {customer_id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> accessed customer ID({customer_id})')
             if cursor:
@@ -1200,9 +1125,7 @@ def customer_by_id(customer_id):
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
@@ -1227,19 +1150,15 @@ def customer_by_id(customer_id):
 
                 return jsonify(response), 200
 
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError, OperationalError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> registered a new customer')
             if cursor:
@@ -1262,9 +1181,7 @@ def customer_by_id(customer_id):
                     app.logger.critical( f'Database unavailable')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
@@ -1289,19 +1206,15 @@ def customer_by_id(customer_id):
 
         except OperationalError as e:
                     return jsonify({'msg':f'There is no customer with id {id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             conn.rollback()
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) deleted the customer with id {id}')
             if cursor:
@@ -1313,6 +1226,7 @@ def customer_by_id(customer_id):
 @app.route('/api/v1/admin/typeroom', methods=['GET','POST'])
 @jwt_required()
 def type_room():
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
@@ -1327,9 +1241,7 @@ def type_room():
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -1343,16 +1255,14 @@ def type_room():
 
         except OperationalError as e:
                     return jsonify({}), 200
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info( f'User ID({user_id}) retrieved the type room table type')
             if cursor:
@@ -1385,9 +1295,7 @@ def type_room():
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -1402,19 +1310,15 @@ def type_room():
 
                 return jsonify(response), 201
 
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) inserted the {type_room_name} type room into the type room table')
             if cursor:
@@ -1426,6 +1330,7 @@ def type_room():
 @app.route('/api/v1/admin/typeroom/<int:typeroom_id>', methods=['GET','PUT','DELETE'])
 @jwt_required()
 def type_room_id(typeroom_id):
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
@@ -1441,9 +1346,7 @@ def type_room_id(typeroom_id):
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -1453,18 +1356,17 @@ def type_room_id(typeroom_id):
 
                 response = cursor.fetchone()
                 return jsonify(response), 200
+
         except OperationalError as e:
-                    return jsonify({'msg':f'There is no type room with id {typeroom_id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+            return jsonify({'msg':f'There is no type room with id {typeroom_id}'}), 404
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) retrieved the type room with id {id}')
             if cursor:
@@ -1495,9 +1397,7 @@ def type_room_id(typeroom_id):
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -1511,20 +1411,16 @@ def type_room_id(typeroom_id):
                 return jsonify(response), 200
 
         except OperationalError as e:
-                    return jsonify({'msg' : f'There is no type room with id {typeroom_id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+            return jsonify({'msg' : f'There is no type room with id {typeroom_id}'}), 404
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> inserted the {nombre_tipo} type room into the type room table')
             if cursor:
@@ -1547,9 +1443,7 @@ def type_room_id(typeroom_id):
                     app.logger.critical( f'Database unavailable')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
@@ -1569,19 +1463,15 @@ def type_room_id(typeroom_id):
 
         except OperationalError as e:
                     return jsonify({'msg':f'There is no type room with id {typeroom_id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             conn.rollback()
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) deleted the type room with id {typeroom_id}')
             if cursor:
@@ -1594,6 +1484,7 @@ def type_room_id(typeroom_id):
 @app.route('/api/v1/admin/room', methods=['GET','POST'])
 @jwt_required()
 def room():
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
@@ -1608,9 +1499,7 @@ def room():
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -1623,17 +1512,15 @@ def room():
                 return jsonify(response), 200
 
         except OperationalError as e:
-                    return jsonify({}), 200
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+            return jsonify({}), 200
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info( f'User ID({user_id}) retrieved the room table type')
             if cursor:
@@ -1664,9 +1551,7 @@ def room():
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -1681,19 +1566,15 @@ def room():
 
                 return jsonify(response), 201
 
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) inserted the {room_name} room into the room table')
             if cursor:
@@ -1704,6 +1585,7 @@ def room():
 @app.route('/api/v1/admin/room/<int:room_id>', methods=['GET','PUT','DELETE'])
 @jwt_required()
 def room_id(room_id):
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
@@ -1719,9 +1601,7 @@ def room_id(room_id):
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -1731,18 +1611,17 @@ def room_id(room_id):
 
                 response = cursor.fetchone()
                 return jsonify(response), 200
+
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
         except OperationalError as e:
                     return jsonify({'msg':f'There is no room with id {room_id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) retrieved the type room with id {id}')
             if cursor:
@@ -1772,9 +1651,7 @@ def room_id(room_id):
                 if not cursor:
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access role without permission')
@@ -1789,19 +1666,16 @@ def room_id(room_id):
 
         except OperationalError as e:
                     return jsonify({'msg' : f'There is no room with id {room_id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> inserted the {room_name} room into the room table')
             if cursor:
@@ -1824,9 +1698,7 @@ def room_id(room_id):
                     app.logger.critical( f'Database unavailable')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_obtenerRolUsuario', (user_id,))
-
-                user_role = cursor.fetchone()['rol'].lower()
+                user_role = user['user_role']
 
                 if not user_role or user_role != "administrador":
                     app.logger.warning(f'User ID({user_id}) tried to access employee without permission')
@@ -1844,20 +1716,16 @@ def room_id(room_id):
                 return jsonify(response), 200
 
         except OperationalError as e:
-                    return jsonify({'msg':f'There is no room with id {room_id}'}), 404
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+            return jsonify({'msg':f'There is no room with id {room_id}'}), 404
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             conn.rollback()
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}) deleted the room with id {room_id}')
             if cursor:
@@ -1901,30 +1769,31 @@ def reservation():
 
             active = request.args.get('active', None)
 
-            print(active)
-
-
             with conn.cursor(as_dict=True) as cursor:
                 if not cursor:
                     app.logger.critical( f'Database unavailable')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_reservacion_crud', (None, None, None, None, None, 'FINDALL' if not active else 'FINDALLACTIVE'))
+                cursor.callproc('sp_reservacion_crud',
+                (
+                    None, None, None,
+                    None, None,
+                    'FINDALL' if not active else 'FINDALLACTIVE'
+                ))
+
                 response = cursor.fetchall()
 
                 return jsonify(response), 200
         except OperationalError as e:
-                    return jsonify({}), 200
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError,
-                ColumnsWithoutNamesError) as e:
+            return jsonify({}), 200
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info( f'User ID({user_id}) retrieved the reservations')
             if cursor:
@@ -1976,25 +1845,133 @@ def reservation():
 
                 return jsonify(response), 200
 
-        except (IntegrityError, DatabaseError, InternalError,
-                ProgrammingError, NotSupportedError, OperationalError,
-                ColumnsWithoutNamesError) as e:
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
-        except Warning as w:
-            app.logger.warning(str(w))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        except DataError as e:
-            conn.rollback()
-            return jsonify({'message' : f'Error: {e}' }), 500
         finally:
             app.logger.info(f'User ID({user_id}> registered a new reservation')
             if cursor:
                 cursor.close()
             if db:
                 db.close()
+
+
+@app.route('/api/v1/reservation/<int:reservation_id>', methods=['GET', 'PUT', 'DELETE'])
+@jwt_required()
+def reservation_by_id(reservation_id):
+    user_id = get_jwt_identity()['user_id']
+    user_role = get_jwt_identity()['user_role']
+
+    if request.method == 'GET':
+        try:
+            conn = db.connect()
+            if not conn:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                if not reservation_id:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+                cursor.callproc('sp_reservacion_crud', (reservation_id, None, None, None, None, 'FIND'))
+                response = cursor.fetchone()
+
+                if user_role == 'client' and response['client_id'] != user_id:
+                    return jsonify({'msg': 'Unauthorized.'}), 401
+
+                return jsonify(response), 200
+        except OperationalError as e:
+            return jsonify({'msg' : f'There is no reservation with id {reservation_id}'}), 404
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        finally:
+            app.logger.info( f'User ID({user_id}) retrieved the reservations')
+            if cursor:
+                cursor.close()
+            if db:
+                conn.close()
+
+    elif request.method == 'PUT':
+        try:
+            conn = db.connect()
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                data = request.get_json()
+
+                if not data:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+                begin_date = data['begin_date']
+                end_date = data['end_date']
+
+                current_date = datetime.now().strftime('%Y-%m-%d')
+
+                '''
+                if not begin_date or not end_date or not room_id:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+                if begin_date < current_date or end_date < current_date:
+                    return jsonify({'msg': 'Invalid dates.'}), 400
+
+                if begin_date > end_date:
+                    return jsonify({'msg': 'Invalid dates.'}), 400
+                '''
+
+                cursor.callproc('sp_reservacion_crud',
+                (
+                    reservation_id,
+                    begin_date,
+                    end_date,
+                    None,
+                    None,
+                    'UPDATE'
+                ))
+                response = cursor.fetchone()
+                conn.commit()
+
+                return jsonify(response), 200
+        except OperationalError as e:
+            return jsonify({'msg' : f'There is no reservation with id {reservation_id}'}), 404
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : str(e)}), 500
+        except Error as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        finally:
+            app.logger.info( f'User ID({user_id}) updated the reservation with id {reservation_id}')
+            if cursor:
+                cursor.close()
+            if db:
+                conn.close()
+
+    elif request.method == 'PUT':
+        pass
+    elif request.method == 'DELETE':
+        pass
+
 
 @app.route('/api/v1/reservation/get-available-rooms', methods=['GET'])
 @jwt_required()
@@ -2038,17 +2015,15 @@ def get_available_rooms():
             return jsonify(response), 200
 
     except OperationalError as e:
-                    return jsonify({}), 200
-    except (IntegrityError, DatabaseError, InternalError,
-            ProgrammingError, NotSupportedError,
-            ColumnsWithoutNamesError) as e:
+        return jsonify({}), 200
+    except DatabaseError as e:
+        app.logger.error(str(e))
+        response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+        conn.rollback()
+        return jsonify({'message' : response}), 500
+    except Error as e:
         app.logger.error(str(e))
         return jsonify({'message' : 'Error' }), 500
-    except Warning as w:
-        app.logger.warning(str(w))
-        return jsonify({'message' : 'Error' }), 500
-    except DataError as e:
-        return jsonify({'message' : f'Error: {e}' }), 500
     finally:
         app.logger.info( f'User ID({user_id}) retrieved the available rooms')
         if cursor:
