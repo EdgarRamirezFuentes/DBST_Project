@@ -1973,7 +1973,7 @@ def reservation_by_id(reservation_id):
         pass
 
 
-@app.route('/api/v1/reservation/get-available-rooms', methods=['GET'])
+@app.route('/api/v1/reservation/get-available-rooms', methods=['POST'])
 @jwt_required()
 def get_available_rooms():
     user_id = get_jwt_identity()['user_id']
