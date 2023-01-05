@@ -670,6 +670,24 @@ BEGIN
                 GOTO TRANSACTION_ERROR;
             END
 
+            -- Custommer creation --
+            INSERT INTO Cliente 
+            (
+                idUsuario
+            )
+            VALUES
+            (
+                @idUsuario
+            )
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to insert the customer data'
+                GOTO TRANSACTION_ERROR;
+            END
+
             SELECT @ERROR = @@ERROR;
 
             IF @ERROR <> 0
