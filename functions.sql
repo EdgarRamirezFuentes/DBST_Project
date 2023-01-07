@@ -22,6 +22,26 @@ END
 
 GO
 
+CREATE FUNCTION fn_obtenerNombreUsuario
+(
+    @idUsuario int
+)
+RETURNS VARCHAR(250)
+AS
+BEGIN
+    DECLARE @nombre VARCHAR(250)
+    SELECT @nombre = nombre
+    FROM Usuario
+    WHERE idUsuario = @idUsuario
+
+    IF @idUsuario IS NULL
+        SET @idUsuario = 'SETROC'
+    
+    RETURN @nombre;
+END
+
+GO
+
 --------------------
 -- AUTH FUNCTIONS --
 --------------------

@@ -18,6 +18,7 @@ BEGIN
         BEGIN
             DECLARE @idUsuario INT;
             DECLARE @rolUsuario VARCHAR(50);
+            DECLARE @nombreUsuario VARCHAR(250);
 
             IF @correo IS NULL OR @contrasenia IS NULL
             OR @correo = '' OR @contrasenia = ''
@@ -27,9 +28,10 @@ BEGIN
             END
 
             EXEC @idUsuario = fn_login @correo, @contrasenia;
+            EXEC @nombreUsuario = fn_obtenerNombreUsuario @idUsuario;
             EXEC @rolUsuario = fn_obtenerRolUsuario @idUsuario;
 
-            SELECT @idUsuario, @rolUsuario
+            SELECT @idUsuario, @rolUsuario, @nombreUsuario
         END
     END TRY
     BEGIN CATCH
