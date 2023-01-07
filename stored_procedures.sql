@@ -169,7 +169,7 @@ GO
 
 CREATE PROCEDURE sp_trabajador_crud
     -- Usuario Data --
-    @idUsuario INT,
+    @idUsuario INT = NULL,
     @nombre VARCHAR(50),
     @apPaterno VARCHAR(50),
     @apMaterno VARCHAR(50),
@@ -531,7 +531,7 @@ GO
 
 CREATE PROCEDURE sp_cliente_crud
     -- Usuario Data --
-    @idUsuario INT,
+    @idUsuario INT = NULL,
     @nombre VARCHAR(50),
     @apPaterno VARCHAR(50),
     @apMaterno VARCHAR(50),
