@@ -18,6 +18,7 @@ BEGIN
         BEGIN
             DECLARE @idUsuario INT;
             DECLARE @rolUsuario VARCHAR(50);
+            DECLARE @nombreUsuario VARCHAR(250);
 
             IF @correo IS NULL OR @contrasenia IS NULL
             OR @correo = '' OR @contrasenia = ''
@@ -27,9 +28,10 @@ BEGIN
             END
 
             EXEC @idUsuario = fn_login @correo, @contrasenia;
+            EXEC @nombreUsuario = fn_obtenerNombreUsuario @idUsuario;
             EXEC @rolUsuario = fn_obtenerRolUsuario @idUsuario;
 
-            SELECT @idUsuario, @rolUsuario
+            SELECT @idUsuario, @rolUsuario, @nombreUsuario
         END
     END TRY
     BEGIN CATCH
@@ -160,14 +162,14 @@ BEGIN
     END
 END
 
-
+GO
 --------------------------------
 -- EMPLOYEE STORED PROCEDURES --
 --------------------------------
 
 CREATE PROCEDURE sp_trabajador_crud
     -- Usuario Data --
-    @idUsuario INT,
+    @idUsuario INT = NULL,
     @nombre VARCHAR(50),
     @apPaterno VARCHAR(50),
     @apMaterno VARCHAR(50),
@@ -529,7 +531,7 @@ GO
 
 CREATE PROCEDURE sp_cliente_crud
     -- Usuario Data --
-    @idUsuario INT,
+    @idUsuario INT = NULL,
     @nombre VARCHAR(50),
     @apPaterno VARCHAR(50),
     @apMaterno VARCHAR(50),
@@ -667,6 +669,24 @@ BEGIN
             IF @ERROR <> 0
             BEGIN
                 SET @MSG = 'There was an error trying to insert the emergency contact data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            -- Custommer creation --
+            INSERT INTO Cliente 
+            (
+                idUsuario
+            )
+            VALUES
+            (
+                @idUsuario
+            )
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to insert the customer data'
                 GOTO TRANSACTION_ERROR;
             END
 

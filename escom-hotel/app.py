@@ -136,7 +136,7 @@ def login():
 
             cursor.callproc('sp_login', (email, password))
 
-            user_id, user_role = cursor.fetchone()
+            user_id, user_role, user_name = cursor.fetchone()
 
             if user_id == -1:
                 app.logger.info(f'{email} failed to login')
@@ -145,13 +145,14 @@ def login():
             access_token = create_access_token(
                 identity={
                     'user_id' : user_id,
-                    'user_role' : user_role
+                    'user_role' : user_role,
                 })
 
             response = jsonify({
                 'msg' : 'login successful.',
                 'user_id' : user_id,
-                'user_role' : user_role
+                'user_role' : user_role,
+                'user_name' : user_name
             })
             set_access_cookies(response, access_token)
             app.logger.info(f'User ID({user_id}) logged in successfully')
@@ -1973,7 +1974,7 @@ def reservation_by_id(reservation_id):
         pass
 
 
-@app.route('/api/v1/reservation/get-available-rooms', methods=['GET'])
+@app.route('/api/v1/reservation/get-available-rooms', methods=['POST'])
 @jwt_required()
 def get_available_rooms():
     user_id = get_jwt_identity()['user_id']
