@@ -93,7 +93,7 @@ GO
 
 CREATE TABLE Cliente (
     idCliente INT IDENTITY(1,1) NOT NULL,
-    idUsuario INT NOT NULL,
+    {idUsuario} INT NOT NULL,
     -- PRIMARY KEY Cliente
     CONSTRAINT PK_Cliente_idCliente
     PRIMARY KEY CLUSTERED (idCliente),
