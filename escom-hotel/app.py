@@ -2033,8 +2033,7 @@ def get_available_rooms():
             conn.close()
 
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port='5000')
+
 
 
 ##########################
@@ -2059,7 +2058,7 @@ def ticket():
 
                 cursor.callproc('sp_ticket_crud',
                 (
-                    None, None, None,
+                    None, None,
                     'FINDALL'
                 ))
 
@@ -2129,3 +2128,6 @@ def ticket():
                 cursor.close()
             if db:
                 db.close()
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port='5000')

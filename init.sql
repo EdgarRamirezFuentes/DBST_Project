@@ -93,7 +93,7 @@ GO
 
 CREATE TABLE Cliente (
     idCliente INT IDENTITY(1,1) NOT NULL,
-    {idUsuario} INT NOT NULL,
+    idUsuario INT NOT NULL,
     -- PRIMARY KEY Cliente
     CONSTRAINT PK_Cliente_idCliente
     PRIMARY KEY CLUSTERED (idCliente),
@@ -224,8 +224,9 @@ GO
 CREATE TABLE Ticket (
     idTicket INT IDENTITY(1,1) NOT NULL,
     fecha DATE NOT NULL,
-    total MONEY NOT NULL DEFAULT 0,
+    -- total MONEY NOT NULL DEFAULT 0,
     idReservacion INT NOT NULL,
+    subTotal MONEY NOT NULL DEFAULT 0,
     -- PRIMARY KEY Ticket
     CONSTRAINT PK_Ticket_idTicket
     PRIMARY KEY CLUSTERED (idTicket),
@@ -254,6 +255,7 @@ CREATE TABLE TicketCargoExtra (
     fecha DATE NOT NULL,
     idTicket INT NOT NULL,
     idCargoExtra INT NOT NULL,
+    total MONEY NOT NULL DEFAULT 0,
     -- PRIMARY KEY TicketCargoExtra
     CONSTRAINT PK_TicketCargoExtra_idTicketCargoExtra
     PRIMARY KEY CLUSTERED (idTicketCargoExtra),
@@ -384,9 +386,9 @@ GO
 -- CAMBIOS    --
 ----------------
 
-ALTER TABLE TipoHabitacion ADD descripcion VARCHAR (100) NOT NULL;
-ALTER TABLE TicketCargoExtra  ADD total MONEY NOT NULL DEFAULT 0;
-ALTER TABLE Habitacion DROP COLUMN descripcion;
-ALTER TABLE Habitacion DROP COLUMN nombre;
-ALTER TABLE Ticket ADD subTotal MONEY NOT NULL DEFAULT 0;
-ALTER TABLE Ticket DROP COLUMN total;
+-- ALTER TABLE TipoHabitacion ADD descripcion VARCHAR (100) NOT NULL;
+-- ALTER TABLE TicketCargoExtra  ADD total MONEY NOT NULL DEFAULT 0;
+-- ALTER TABLE Habitacion DROP COLUMN descripcion;
+-- ALTER TABLE Habitacion DROP COLUMN nombre;
+-- ALTER TABLE Ticket ADD subTotal MONEY NOT NULL DEFAULT 0;
+-- ALTER TABLE Ticket DROP COLUMN total;
