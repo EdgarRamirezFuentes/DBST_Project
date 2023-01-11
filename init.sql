@@ -378,3 +378,15 @@ CREATE TABLE ReservacionLogs (
 );
 
 GO
+
+
+----------------
+-- CAMBIOS    --
+----------------
+
+ALTER TABLE TipoHabitacion ADD descripcion VARCHAR (100) NOT NULL;
+ALTER TABLE TicketCargoExtra  ADD total MONEY NOT NULL DEFAULT 0;
+ALTER TABLE Habitacion DROP COLUMN descripcion;
+ALTER TABLE Habitacion DROP COLUMN nombre;
+ALTER TABLE Ticket ADD subTotal MONEY NOT NULL DEFAULT 0;
+ALTER TABLE Ticket DROP COLUMN total;

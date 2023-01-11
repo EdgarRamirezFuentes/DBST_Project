@@ -112,3 +112,100 @@ END
 
 GO
 
+
+
+---------------------------
+-- TICKET  FUNCTIONS ------
+---------------------------
+CREATE FUNCTION fn_obtenerNoches
+(
+    @idReservacion INT
+)
+RETURNS INT
+AS
+BEGIN
+    DECLARE @noches INT
+    SELECT @noches = DATEDIFF(DAY,fechaInicio,fechaFin)
+    FROM Reservacion
+    WHERE idReservacion = @idReservacion
+    RETURN @noches
+END
+
+CREATE FUNCTION fn_obtenerPrecio
+(
+    @idHabitacion INT
+)
+RETURNS MONEY
+AS
+BEGIN
+	DECLARE @idTipoHabitacion INT
+		SELECT @idTipoHabitacion = idTipoHabitacion 
+		FROM Habitacion WHERE idHabitacion = @idHabitacion
+    DECLARE @precio MONEY
+    SELECT @precio = precio
+    FROM TipoHabitacion
+    WHERE idTipoHabitacion = @idTipoHabitacion
+    RETURN @precio
+END
+
+----
+CREATE FUNCTION fn_SubTotal
+(
+@idReservacion INT
+)
+RETURNS MONEY
+AS
+BEGIN
+	DECLARE @idHabitacion INT
+		SELECT @idHabitacion = idHabitacion
+		FROM Reservacion
+		WHERE idReservacion = @idReservacion
+	DECLARE @precioNoche MONEY
+		SELECT @precioNoche = dbo.fn_obtenerPrecio(@idHabitacion)
+	DECLARE @noches INT
+		SELECT @noches = dbo.fn_obtenerNoches(@idReservacion) 
+	DECLARE @subTotal MONEY
+		SELECT @subTotal = CAST((CAST(@precioNoche AS INT)) * @noches AS MONEY)
+	RETURN @subTotal
+END
+
+GO
+
+CREATE FUNCTION fn_obtenerSubTotal
+(
+@idTicket INT
+)
+RETURNS MONEY
+AS
+BEGIN
+	DECLARE @subTotal MONEY
+		SELECT @subTotal = subTotal
+		FROM Ticket WHERE idTicket = @idTicket
+	RETURN @subTotal
+END
+
+GO
+
+CREATE FUNCTION fn_totalCargosExtra
+(
+@idCargosExtra VARCHAR(100)
+)
+RETURNS MONEY
+AS
+BEGIN
+	DECLARE @len INT
+		SELECT @len = CAST(LEN(@idCargosExtra) AS INT);
+	DECLARE @count INT = 1;
+	DECLARE @auxPrecio MONEY;
+	DECLARE @totalCargos MONEY = 0;
+	DECLARE @idAUX INT;
+	WHILE (@count <= @len)
+	BEGIN
+		SELECT @idAUX = CAST(SUBSTRING(@idCargosExtra,@count,1) AS INT);
+		SELECT @auxPrecio = precio FROM CargoExtra WHERE idCargoExtra =  @idAUX;
+        SET @totalCargos = @totalCargos + @auxPrecio;
+		SET @count = @count + 1;
+	END;
+			
+	RETURN @totalCargos;
+END

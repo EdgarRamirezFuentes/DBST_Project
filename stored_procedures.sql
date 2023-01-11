@@ -1327,3 +1327,211 @@ END
 GO
 
 
+----------------------------
+---- TICKET PROCEDURES -----
+----------------------------
+
+CREATE PROCEDURE sp_ticket_crud
+@idTicket INT,
+@idReservacion INT,
+@accion VARCHAR(50)
+AS
+BEGIN
+	DECLARE @MSG VARCHAR(50);
+    DECLARE @ERROR INT;
+	DECLARE @fecha DATE 
+		SELECT @fecha = GETDATE();
+	DECLARE @subTotal MONEY
+		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
+	DECLARE @inserted TABLE (
+            idTicket INT,
+            fecha DATE,
+            idReservacion INT,
+            subTotal MONEY
+    );
+    IF @accion = 'FINDALL'
+    BEGIN
+        SELECT t.idTicket, t.fecha,t.idReservacion,t.subTotal,u.nombre, u.apPaterno, u.apMaterno
+        FROM Ticket t 
+        INNER JOIN Reservacion r
+        ON r.idReservacion = t.idReservacion
+        INNER JOIN Cliente c
+        ON c.idCliente = r.idCliente
+        INNER JOIN Usuario u
+        ON u.idUsuario = c.idUsuario
+        WHERE t.fecha <= GETDATE()
+        ORDER BY t.fecha DESC
+    END
+    ELSE IF @accion = 'INSERT'
+    BEGIN 
+    	BEGIN TRANSACTION 
+    	IF @idReservacion IS NULL 
+    	BEGIN
+                SET @MSG = 'The ID RESERVATION is required'
+                GOTO TRANSACTION_ERROR
+        END
+        
+        IF @accion = ''
+        BEGIN
+                SET @MSG = 'The ACCION is required'
+                GOTO TRANSACTION_ERROR
+        END
+    	
+        --INSERT TICKET--
+        INSERT INTO Ticket (fecha,idReservacion,subTotal)
+        OUTPUT INSERTED.*
+        INTO @inserted
+        VALUES (@fecha,@idReservacion,@subTotal)
+
+        SELECT @ERROR = @@ERROR;
+       
+        IF @ERROR <> 0
+        BEGIN
+        SET @MSG = 'There was an error trying to insert the user data'
+            GOTO TRANSACTION_ERROR;
+        END
+        
+        SELECT * FROM @inserted
+        COMMIT TRANSACTION
+    END
+    ELSE IF @accion = 'FIND'
+    BEGIN
+
+        SELECT t.idTicket, t.fecha,t.idReservacion,t.subTotal,u.nombre, u.apPaterno, u.apMaterno
+        FROM Ticket t 
+        INNER JOIN Reservacion r
+        ON r.idReservacion = t.idReservacion
+        INNER JOIN Cliente c
+        ON c.idCliente = r.idCliente
+        INNER JOIN Usuario u
+        ON u.idUsuario = c.idUsuario
+        WHERE r.idReservacion = @idReservacion
+    END
+    ELSE IF @accion = 'DELETE'
+    BEGIN
+        DECLARE @deleted TABLE (
+            idTicket INT,
+            fecha DATE,
+            idReservacion INT,
+            subTotal MONEY
+        );
+
+        DELETE FROM Ticket
+        OUTPUT DELETED.*
+        INTO @deleted
+        WHERE idTicket = @idTicket
+
+        SELECT * FROM @deleted
+    END
+    
+    
+    TRANSACTION_ERROR:
+        IF @ERROR <> 0
+        BEGIN
+            ROLLBACK TRANSACTION
+            RAISERROR(@MSG, 16, 1)
+        END
+END
+
+GO
+
+
+----------------------------
+-- CARGOEXTRA PROCEDURES ---
+----------------------------
+
+CREATE PROCEDURE sp_cargoExtra_crud
+@idCargoExtra INT,
+@nombre VARCHAR (50),
+@descripcion VARCHAR (100),
+@precio MONEY,
+@accion VARCHAR(50)
+AS
+BEGIN
+	DECLARE @MSG VARCHAR(50);
+    DECLARE @ERROR INT;
+	DECLARE @inserted TABLE (
+            idCargoExtra INT,
+            nombre VARCHAR (50),
+            descripcion VARCHAR (100),
+            precio MONEY
+    );
+    IF @accion = 'FINDALL'
+    BEGIN
+        SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio 
+        FROM CargoExtra ce  
+        ORDER BY ce.nombre DESC
+    END
+    ELSE IF @accion = 'INSERT'
+    BEGIN 
+    	BEGIN TRANSACTION 
+    	IF @nombre = '' OR @descripcion = '' OR @precio = 0 
+    	BEGIN
+                SET @MSG = 'Information missing'
+                GOTO TRANSACTION_ERROR
+        END
+        
+        IF @accion = ''
+        BEGIN
+                SET @MSG = 'The ACCION is required'
+                GOTO TRANSACTION_ERROR
+        END
+    	
+        --INSERT EXTRACHARGES--
+        INSERT INTO CargoExtra (nombre,descripcion,precio)
+        OUTPUT INSERTED.*
+        INTO @inserted
+        VALUES (@nombre,@descripcion,@precio)
+
+        SELECT @ERROR = @@ERROR;
+       
+        IF @ERROR <> 0
+        BEGIN
+        SET @MSG = 'There was an error trying to insert the extra charge'
+            GOTO TRANSACTION_ERROR;
+        END
+        
+        SELECT * FROM @inserted
+        COMMIT TRANSACTION
+    END
+    ELSE IF @accion = 'FINDBYID'
+    BEGIN
+
+        SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio 
+        FROM CargoExtra ce  
+        WHERE idCargoExtra = @idCargoExtra
+    END
+    ELSE IF @accion = 'FINDBYNAME'
+    BEGIN
+
+        SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio 
+        FROM CargoExtra ce  
+        WHERE nombre = @nombre
+    END
+    ELSE IF @accion = 'DELETE'
+    BEGIN
+        DECLARE @deleted TABLE (
+            idCargoExtra INT,
+            nombre VARCHAR (50),
+            descripcion VARCHAR (100),
+            precio MONEY
+        );
+
+        DELETE FROM CargoExtra
+        OUTPUT DELETED.*
+        INTO @deleted
+        WHERE idCargoExtra = @idCargoExtra
+
+        SELECT * FROM @deleted
+    END
+    
+    
+    TRANSACTION_ERROR:
+        IF @ERROR <> 0
+        BEGIN
+            ROLLBACK TRANSACTION
+            RAISERROR(@MSG, 16, 1)
+        END
+END
+
+GO
