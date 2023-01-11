@@ -1331,7 +1331,7 @@ GO
 ---- TICKET PROCEDURES -----
 ----------------------------
 
-CREATE PROCEDURE sp_ticket_crud
+ALTER PROCEDURE sp_ticket_crud
 @idTicket INT,
 @idReservacion INT,
 @accion VARCHAR(50)
@@ -1343,15 +1343,19 @@ BEGIN
 		SELECT @fecha = GETDATE();
 	DECLARE @subTotal MONEY
 		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
+	DECLARE @fechaFin DATE
+		SELECT @fechaFin = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
+	DECLARE @total MONEY
+		SELECT @total = @subTotal;
 	DECLARE @inserted TABLE (
             idTicket INT,
             fecha DATE,
             idReservacion INT,
-            subTotal MONEY
+            total MONEY
     );
     IF @accion = 'FINDALL'
     BEGIN
-        SELECT t.idTicket, t.fecha,t.idReservacion,t.subTotal,u.nombre, u.apPaterno, u.apMaterno
+        SELECT t.idTicket, t.fecha,t.idReservacion,t.total,u.nombre, u.apPaterno, u.apMaterno
         FROM Ticket t 
         INNER JOIN Reservacion r
         ON r.idReservacion = t.idReservacion
@@ -1377,11 +1381,16 @@ BEGIN
                 GOTO TRANSACTION_ERROR
         END
     	
+        IF @fechaFin > @fecha 
+        BEGIN 
+        	SET @total = @total + 1000;
+        END
+        
         --INSERT TICKET--
-        INSERT INTO Ticket (fecha,idReservacion,subTotal)
+        INSERT INTO Ticket (fecha,idReservacion,total)
         OUTPUT INSERTED.*
         INTO @inserted
-        VALUES (@fecha,@idReservacion,@subTotal)
+        VALUES (@fecha,@idReservacion,@total)
 
         SELECT @ERROR = @@ERROR;
        
@@ -1397,7 +1406,7 @@ BEGIN
     ELSE IF @accion = 'FIND'
     BEGIN
 
-        SELECT t.idTicket, t.fecha,t.idReservacion,t.subTotal,u.nombre, u.apPaterno, u.apMaterno
+        SELECT t.idTicket, t.fecha,t.idReservacion,t.total,u.nombre, u.apPaterno, u.apMaterno
         FROM Ticket t 
         INNER JOIN Reservacion r
         ON r.idReservacion = t.idReservacion
@@ -1413,7 +1422,7 @@ BEGIN
             idTicket INT,
             fecha DATE,
             idReservacion INT,
-            subTotal MONEY
+            total MONEY
         );
 
         DELETE FROM Ticket

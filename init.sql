@@ -226,7 +226,8 @@ CREATE TABLE Ticket (
     fecha DATE NOT NULL,
     -- total MONEY NOT NULL DEFAULT 0,
     idReservacion INT NOT NULL,
-    subTotal MONEY NOT NULL DEFAULT 0,
+    --subTotal MONEY NOT NULL DEFAULT 0,
+    total MONEY NOT NULL DEFAULT 0,
     -- PRIMARY KEY Ticket
     CONSTRAINT PK_Ticket_idTicket
     PRIMARY KEY CLUSTERED (idTicket),
@@ -239,7 +240,7 @@ CREATE TABLE Ticket (
 
 GO
 
-CREATE TABLE CargoExtra (
+/*CREATE TABLE CargoExtra (
     idCargoExtra INT IDENTITY(1,1) NOT NULL,
     nombre VARCHAR (50) NOT NULL,
     descripcion VARCHAR (100) NOT NULL,
@@ -271,7 +272,7 @@ CREATE TABLE TicketCargoExtra (
     ON DELETE CASCADE
 );
 
-GO
+GO*/
 
 -----------------
 -- TASK TABLES --

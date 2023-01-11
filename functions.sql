@@ -185,7 +185,7 @@ BEGIN
 END
 
 GO
-
+/*
 CREATE FUNCTION fn_totalCargosExtra
 (
 @idCargosExtra VARCHAR(100)
@@ -208,4 +208,4 @@ BEGIN
 	END;
 			
 	RETURN @totalCargos;
-END
+END*/
