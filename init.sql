@@ -1,4 +1,9 @@
 -- INIT SCRIPT FOR ESCOM_HOTEL DB
+USE MASTER;
+
+DROP DATABASE IF EXISTS ESCOM_HOTEL;
+
+GO; 
 
 CREATE DATABASE ESCOM_HOTEL;
 
@@ -252,7 +257,7 @@ CREATE TABLE CargoExtra (
 GO
 
 CREATE TABLE ReservacionCargoExtra (
-    idReservacionCargoExtra INT IDENTITY(1,1) NOT NULL
+    idReservacionCargoExtra INT IDENTITY(1,1) NOT NULL,
     idCargoExtra INT NOT NULL,
     idReservacion INT NOT NULL,
     -- PRIMARY KEY 

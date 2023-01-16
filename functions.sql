@@ -93,26 +93,26 @@ RETURNS @habitacionesDisponibles TABLE
 AS
 BEGIN
     INSERT INTO @habitacionesDisponibles
-    SELECT h.idHabitacion, h.nombre, h.descripcion,
-    th.nombre AS nombreTipo, th.numCamas, th.numPersonas, th.precio FROM Habitacion h
-    LEFT JOIN Reservacion r
+    SELECT DISTINCT  h.idHabitacion, h.nombre, h.descripcion, th.nombre AS nombreTipo, th.numCamas, th.numPersonas, th.precio   
+    FROM Habitacion h 
+    LEFT JOIN Reservacion r 
     ON h.idHabitacion = r.idHabitacion
     INNER JOIN TipoHabitacion th
     ON h.idTipoHabitacion = th.idTipoHabitacion
     WHERE
-    r.idHabitacion IS NULL -- NOT RESERVED
+    r.idHabitacion IS NULL
     OR
-    ( -- AVAILABLE IN THAT DATE
-    @fechaInicio NOT BETWEEN r.fechaInicio AND DATEADD(DAY, -1, r.fechaFin)
-    AND
-    @fechaFin NOT BETWEEN DATEADD(DAY, 1, r.fechaInicio) AND r.fechaFin
+    NOT EXISTS  (
+        select * from Reservacion r where ( -- AVAILABLE IN THAT DATE
+        @fechaInicio BETWEEN r.fechaInicio AND DATEADD(DAY, -1, r.fechaFin)
+        AND
+        @fechaFin BETWEEN DATEADD(DAY, 1, r.fechaInicio) AND r.fechaFin
+        )
     )
     RETURN
 END
 
 GO
-
-
 
 ---------------------------
 -- TICKET  FUNCTIONS ------
@@ -131,6 +131,8 @@ BEGIN
     RETURN @noches
 END
 
+GO
+
 CREATE FUNCTION fn_obtenerPrecio
 (
     @idHabitacion INT
@@ -147,6 +149,8 @@ BEGIN
     WHERE idTipoHabitacion = @idTipoHabitacion
     RETURN @precio
 END
+
+GO
 
 ----
 CREATE FUNCTION fn_SubTotal
@@ -169,7 +173,9 @@ BEGIN
 	RETURN @subTotal
 END
 
-ALTER FUNCTION fn_totalCargosExtra
+GO
+
+CREATE FUNCTION fn_totalCargosExtra
 (
 	@idReservacion INT
 )
