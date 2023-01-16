@@ -21,5 +21,6 @@
 | **Reservation** | Reservation | **/api/v1/reservation?active=true** | GET | YES | ```{}``` | Get all the active reservations |
 | **Reservation** | Reservation | **/api/v1/reservation** | POST | YES | ```{ "begin_date" : "2023-04-16", "end_date" : "2023-04-19", "room_id" : 1003, "client_id": 1 }``` | Register a new reservation |
 | **Ticket** | Ticket | **/api/v1/ticket** | GET | YES | ```{}``` | Get  all the tickets |
+| **Ticket** | Ticket | **/api/v1/ticket** | POST | YES | ```{"reservation_id" : 1}``` | Create a new ticket |
 
 

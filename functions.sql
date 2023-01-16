@@ -169,43 +169,21 @@ BEGIN
 	RETURN @subTotal
 END
 
-GO
-
-CREATE FUNCTION fn_obtenerSubTotal
+ALTER FUNCTION fn_totalCargosExtra
 (
-@idTicket INT
+	@idReservacion INT
 )
 RETURNS MONEY
-AS
-BEGIN
-	DECLARE @subTotal MONEY
-		SELECT @subTotal = subTotal
-		FROM Ticket WHERE idTicket = @idTicket
-	RETURN @subTotal
+AS 
+BEGIN 
+	DECLARE @totalCargosExtra MONEY
+		SELECT @totalCargosExtra = SUM(ce.precio) 
+		FROM CargoExtra ce 
+		INNER JOIN ReservacionCargoExtra rce 
+		ON ce.idCargoExtra = rce.idCargoExtra 
+		WHERE rce.idReservacion = @idReservacion
+	RETURN @totalCargosExtra
 END
 
 GO
-/*
-CREATE FUNCTION fn_totalCargosExtra
-(
-@idCargosExtra VARCHAR(100)
-)
-RETURNS MONEY
-AS
-BEGIN
-	DECLARE @len INT
-		SELECT @len = CAST(LEN(@idCargosExtra) AS INT);
-	DECLARE @count INT = 1;
-	DECLARE @auxPrecio MONEY;
-	DECLARE @totalCargos MONEY = 0;
-	DECLARE @idAUX INT;
-	WHILE (@count <= @len)
-	BEGIN
-		SELECT @idAUX = CAST(SUBSTRING(@idCargosExtra,@count,1) AS INT);
-		SELECT @auxPrecio = precio FROM CargoExtra WHERE idCargoExtra =  @idAUX;
-        SET @totalCargos = @totalCargos + @auxPrecio;
-		SET @count = @count + 1;
-	END;
-			
-	RETURN @totalCargos;
-END*/
+

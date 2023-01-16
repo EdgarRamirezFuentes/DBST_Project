@@ -1331,7 +1331,7 @@ GO
 ---- TICKET PROCEDURES -----
 ----------------------------
 
-ALTER PROCEDURE sp_ticket_crud
+CREATE PROCEDURE sp_ticket_crud
 @idTicket INT,
 @idReservacion INT,
 @accion VARCHAR(50)
@@ -1345,8 +1345,10 @@ BEGIN
 		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
 	DECLARE @fechaFin DATE
 		SELECT @fechaFin = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
-	DECLARE @total MONEY
-		SELECT @total = @subTotal;
+    DECLARE @total MONEY
+   		SET @total = @subTotal;
+	DECLARE @totalCargosExtra MONEY 
+        SELECT @totalCargosExtra = dbo.fn_totalCargosExtra(@idReservacion);
 	DECLARE @inserted TABLE (
             idTicket INT,
             fecha DATE,
@@ -1386,6 +1388,19 @@ BEGIN
         	SET @total = @total + 1000;
         END
         
+        IF @totalCargosExtra <> NULL
+        BEGIN
+        	SET @total = @total + @totalCargosExtra;
+        END
+        ELSE IF @totalCargosExtra IS NULL
+	    BEGIN
+        	SET @total = @total + 0;
+        END
+        
+        	
+        
+        
+
         --INSERT TICKET--
         INSERT INTO Ticket (fecha,idReservacion,total)
         OUTPUT INSERTED.*
@@ -1441,6 +1456,7 @@ BEGIN
             RAISERROR(@MSG, 16, 1)
         END
 END
+	
 
 GO
 

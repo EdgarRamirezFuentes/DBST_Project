@@ -240,7 +240,7 @@ CREATE TABLE Ticket (
 
 GO
 
-/*CREATE TABLE CargoExtra (
+CREATE TABLE CargoExtra (
     idCargoExtra INT IDENTITY(1,1) NOT NULL,
     nombre VARCHAR (50) NOT NULL,
     descripcion VARCHAR (100) NOT NULL,
@@ -251,28 +251,26 @@ GO
 
 GO
 
-CREATE TABLE TicketCargoExtra (
-    idTicketCargoExtra INT IDENTITY(1,1) NOT NULL,
-    fecha DATE NOT NULL,
-    idTicket INT NOT NULL,
+CREATE TABLE ReservacionCargoExtra (
+    idReservacionCargoExtra INT IDENTITY(1,1) NOT NULL
     idCargoExtra INT NOT NULL,
-    total MONEY NOT NULL DEFAULT 0,
-    -- PRIMARY KEY TicketCargoExtra
-    CONSTRAINT PK_TicketCargoExtra_idTicketCargoExtra
-    PRIMARY KEY CLUSTERED (idTicketCargoExtra),
-    -- FOREIGN KEY Ticket
-    CONSTRAINT FK_TicketCargoExtra_Ticket
-    FOREIGN KEY (idTicket)
-    REFERENCES Ticket (idTicket)
-    ON DELETE CASCADE,
+    idReservacion INT NOT NULL,
+    -- PRIMARY KEY 
+    CONSTRAINT PK_ReservacionCargoExtra_idReservacionCargoExtra
+    PRIMARY KEY CLUSTERED (idReservacionCargoExtra),
     -- FOREIGN KEY Cargo Extra
-    CONSTRAINT FK_TicketCargoExtra_CargoExtra
+    CONSTRAINT FK_ReservacionCargoExtra_idCargoExtra
     FOREIGN KEY (idCargoExtra)
     REFERENCES CargoExtra (idCargoExtra)
+    ON DELETE CASCADE,
+    -- FOREIGN KEY Reservacion
+    CONSTRAINT FK_ReservacionCargoExtra_idReservacion
+    FOREIGN KEY (idReservacion)
+    REFERENCES Reservacion (idReservacion)
     ON DELETE CASCADE
 );
 
-GO*/
+GO
 
 -----------------
 -- TASK TABLES --
@@ -382,14 +380,3 @@ CREATE TABLE ReservacionLogs (
 
 GO
 
-
-----------------
--- CAMBIOS    --
-----------------
-
--- ALTER TABLE TipoHabitacion ADD descripcion VARCHAR (100) NOT NULL;
--- ALTER TABLE TicketCargoExtra  ADD total MONEY NOT NULL DEFAULT 0;
--- ALTER TABLE Habitacion DROP COLUMN descripcion;
--- ALTER TABLE Habitacion DROP COLUMN nombre;
--- ALTER TABLE Ticket ADD subTotal MONEY NOT NULL DEFAULT 0;
--- ALTER TABLE Ticket DROP COLUMN total;
