@@ -289,4 +289,110 @@ EXEC sp_cliente_crud
   'CDMX', 'Tlalpan', '01258',
   'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
 GO 
+
+-- ADDING TYPE ROOMS --
+--Empiezan 10 Tipos de Habitaciones---
+
+--1--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Economica Estudiantes', 1, 1, 300, 'INSERT'
+GO
+
+--2--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Economica General', 1, 2, 600, 'INSERT'
+GO
+
+--3--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Individual', 1, 1, 650, 'INSERT'
+GO
+
+--4--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Inicial', 2, 2, 900, 'INSERT'
+GO
+
+--5--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Media', 2, 3, 1600, 'INSERT'
+GO
+
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Alta', 2, 4, 2000, 'INSERT'
+GO
+
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Lujo', 2, 5, 2000, 'INSERT'
+GO
+
+--8--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Para Fiesta', 2, 5, 3000, 'INSERT'
+GO
+
+--9--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar para Trabajo', 3, 5, 2800, 'INSERT'
+GO
+
+--10--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Familiar', 3, 6, 3200, 'INSERT'
+GO
+
+
+-- ADDING ROOMS --
+--Empiezan 10 Habitaciones---
+
+EXEC sp_habitacion_crud
+  NULL, 'Economica para chavos','Habitacion para estudiantes de 18 a 27 años con una cama',
+  1,1,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Economica para parejitas','Habitacion para pareja con una cama',
+  1,2,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Economica Forever Alone','Habitacion para una sola persona con una cama',
+  1,3,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Economica De paso','Habitacion para una sola persona con una cama y aditamentos de un solo uso',
+  1,3,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion best friends','Habitacion para 2 personas con camas separadas',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion Viaje en Familia','Habitacion con 3 camas para familias de 6 integrantes',
+  1,10,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion Saca la Chamba','Habitacion para grupo de 5 personas acondicionada para trabajar',
+  1,9,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion Relajacion','Habitacion para grupo de 5 personas que quieran pasar dias de relajacion',
+  1,8,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion escape ','Habitacion para estudiantes que buscan lugar de paso a buen precio',
+  1,1,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion grupito','Habitacion para 3 personas con servicios basicos de relajacion',
+  1,5,'INSERT'
+GO
+
 ----
