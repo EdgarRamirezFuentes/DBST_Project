@@ -195,7 +195,10 @@ EXEC sp_trabajador_crud
 GO
 
 --Terminan 10 empleados---
+
+
 -- ADDING CUSTOMERS --
+--Empiezan 10 usuarios---
 
 EXEC sp_cliente_crud
   NULL, 'Edgar', 'Martinez', 'Ruiz',
@@ -224,4 +227,66 @@ EXEC sp_cliente_crud
   'Edgar', 'Ramirez', 'Fuentes', '144845135', 'INSERT'
 GO 
 
+EXEC sp_cliente_crud
+  NULL, 'Emiliano', 'Ocampo', 'Arce',
+  '2003-01-01', 'M', 'AAAOE', 'AAAOE',
+  '5522114478', 'gengiemi@gmail.com', 'emiliano', 3,
+  'Durazno', '12', '3', 'la cruz',
+  'CDMX', 'magdalena', '10800',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Jimena', 'Lopez', 'Arce',
+  '2002-01-01', 'F', 'AAALJ', 'AAALJ',
+  '5522114473', 'ARMENA@gmail.com', '123456', 3,
+  'Durazno', '12', '3', 'la cruz',
+  'CDMX', 'magdalena', '10800',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Gabriela', 'Romero', 'Soria',
+  '1992-01-01', 'F', 'RRSGA', 'RRSGA',
+  '5522115878', 'sangabus@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Victoria', 'Romero', 'Soria',
+  '1990-01-01', 'F', 'VVSGA', 'VVSGA',
+  '5546115878', 'romerov@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Xochilt', 'Romero', 'Soria',
+  '1992-01-01', 'F', 'XXSGA', 'XXSGA',
+  '5511115878', 'xoch@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Ericka', 'Nayelhi', 'Zavala',
+  '1990-01-01', 'F', 'EZAVA', 'EZAVA',
+  '5522115812', 'ezavalar@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Marisol', 'Arce', 'Soria',
+  '1988-01-01', 'F', 'ARGA', 'ARGA',
+  '5522115878', 'solarce@gmail.com', '123456', 3,
+  'av mexico', '12', '3', 'Pedregal',
+  'CDMX', 'Tlalpan', '01258',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
 ----
