@@ -1493,7 +1493,7 @@ GO
 ---- TICKET PROCEDURES -----
 ----------------------------
 
-ALTER PROCEDURE sp_ticket_crud
+CREATE PROCEDURE sp_ticket_crud
 @idTicket INT,
 @idReservacion INT,
 @accion VARCHAR(50)
@@ -1501,19 +1501,13 @@ AS
 BEGIN
 	DECLARE @MSG VARCHAR(50);
     DECLARE @ERROR INT;
-	DECLARE @fecha DATE
+	DECLARE @fecha DATE 
 		SELECT @fecha = GETDATE();
 	DECLARE @subTotal MONEY
 		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
 	DECLARE @fechaFin DATE
 		SELECT @fechaFin = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
-<<<<<<< HEAD
 	DECLARE @totalCargosExtra MONEY 
-=======
-    DECLARE @total MONEY
-   		SET @total = @subTotal;
-	DECLARE @totalCargosExtra MONEY
->>>>>>> 402d63699de46dc1b1fa82fa73026ff9ad190eda
         SELECT @totalCargosExtra = dbo.fn_totalCargosExtra(@idReservacion);
     DECLARE @total MONEY
    		SET @total = @subTotal + @totalCargosExtra;
@@ -1526,7 +1520,7 @@ BEGIN
     IF @accion = 'FINDALL'
     BEGIN
         SELECT t.idTicket, t.fecha,t.idReservacion,t.total,u.nombre, u.apPaterno, u.apMaterno
-        FROM Ticket t
+        FROM Ticket t 
         INNER JOIN Reservacion r
         ON r.idReservacion = t.idReservacion
         INNER JOIN Cliente c
@@ -1537,43 +1531,21 @@ BEGIN
         ORDER BY t.fecha DESC
     END
     ELSE IF @accion = 'INSERT'
-    BEGIN
-    	BEGIN TRANSACTION
-    	IF @idReservacion IS NULL
+    BEGIN 
+    	BEGIN TRANSACTION 
+    	IF @idReservacion IS NULL 
     	BEGIN
                 SET @MSG = 'The ID RESERVATION is required'
                 GOTO TRANSACTION_ERROR
         END
-
+        
         IF @accion = ''
         BEGIN
                 SET @MSG = 'The ACCION is required'
                 GOTO TRANSACTION_ERROR
         END
-<<<<<<< HEAD
     	
         
-=======
-
-        IF @fechaFin > @fecha
-        BEGIN
-        	SET @total = @total + 1000;
-        END
-
-        IF @totalCargosExtra <> NULL
-        BEGIN
-        	SET @total = @total + @totalCargosExtra;
-        END
-        ELSE IF @totalCargosExtra IS NULL
-	    BEGIN
-        	SET @total = @total + 0;
-        END
-
-
-
-
-
->>>>>>> 402d63699de46dc1b1fa82fa73026ff9ad190eda
         --INSERT TICKET--
         INSERT INTO Ticket (fecha,idReservacion,total)
         OUTPUT INSERTED.*
@@ -1581,27 +1553,21 @@ BEGIN
         VALUES (@fecha,@idReservacion,@total)
 
         SELECT @ERROR = @@ERROR;
-
+       
         IF @ERROR <> 0
         BEGIN
         SET @MSG = 'There was an error trying to insert the user data'
             GOTO TRANSACTION_ERROR;
         END
-
+        
         SELECT * FROM @inserted
         COMMIT TRANSACTION
     END
-    ELSE IF @accion = 'FINDBYTICKET'
+    ELSE IF @accion = 'FIND'
     BEGIN
-        BEGIN TRANSACTION
-        IF @idTicket IS NULL
-        BEGIN
-                SET @MSG = 'The ID TICKET is required'
-                GOTO TRANSACTION_ERROR
-        END
 
         SELECT t.idTicket, t.fecha,t.idReservacion,t.total,u.nombre, u.apPaterno, u.apMaterno
-        FROM Ticket t
+        FROM Ticket t 
         INNER JOIN Reservacion r
         ON r.idReservacion = t.idReservacion
         INNER JOIN Cliente c
@@ -1612,13 +1578,6 @@ BEGIN
     END
     ELSE IF @accion = 'DELETE'
     BEGIN
-        BEGIN TRANSACTION
-        IF @idTicket IS NULL
-        BEGIN
-                SET @MSG = 'The ID TICKET is required'
-                GOTO TRANSACTION_ERROR
-        END
-
         DECLARE @deleted TABLE (
             idTicket INT,
             fecha DATE,
@@ -1633,8 +1592,8 @@ BEGIN
 
         SELECT * FROM @deleted
     END
-
-
+    
+    
     TRANSACTION_ERROR:
         IF @ERROR <> 0
         BEGIN
@@ -1642,13 +1601,9 @@ BEGIN
             RAISERROR(@MSG, 16, 1)
         END
 END
-<<<<<<< HEAD
-=======
-
->>>>>>> 402d63699de46dc1b1fa82fa73026ff9ad190eda
+	
 
 GO
-
 
 ----------------------------
 -- CARGOEXTRA PROCEDURES ---
@@ -1749,3 +1704,92 @@ BEGIN
 END
 
 GO
+
+---------------------------------------
+-- RESERVACIONCARGOEXTRA PROCEDURES ---
+---------------------------------------
+
+CREATE PROCEDURE sp_reservacionCargoExtra_crud
+@idReservacionCargoExtra INT,
+@idCargoExtra INT,
+@idReservacion INT,
+@accion VARCHAR(50)
+AS
+BEGIN
+	DECLARE @MSG VARCHAR(50);
+    DECLARE @ERROR INT;
+	DECLARE @inserted TABLE (
+			idReservacionCargoExtra INT,
+            idCargoExtra INT,
+            idReservacion INT
+    );
+    IF @accion = 'FINDALL'
+    BEGIN
+        SELECT rce.idReservacionCargoExtra,rce.idCargoExtra,rce.idReservacion
+        FROM ReservacionCargoExtra rce
+ 
+    END
+    ELSE IF @accion = 'INSERT'
+    BEGIN 
+    	BEGIN TRANSACTION 
+    	IF @idCargoExtra IS NULL OR @idReservacion IS NULL
+    	BEGIN
+                SET @MSG = 'Information missing'
+                GOTO TRANSACTION_ERROR
+        END
+        
+        IF @accion = ''
+        BEGIN
+                SET @MSG = 'The ACCION is required'
+                GOTO TRANSACTION_ERROR
+        END
+    	
+        --INSERT EXTRACHARGES--
+        INSERT INTO ReservacionCargoExtra(idCargoExtra,idReservacion)
+        OUTPUT INSERTED.*
+        INTO @inserted
+        VALUES (@idCargoExtra,@idReservacion)
+
+        SELECT @ERROR = @@ERROR;
+       
+        IF @ERROR <> 0
+        BEGIN
+        SET @MSG = 'There was an error trying to insert the extra charge'
+            GOTO TRANSACTION_ERROR;
+        END
+        
+        SELECT * FROM @inserted
+        COMMIT TRANSACTION
+    END
+    ELSE IF @accion = 'FINDBYRESERVATION'
+    BEGIN
+
+        SELECT rce.idReservacionCargoExtra,rce.idCargoExtra,rce.idReservacion
+        FROM ReservacionCargoExtra rce  
+        WHERE idReservacion = @idReservacion
+    END
+    ELSE IF @accion = 'DELETE'
+    BEGIN
+        DECLARE @deleted TABLE (
+            idReservacionCargoExtra INT,
+            idCargoExtra INT,
+            idReservacion INT
+        );
+
+        DELETE FROM ReservacionCargoExtra
+        OUTPUT DELETED.*
+        INTO @deleted
+        WHERE idReservacionCargoExtra = @idReservacionCargoExtra
+
+        SELECT * FROM @deleted
+    END
+    
+    
+    TRANSACTION_ERROR:
+        IF @ERROR <> 0
+        BEGIN
+            ROLLBACK TRANSACTION
+            RAISERROR(@MSG, 16, 1)
+        END
+END
+
