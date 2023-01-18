@@ -1819,7 +1819,7 @@ def reservation():
                 begin_date = data['begin_date']
                 end_date = data['end_date']
                 room_id = data['room_id']
-                client_id = data['client_id']
+                user_id = data['user_id']
                 current_date = datetime.now().strftime('%Y-%m-%d')
 
 
@@ -1838,7 +1838,7 @@ def reservation():
                     begin_date,
                     end_date,
                     room_id,
-                    client_id,
+                    user_id,
                     'INSERT'
                 ))
                 response = cursor.fetchone()
@@ -1919,15 +1919,23 @@ def reservation_by_id(reservation_id):
 
                 data = request.get_json()
 
+                reservation_user_id = data['user_id']
+                reservation_id = data['reservation_id']
+
                 if not data:
                     return jsonify({'msg': 'Missing data.'}), 400
+
+                if user_role == 'client':
+                    is_owner = cursor.callproc('sp_validarPertenenciaReservacion', (reservation_id, reservation_user_id))
+
+                    if not is_owner:
+                        return jsonify({'msg': 'Unauthorized.'}), 401
 
                 begin_date = data['begin_date']
                 end_date = data['end_date']
 
                 current_date = datetime.now().strftime('%Y-%m-%d')
 
-                '''
                 if not begin_date or not end_date or not room_id:
                     return jsonify({'msg': 'Missing data.'}), 400
 
@@ -1936,7 +1944,6 @@ def reservation_by_id(reservation_id):
 
                 if begin_date > end_date:
                     return jsonify({'msg': 'Invalid dates.'}), 400
-                '''
 
                 cursor.callproc('sp_reservacion_crud',
                 (
@@ -1947,6 +1954,60 @@ def reservation_by_id(reservation_id):
                     None,
                     'UPDATE'
                 ))
+
+                response = cursor.fetchone()
+                conn.commit()
+
+                return jsonify(response), 200
+        except OperationalError as e:
+            return jsonify({'msg' : f'There is no reservation with id {reservation_id}'}), 404
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : str(e)}), 500
+        except Error as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        finally:
+            app.logger.info( f'User ID({user_id}) updated the reservation with id {reservation_id}')
+            if cursor:
+                cursor.close()
+            if db:
+                conn.close()
+    elif request.method == 'DELETE':
+        try:
+            conn = db.connect()
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                data = request.get_json()
+
+                reservation_user_id = data['user_id']
+                reservation_id = data['reservation_id']
+
+                if not data:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+                if user_role == 'client':
+                    is_owner = cursor.callproc('sp_validarPertenenciaReservacion', (reservation_id, reservation_user_id))
+
+                    if not is_owner:
+                        return jsonify({'msg': 'Unauthorized.'}), 401
+
+                cursor.callproc('sp_reservacion_crud',
+                (
+                    reservation_id,
+                    None,
+                    None,
+                    None,
+                    None,
+                    'DELETE'
+                ))
+
                 response = cursor.fetchone()
                 conn.commit()
 
@@ -1968,10 +2029,47 @@ def reservation_by_id(reservation_id):
             if db:
                 conn.close()
 
-    elif request.method == 'PUT':
-        pass
-    elif request.method == 'DELETE':
-        pass
+
+@app.route('/api/v1/reservation/user/<int:user_id>', methods=['GET'])
+@jwt_required()
+def get_user_reservations(user_id):
+    try:
+        conn = db.connect()
+        if not conn:
+            app.logger.critical( f'Database unavailable')
+            return jsonify({'msg': 'Service unavailable.'}), 500
+
+        with conn.cursor(as_dict=True) as cursor:
+            if not cursor:
+                app.logger.critical( f'Database unavailable')
+                return jsonify({'msg': 'Service unavailable.'}), 500
+
+
+            cursor.callproc('sp_reservacion_crud',
+            (
+                None,
+                None,
+                None,
+                user_id,
+                None,
+                'FINDALLBYUSER'
+            ))
+
+            response = cursor.fetchall()
+
+            return jsonify(response), 200
+    except DatabaseError as e:
+        app.logger.error(str(e))
+        return jsonify({'message' : str(e)}), 500
+    except Error as e:
+        app.logger.error(str(e))
+        return jsonify({'message' : 'Error' }), 500
+    finally:
+        app.logger.info( f'User ID({user_id}) retrieved the reservations')
+        if cursor:
+            cursor.close()
+        if db:
+            conn.close()
 
 
 @app.route('/api/v1/reservation/get-available-rooms', methods=['POST'])

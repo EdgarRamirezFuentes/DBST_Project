@@ -163,6 +163,7 @@ BEGIN
 END
 
 GO
+
 --------------------------------
 -- EMPLOYEE STORED PROCEDURES --
 --------------------------------
@@ -673,7 +674,7 @@ BEGIN
             END
 
             -- Custommer creation --
-            INSERT INTO Cliente 
+            INSERT INTO Cliente
             (
                 idUsuario
             )
@@ -1184,14 +1185,27 @@ CREATE PROCEDURE sp_reservacion_crud
 @fechaInicio DATE,
 @fechaFin DATE,
 @idHabitacion INT,
-@idCliente INT,
+@idUsuario INT,
 @accion VARCHAR(50)
 AS
 BEGIN
+    DECLARE @ERROR INT
+    DECLARE @idCliente INT
+    DECLARE @MSG VARCHAR(255)
+    DECLARE @data TABLE (
+        idReservacion INT,
+        fechaInicio DATE,
+        fechaFin DATE,
+        idHabitacion INT,
+        idCliente INT
+    )
+
     IF @accion = 'FINDALL'
     BEGIN
-        SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
-        h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
+        SELECT r.idReservacion, r.fechaInicio,
+        r.fechaFin, r.idHabitacion, r.idCliente,
+        h.nombre as 'habitacion', u.nombre,
+        u.apPaterno, u.apMaterno
         FROM Reservacion r
         INNER JOIN Habitacion h
         ON h.idHabitacion = r.idHabitacion
@@ -1199,13 +1213,15 @@ BEGIN
         ON c.idCliente = r.idCliente
         INNER JOIN Usuario u
         ON u.idUsuario = c.idUsuario
-        WHERE r.fechaFin >= GETDATE()
         ORDER BY r.fechaInicio DESC
     END
+
     ELSE IF @accion = 'FINDALLACTIVE'
     BEGIN
-        SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
-        h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
+        SELECT r.idReservacion, r.fechaInicio,
+        r.fechaFin, r.idHabitacion, r.idCliente,
+        h.nombre as 'habitacion', u.nombre,
+        u.apPaterno, u.apMaterno
         FROM Reservacion r
         INNER JOIN Habitacion h
         ON h.idHabitacion = r.idHabitacion
@@ -1216,41 +1232,115 @@ BEGIN
         WHERE r.fechaFin >= GETDATE()
         ORDER BY r.fechaInicio DESC
     END
+
     ELSE IF @accion = 'FINDALLBYUSER'
     BEGIN
-        SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
-        h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
-        FROM Reservacion r
-        INNER JOIN Habitacion h
-        ON h.idHabitacion = r.idHabitacion
-        INNER JOIN Cliente c
-        ON c.idCliente = r.idCliente
-        INNER JOIN Usuario u
-        ON u.idUsuario = c.idUsuario
-        WHERE r.idCliente = @idCliente
-        ORDER BY r.fechaInicio DESC
+
+        IF @idUsuario IS NULL OR @idUsuario < 1
+        BEGIN
+            RAISERROR('The user id is required', 16, 1)
+            RETURN
+        END
+
+        IF NOT EXISTS (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
+        BEGIN
+            RAISERROR('The user id is not valid', 16, 1)
+            RETURN
+        END
+        ELSE
+        BEGIN
+            DECLARE @idCliente = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
+
+            SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
+            h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
+            FROM Reservacion r
+            INNER JOIN Habitacion h
+            ON h.idHabitacion = r.idHabitacion
+            INNER JOIN Cliente c
+            ON c.idCliente = r.idCliente
+            INNER JOIN Usuario u
+            ON u.idUsuario = c.idUsuario
+            WHERE r.idCliente = @idCliente
+            ORDER BY r.fechaInicio DESC
+        END
     END
+
     ELSE IF @accion = 'INSERT'
     BEGIN
-        DECLARE @inserted TABLE (
-            idReservacion INT,
-            fechaInicio DATE,
-            fechaFin DATE,
-            idHabitacion INT,
-            idCliente INT
-        );
+        BEGIN TRANSACTION
+            IF @fechaInicio IS NULL OR @fechaFin IS NULL
+            OR @idHabitacion IS NULL OR @idHabitacion < 1
+            OR @idUsuario IS NULL OR @idUsuario < 1
+            BEGIN
+                SET @MSG = 'The reservation data is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        INSERT INTO Reservacion (fechaInicio,fechaFin,idHabitacion,idCliente)
-        OUTPUT INSERTED.*
-        INTO @inserted
-        VALUES (@fechaInicio,@fechaFin,@idHabitacion,@idCliente)
+            IF @fechaInicio > @fechaFin OR @fechaInicio < GETDATE()
+            BEGIN
+                SET @MSG = 'The reservation dates are not valid'
+                GOTO TRANSACTION_ERROR
+            END
 
-        SELECT * FROM @inserted
+
+            IF NOT EXISTS (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
+            BEGIN
+                SET @MSG = 'The user id is not valid'
+                GOTO TRANSACTION_ERROR
+            END
+
+            DECLARE @idCliente INT = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
+
+            IF EXISTS  (
+                SELECT * FROM Reservacion r WHERE ( -- AVAILABLE IN THAT DATE
+                @fechaInicio BETWEEN r.fechaInicio AND DATEADD(DAY, -1, r.fechaFin)
+                AND
+                @fechaFin BETWEEN DATEADD(DAY, 1, r.fechaInicio) AND r.fechaFin))
+            BEGIN
+                SET @MSG = 'The room is not available in that date'
+                GOTO TRANSACTION_ERROR
+            END
+
+            INSERT INTO Reservacion (
+                fechaInicio,
+                fechaFin,
+                idHabitacion,
+                idCliente
+            )
+            OUTPUT INSERTED.*
+            INTO @data
+            VALUES (
+                @fechaInicio,
+                @fechaFin,
+                @idHabitacion,
+                @idCliente
+            )
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to insert the reservation data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
+        END
     END
+
     ELSE IF @accion = 'FIND'
     BEGIN
-        SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
-        h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
+        IF @idReservacion IS NULL OR @idReservacion < 1
+        BEGIN
+            RAISERROR('The reservation id is required', 16, 1)
+            RETURN
+        END
+
+        SELECT r.idReservacion, r.fechaInicio,
+        r.fechaFin, r.idHabitacion, r.idCliente,
+        h.nombre as 'habitacion', u.nombre,
+        u.apPaterno, u.apMaterno
         FROM Reservacion r
         INNER JOIN Habitacion h
         ON h.idHabitacion = r.idHabitacion
@@ -1260,58 +1350,98 @@ BEGIN
         ON u.idUsuario = c.idUsuario
         where r.idReservacion = @idReservacion
     END
-    ELSE IF @accion = 'UPDATE'
+
+    ELSE IF @accion = 'UPDATE' -- UPDATE THE DATE OF THE RESERVATION
     BEGIN
-        DECLARE @updated TABLE (
-            idReservacion INT,
-            fechaInicio DATE,
-            fechaFin DATE,
-            idHabitacion INT,
-            idCliente INT
-        );
+        BEGIN TRANSACTION
 
-        DECLARE @fechaInicioAnterior DATE;
-        DECLARE @fechaFinAnterior DATE;
-        DECLARE @fechaActual DATE = GETDATE();
+            IF @idReservacion IS NULL OR @idReservacion < 1
+            OR @fechaInicio IS NULL OR @fechaFin IS NULL
+            BEGIN
+                SET @MSG = 'The reservation data is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        SELECT @fechaInicioAnterior = fechaInicio FROM Reservacion WHERE idReservacion = @idReservacion;
-        SELECT @fechaFinAnterior = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
+            DECLARE @fechaInicioANTERIOR DATE = (SELECT fechaInicio FROM Reservacion WHERE idReservacion = @idReservacion)
+            DECLARE @fechaActual = GETDATE()
 
-        if @fechaInicio < @fechaActual OR @fechaFin < @fechaActual OR @fechaInicio > @fechaFin OR
-        DATEDIFF(DAY, @fechaActual, @fechaInicioAnterior) > 7
-        BEGIN
-            RAISERROR('It does not fulfill the requirements to update the reservation.', 16, 1)
-            RETURN
-        END
+            IF @fechaInicio > @fechaFin OR @fechaInicio < @fechaActual
+            BEGIN
+                SET @MSG = 'The reservation dates are not valid'
+                GOTO TRANSACTION_ERROR
+            END
 
-        UPDATE Reservacion
-        SET fechaInicio = @fechaInicio,
+            IF @fechaInicioANTERIOR < @fechaActual OR DATEDIFF(DAY, @fechaActual, @fechaInicioANTERIOR) < 7
+            BEGIN
+                SET @MSG = 'The reservation can not be modified'
+                GOTO TRANSACTION_ERROR
+            END
+
+            UPDATE Reservacion
+            SET fechaInicio = @fechaInicio,
             fechaFin = @fechaFin,
-            idHabitacion = @idHabitacion,
-            idCliente = @idCliente
-        OUTPUT INSERTED.*
-        INTO @updated
-        WHERE idReservacion = @idReservacion
+            OUTPUT INSERTED.*
+            INTO @data
+            WHERE idReservacion = @idReservacion
 
-        SELECT * FROM @updated
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to update the reservation data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
+        END
     END
+
     ELSE IF @accion = 'DELETE'
     BEGIN
-        DECLARE @deleted TABLE (
-            idReservacion INT,
-            fechaInicio DATE,
-            fechaFin DATE,
-            idHabitacion INT,
-            idCliente INT
-        );
+        BEGIN TRANSACTION
+            IF @idReservacion IS NULL OR @idReservacion < 1
+            BEGIN
+                SET @MSG = 'The reservation id is required'
+                GOTO TRANSACTION_ERROR
+            END
 
-        DELETE FROM Reservacion
-        OUTPUT DELETED.*
-        INTO @deleted
-        WHERE idReservacion = @idReservacion
+            DECLARE @fechaInicio = (SELECT fechaInicio FROM Reservacion WHERE idReservacion = @idReservacion)
+            DECLARE @fechaActual = GETDATE()
 
-        SELECT * FROM @deleted
+            IF @fechaInicio < @fechaActual OR DATEDIFF(DAY, @fechaActual, @fechaInicio) < 7
+            BEGIN
+                SET @MSG = 'The reservation can not be cancelled'
+                GOTO TRANSACTION_ERROR
+            END
+
+            DELETE FROM Reservacion
+            OUTPUT DELETED.*
+            INTO @data
+            WHERE idReservacion = @idReservacion
+
+            SELECT @ERROR = @@ERROR;
+
+            IF @ERROR <> 0
+            BEGIN
+                SET @MSG = 'There was an error trying to delete the reservation data'
+                GOTO TRANSACTION_ERROR;
+            END
+
+            SELECT * FROM @data
+            COMMIT TRANSACTION
     END
+
+    TRANSACTION_ERROR:
+        IF @@TRANCOUNT > 0
+        BEGIN
+            ROLLBACK TRANSACTION
+        END
+
+        IF @MSG IS NOT NULL
+        BEGIN
+            RAISERROR(@MSG, 16, 1)
+        END
 END
 
 GO
@@ -1325,5 +1455,36 @@ BEGIN
 END
 
 GO
+
+
+CREATE PROCEDURE sp_validarPertenenciaReservacion
+@idReservacion INT,
+@idUsuario INT
+AS
+BEGIN
+    IF @idReservacion IS NULL OR @idReservacion < 1
+    BEGIN
+        RAISERROR('The reservation id is required', 16, 1)
+        RETURN
+    END
+
+    IF @idUsuario IS NULL OR @idUsuario < 1
+    BEGIN
+        RAISERROR('The user id is required', 16, 1)
+        RETURN
+    END
+
+    IF NOT EXISTS (SELECT * FROM Cliente WHERE idCliente = @idCliente)
+    BEGIN
+        RAISERROR('The user is not a client', 16, 1)
+        RETURN
+    END
+
+    DECLARE @idCliente INT = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
+
+    DECLARE @isOwner BIT = (SELECT COUNT(*) FROM Reservacion WHERE idReservacion = @idReservacion AND idCliente = @idCliente)
+
+    RETURN @isOwner
+END
 
 
