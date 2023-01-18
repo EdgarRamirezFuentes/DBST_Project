@@ -25,6 +25,12 @@ INSERT INTO Area (nombre) VALUES ('limpieza');
 
 GO
 
+-- TABLA ESTADO TAREA
+INSERT INTO EstadoTarea (nombre) VALUES ('ASIGNADA');
+INSERT INTO EstadoTarea (nombre) VALUES ('EN PROGRESO');
+INSERT INTO EstadoTarea (nombre) VALUES ('TERMINADA');
+INSERT INTO EstadoTarea (nombre) VALUES ('BLOQUEADA');
+
 -- ADDING ADMIN USER --
 INSERT INTO Usuario
 (
@@ -77,8 +83,122 @@ EXEC sp_trabajador_crud
   'test contact name', 'test contact last name', 'test contact second last name',
   '5672064621', 17000.50, 1, 'INSERT'
 GO
+--Inician 10 empleados--
+EXEC sp_trabajador_crud
+  NULL, 'Adam', 'Álvarez', 'Andrade',
+  '1974-12-13', 'M', 'AAAA741213HDFLND06',
+  'AAAA74121301', '5576433453', 'adam@gmail.com', 'adam123',
+  2, 'AGUSTIN', '69', '3',
+  'EX-NORMAL', 'Mexico', 'TUXTEPEC', '68370',
+  'MATEO', 'BENITEZ', 'JUAN',
+  '5591287527', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'JOSEFINA', 'ENRIQUEZ', 'PEÑA',
+  '1975-11-20', 'F', 'EIPJ751120MDFNNS04',
+  'EIPJ75112078', '558676765212', 'josefina@gmail.com', 'josefa123',
+  2, 'AV.INDEPENDENCIA', '241', '1',
+  'CENTRO', 'Mexico', 'TUXTEPEC', '68300',
+  'AGUSTINA', 'CARRERA', 'NEGRETE',
+  '5672062836', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'VICTORIA', 'CUEVAS', 'JIMENEZ',
+  '1976-09-15', 'F', 'CUJV760915MDFVMC02',
+  'CUJV76091534', '5512098276', 'victoria@gmail.com', 'victoria123',
+  2, 'AV.20 DE NOVIEMBRE', '1024', '11',
+  'CENTRO', 'Mexico', 'TUXTEPEC', '68300',
+  'CAMILO', 'MORA', 'MUÑOZ',
+  '5612086776', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'ISIDRO', 'BRAVO', 'UBIETA',
+  '1977-10-15', 'M', 'BAUI771015MDFRBS02',
+  'BAUI77101509', '5512084998', 'isidro@gmail.com', 'isidro123',
+  2, 'ZARAGOZA', '1010', '11',
+  'LA PIRAGUA', 'MEXICO', 'TUXTEPEC', '68380',
+  'IBIS', 'JUAREZ', 'GAVITO',
+  '5698797653', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'HECTOR', 'GOMEZ', 'FUENTES',
+  '1980-09-15', 'M', 'GOFH800915HDFMNC01',
+  'GOFH800915R1', '5587236320', 'hector@gmail.com', 'hector123',
+  2, 'AV. 20 DE NOVIEMBRE', '859', 'B',
+  'CENTRO', 'MEXICO', 'TLALNEPANTLA', '68335',
+  'IVONNE', 'GAVITO', 'GOMEZ',
+  '5587632784', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'MARIA', 'ARREOLA', 'FEREGRINO',
+  '1981-02-20', 'F', 'AEFM810220MDFRRR02',
+  'AEFM810220A1', '5598652120', 'maria@gmail.com', 'maria123',
+  2, 'ALDAMA', '156', '20',
+  'LAZARO CARDENAS', 'MEXICO', 'LINDAVISTA', '68340',
+  'ISAIAS', 'PANTALEON', 'HERNANDEZ',
+  '5609384720', 7000.50, 2, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'RUBEN', 'HURBIDE', 'AGUELLEZ',
+  '1988-07-15', 'M', 'HUAR880715HDFRGB05',
+  'HUAR880715Q1', '5590374435', 'ruben@gmail.com', 'ruben123',
+  2, 'MATAMOROS', '2', 'A',
+  'REPOSO', 'MEXICO', 'ECATEPEC', '68320',
+  'ESMERALDA', 'VASQUEZ', 'IRRA',
+  '5690387472', 7000.50, 2, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'MANUEL', 'NORIEGA', 'DEL TORO',
+  '1980-06-23', 'M', 'NOTM800623HDFRRN08',
+  'NOTM800623L9', '5593245439', 'manuel@gmail.com', 'manuel123',
+  2, 'FRANCISCO I. MADERO', '182', '14',
+  'MA.EUGENIA', 'MEXICO', 'TLAXCALA', '68350',
+  'CLAUDIA', 'CASTELLANOS', 'BARRERA',
+  '5672023246', 7000.50, 2, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'ELENA', 'CEJA', 'ARANO',
+  '1989-03-20', 'F', 'CEAE890320MDFJRL07',
+  'CEAE890320L9', '5512023487', 'elena@gmail.com', 'elena123',
+  2, 'AV 3 ESQUINA', '2', '110',
+  'COSTA VERDE', 'MEXICO', 'ECATEPEC', '68310',
+  'JESUS', 'GAMERO', 'LUNA',
+  '5602342472', 7000.50, 2, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'JAIME', 'ANDRADE', 'REYES',
+  '1990-05-30', 'M', 'AARJ900530HDFNYM08',
+  'AARJ900530A4', '5543812120', 'jaime@gmail.com', 'jaime123',
+  2, 'AV. LIBERTAD', '1961', '20',
+  'LA PIRAGUA', 'MEXICO', 'MIGUEL HIDALGO', '81000',
+  'JOSE', 'SILVA', 'LOPEZ',
+  '5672123240', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'HILDA', 'LOPEZ', 'PALMA',
+  '1995-08-21', 'F', 'LOPH950821MDFPLL04',
+  'LOPH950821Q2', '5524354120', 'hilda@gmail.com', 'hilda123',
+  2, 'AV. 1O. DE MAYO', '108', 'A',
+  'MARIA LUISA', 'MEXICO', 'ECATEPEC', '38000',
+  'GUADALUPE', 'CRUZ', 'CASTRO',
+  '5609347472', 17000.50, 1, 'INSERT'
+GO
+
+--Terminan 10 empleados---
+
 
 -- ADDING CUSTOMERS --
+--Empiezan 10 usuarios---
 
 EXEC sp_cliente_crud
   NULL, 'Edgar', 'Martinez', 'Ruiz',
@@ -101,9 +221,72 @@ GO
 EXEC sp_cliente_crud
   NULL, 'Felipe', 'Cano', 'Nuño',
   '1997-01-01', 'M', 'IIIIF', 'IIIIIF',
-  '551578751', 'edgar@test.com', '123456', 3,
+  '551578751', 'felipe@test.com', '123456', 3,
   'Durazno', '12', '3', 'la cruz',
   'CDMX', 'magdalena', '10800',
   'Edgar', 'Ramirez', 'Fuentes', '144845135', 'INSERT'
 GO 
 
+EXEC sp_cliente_crud
+  NULL, 'Emiliano', 'Ocampo', 'Arce',
+  '2003-01-01', 'M', 'AAAOE', 'AAAOE',
+  '5522114478', 'gengiemi@gmail.com', 'emiliano', 3,
+  'Durazno', '12', '3', 'la cruz',
+  'CDMX', 'magdalena', '10800',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Jimena', 'Lopez', 'Arce',
+  '2002-01-01', 'F', 'AAALJ', 'AAALJ',
+  '5522114473', 'ARMENA@gmail.com', '123456', 3,
+  'Durazno', '12', '3', 'la cruz',
+  'CDMX', 'magdalena', '10800',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Gabriela', 'Romero', 'Soria',
+  '1992-01-01', 'F', 'RRSGA', 'RRSGA',
+  '5522115878', 'sangabus@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Victoria', 'Romero', 'Soria',
+  '1990-01-01', 'F', 'VVSGA', 'VVSGA',
+  '5546115878', 'romerov@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Xochilt', 'Romero', 'Soria',
+  '1992-01-01', 'F', 'XXSGA', 'XXSGA',
+  '5511115878', 'xoch@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Ericka', 'Nayelhi', 'Zavala',
+  '1990-01-01', 'F', 'EZAVA', 'EZAVA',
+  '5522115812', 'ezavalar@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Marisol', 'Arce', 'Soria',
+  '1988-01-01', 'F', 'ARGA', 'ARGA',
+  '5522115878', 'solarce@gmail.com', '123456', 3,
+  'av mexico', '12', '3', 'Pedregal',
+  'CDMX', 'Tlalpan', '01258',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+----
