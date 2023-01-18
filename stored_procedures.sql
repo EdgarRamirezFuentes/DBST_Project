@@ -1507,13 +1507,9 @@ BEGIN
 		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
 	DECLARE @fechaFin DATE
 		SELECT @fechaFin = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
-<<<<<<< HEAD
-	DECLARE @totalCargosExtra MONEY 
-=======
     DECLARE @total MONEY
    		SET @total = @subTotal;
 	DECLARE @totalCargosExtra MONEY
->>>>>>> 402d63699de46dc1b1fa82fa73026ff9ad190eda
         SELECT @totalCargosExtra = dbo.fn_totalCargosExtra(@idReservacion);
     DECLARE @total MONEY
    		SET @total = @subTotal + @totalCargosExtra;
@@ -1642,10 +1638,6 @@ BEGIN
             RAISERROR(@MSG, 16, 1)
         END
 END
-<<<<<<< HEAD
-=======
-
->>>>>>> 402d63699de46dc1b1fa82fa73026ff9ad190eda
 
 GO
 
