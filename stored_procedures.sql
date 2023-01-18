@@ -1507,7 +1507,11 @@ BEGIN
 		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
 	DECLARE @fechaFin DATE
 		SELECT @fechaFin = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
+<<<<<<< HEAD
 	DECLARE @totalCargosExtra MONEY 
+=======
+	DECLARE @totalCargosExtra MONEY
+>>>>>>> 2194f5fbe9504d8b9c22c693e880131aa77bb0b2
         SELECT @totalCargosExtra = dbo.fn_totalCargosExtra(@idReservacion);
     DECLARE @total MONEY
    		SET @total = @subTotal + @totalCargosExtra;
@@ -1544,8 +1548,30 @@ BEGIN
                 SET @MSG = 'The ACCION is required'
                 GOTO TRANSACTION_ERROR
         END
+<<<<<<< HEAD
     	
         
+=======
+
+        IF @fechaFin > @fecha
+        BEGIN
+        	SET @total = @total + 1000;
+        END
+
+        IF @totalCargosExtra <> NULL
+        BEGIN
+        	SET @total = @total + @totalCargosExtra;
+        END
+        ELSE IF @totalCargosExtra IS NULL
+	    BEGIN
+        	SET @total = @total + 0;
+        END
+
+
+
+
+
+>>>>>>> 2194f5fbe9504d8b9c22c693e880131aa77bb0b2
         --INSERT TICKET--
         INSERT INTO Ticket (fecha,idReservacion,total)
         OUTPUT INSERTED.*
@@ -1601,7 +1627,10 @@ BEGIN
             RAISERROR(@MSG, 16, 1)
         END
 END
+<<<<<<< HEAD
 	
+=======
+>>>>>>> 2194f5fbe9504d8b9c22c693e880131aa77bb0b2
 
 GO
 
