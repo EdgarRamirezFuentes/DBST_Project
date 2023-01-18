@@ -1507,8 +1507,6 @@ BEGIN
 		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
 	DECLARE @fechaFin DATE
 		SELECT @fechaFin = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
-    DECLARE @total MONEY
-   		SET @total = @subTotal;
 	DECLARE @totalCargosExtra MONEY
         SELECT @totalCargosExtra = dbo.fn_totalCargosExtra(@idReservacion);
     DECLARE @total MONEY
@@ -1546,10 +1544,6 @@ BEGIN
                 SET @MSG = 'The ACCION is required'
                 GOTO TRANSACTION_ERROR
         END
-<<<<<<< HEAD
-    	
-        
-=======
 
         IF @fechaFin > @fecha
         BEGIN
@@ -1569,7 +1563,6 @@ BEGIN
 
 
 
->>>>>>> 402d63699de46dc1b1fa82fa73026ff9ad190eda
         --INSERT TICKET--
         INSERT INTO Ticket (fecha,idReservacion,total)
         OUTPUT INSERTED.*
