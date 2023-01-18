@@ -218,7 +218,7 @@ GO
 EXEC sp_cliente_crud
   NULL, 'Felipe', 'Cano', 'Nuño',
   '1997-01-01', 'M', 'IIIIF', 'IIIIIF',
-  '551578751', 'edgar@test.com', '123456', 3,
+  '551578751', 'felipe@test.com', '123456', 3,
   'Durazno', '12', '3', 'la cruz',
   'CDMX', 'magdalena', '10800',
   'Edgar', 'Ramirez', 'Fuentes', '144845135', 'INSERT'
