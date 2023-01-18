@@ -186,7 +186,7 @@ GO
 CREATE TABLE Habitacion (
     idHabitacion INT IDENTITY(1,1) NOT NULL,
     nombre VARCHAR (100) NOT NULL,
-    descripcion VARCHAR (100) NOT NULL,
+    descripcion VARCHAR (1000) NOT NULL,
     isActive BIT NOT NULL,
     idTipoHabitacion INT,
     -- PRIMARY KEY Habitacion
