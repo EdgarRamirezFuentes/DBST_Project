@@ -328,3 +328,12 @@ CREATE TABLE bitacora_habitacion (
 );
 
 GO;
+
+CREATE TABLE bitacora_reservacion (
+    idBitacora INT IDENTITY (1,1) NOT NULL,
+    operacion VARCHAR(10) DEFAULT NULL,
+    fecha DATETIME NOT NULL,
+    usuario VARCHAR(30) DEFAULT NULL,
+    query VARCHAR(2000) DEFAULT NULL,
+    PRIMARY KEY (idBitacora)
+);
