@@ -1192,6 +1192,7 @@ BEGIN
     DECLARE @ERROR INT
     DECLARE @idCliente INT
     DECLARE @MSG VARCHAR(255)
+    DECLARE @fechaActual DATE = GETDATE()
     DECLARE @data TABLE (
         idReservacion INT,
         fechaInicio DATE,
@@ -1249,7 +1250,7 @@ BEGIN
         END
         ELSE
         BEGIN
-            DECLARE @idCliente = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
+            SET @idCliente  = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
 
             SELECT r.idReservacion, r.fechaInicio, r.fechaFin, r.idHabitacion, r.idCliente,
             h.nombre as 'habitacion', u.nombre, u.apPaterno, u.apMaterno
@@ -1289,7 +1290,7 @@ BEGIN
                 GOTO TRANSACTION_ERROR
             END
 
-            DECLARE @idCliente INT = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
+            SET @idCliente = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
 
             IF EXISTS  (
                 SELECT * FROM Reservacion r WHERE ( -- AVAILABLE IN THAT DATE
@@ -1326,7 +1327,6 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
-        END
     END
 
     ELSE IF @accion = 'FIND'
@@ -1363,7 +1363,6 @@ BEGIN
             END
 
             DECLARE @fechaInicioANTERIOR DATE = (SELECT fechaInicio FROM Reservacion WHERE idReservacion = @idReservacion)
-            DECLARE @fechaActual = GETDATE()
 
             IF @fechaInicio > @fechaFin OR @fechaInicio < @fechaActual
             BEGIN
@@ -1379,7 +1378,7 @@ BEGIN
 
             UPDATE Reservacion
             SET fechaInicio = @fechaInicio,
-            fechaFin = @fechaFin,
+            fechaFin = @fechaFin
             OUTPUT INSERTED.*
             INTO @data
             WHERE idReservacion = @idReservacion
@@ -1394,7 +1393,6 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
-        END
     END
 
     ELSE IF @accion = 'DELETE'
@@ -1406,8 +1404,7 @@ BEGIN
                 GOTO TRANSACTION_ERROR
             END
 
-            DECLARE @fechaInicio = (SELECT fechaInicio FROM Reservacion WHERE idReservacion = @idReservacion)
-            DECLARE @fechaActual = GETDATE()
+            SET @fechaInicio = (SELECT fechaInicio FROM Reservacion WHERE idReservacion = @idReservacion)
 
             IF @fechaInicio < @fechaActual OR DATEDIFF(DAY, @fechaActual, @fechaInicio) < 7
             BEGIN
@@ -1462,6 +1459,8 @@ CREATE PROCEDURE sp_validarPertenenciaReservacion
 @idUsuario INT
 AS
 BEGIN
+	DECLARE @idCliente INT
+
     IF @idReservacion IS NULL OR @idReservacion < 1
     BEGIN
         RAISERROR('The reservation id is required', 16, 1)
@@ -1474,13 +1473,14 @@ BEGIN
         RETURN
     END
 
-    IF NOT EXISTS (SELECT * FROM Cliente WHERE idCliente = @idCliente)
+
+    IF NOT EXISTS (SELECT * FROM Cliente WHERE idUsuario = @idUsuario)
     BEGIN
         RAISERROR('The user is not a client', 16, 1)
         RETURN
     END
 
-    DECLARE @idCliente INT = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
+    SET @idCliente = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
 
     DECLARE @isOwner BIT = (SELECT COUNT(*) FROM Reservacion WHERE idReservacion = @idReservacion AND idCliente = @idCliente)
 

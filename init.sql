@@ -3,7 +3,7 @@ USE MASTER;
 
 DROP DATABASE IF EXISTS ESCOM_HOTEL;
 
-GO; 
+GO;
 
 CREATE DATABASE ESCOM_HOTEL;
 
@@ -260,7 +260,7 @@ CREATE TABLE ReservacionCargoExtra (
     idReservacionCargoExtra INT IDENTITY(1,1) NOT NULL,
     idCargoExtra INT NOT NULL,
     idReservacion INT NOT NULL,
-    -- PRIMARY KEY 
+    -- PRIMARY KEY
     CONSTRAINT PK_ReservacionCargoExtra_idReservacionCargoExtra
     PRIMARY KEY CLUSTERED (idReservacionCargoExtra),
     -- FOREIGN KEY Cargo Extra
@@ -337,3 +337,5 @@ CREATE TABLE bitacora_reservacion (
     query VARCHAR(2000) DEFAULT NULL,
     PRIMARY KEY (idBitacora)
 );
+
+GO;

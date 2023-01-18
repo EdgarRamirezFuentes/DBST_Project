@@ -1963,18 +1963,19 @@ def reservation_by_id(reservation_id):
             return jsonify({'msg' : f'There is no reservation with id {reservation_id}'}), 404
         except DatabaseError as e:
             app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
             conn.rollback()
-            return jsonify({'message' : str(e)}), 500
+            return jsonify({'message' : response}), 500
         except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
         finally:
-            app.logger.info( f'User ID({user_id}) updated the reservation with id {reservation_id}')
+            app.logger.info(f'User ID({user_id}> registered a new reservation')
             if cursor:
                 cursor.close()
             if db:
-                conn.close()
+                db.close()
     elif request.method == 'DELETE':
         try:
             conn = db.connect()
@@ -2016,18 +2017,19 @@ def reservation_by_id(reservation_id):
             return jsonify({'msg' : f'There is no reservation with id {reservation_id}'}), 404
         except DatabaseError as e:
             app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
             conn.rollback()
-            return jsonify({'message' : str(e)}), 500
+            return jsonify({'message' : response}), 500
         except Error as e:
             app.logger.error(str(e))
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
         finally:
-            app.logger.info( f'User ID({user_id}) updated the reservation with id {reservation_id}')
+            app.logger.info(f'User ID({user_id}> registered a new reservation')
             if cursor:
                 cursor.close()
             if db:
-                conn.close()
+                db.close()
 
 
 @app.route('/api/v1/reservation/user/<int:user_id>', methods=['GET'])
@@ -2044,14 +2046,18 @@ def get_user_reservations(user_id):
                 app.logger.critical( f'Database unavailable')
                 return jsonify({'msg': 'Service unavailable.'}), 500
 
+            if not user_id:
+                return jsonify({'msg': 'Missing data.'}), 400
+
+            print(user_id)
 
             cursor.callproc('sp_reservacion_crud',
             (
                 None,
                 None,
                 None,
-                user_id,
                 None,
+                user_id,
                 'FINDALLBYUSER'
             ))
 
@@ -2060,16 +2066,19 @@ def get_user_reservations(user_id):
             return jsonify(response), 200
     except DatabaseError as e:
         app.logger.error(str(e))
-        return jsonify({'message' : str(e)}), 500
+        response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+        conn.rollback()
+        return jsonify({'message' : response}), 500
     except Error as e:
         app.logger.error(str(e))
+        conn.rollback()
         return jsonify({'message' : 'Error' }), 500
     finally:
-        app.logger.info( f'User ID({user_id}) retrieved the reservations')
+        app.logger.info(f'User ID({user_id}> registered a new reservation')
         if cursor:
             cursor.close()
         if db:
-            conn.close()
+            db.close()
 
 
 @app.route('/api/v1/reservation/get-available-rooms', methods=['POST'])
@@ -2196,7 +2205,7 @@ def ticket():
 
                 current_date = datetime.now().strftime('%Y-%m-%d')
                 reservation_id = data['reservation_id']
-               
+
                 if not reservation_id:
                     return jsonify({'msg': 'Missing data.'}), 400
 
