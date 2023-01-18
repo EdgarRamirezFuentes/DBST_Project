@@ -195,7 +195,10 @@ EXEC sp_trabajador_crud
 GO
 
 --Terminan 10 empleados---
+
+
 -- ADDING CUSTOMERS --
+--Empiezan 10 usuarios---
 
 EXEC sp_cliente_crud
   NULL, 'Edgar', 'Martinez', 'Ruiz',
@@ -218,10 +221,178 @@ GO
 EXEC sp_cliente_crud
   NULL, 'Felipe', 'Cano', 'Nuño',
   '1997-01-01', 'M', 'IIIIF', 'IIIIIF',
-  '551578751', 'edgar@test.com', '123456', 3,
+  '551578751', 'felipe@test.com', '123456', 3,
   'Durazno', '12', '3', 'la cruz',
   'CDMX', 'magdalena', '10800',
   'Edgar', 'Ramirez', 'Fuentes', '144845135', 'INSERT'
 GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Emiliano', 'Ocampo', 'Arce',
+  '2003-01-01', 'M', 'AAAOE', 'AAAOE',
+  '5522114478', 'gengiemi@gmail.com', 'emiliano', 3,
+  'Durazno', '12', '3', 'la cruz',
+  'CDMX', 'magdalena', '10800',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Jimena', 'Lopez', 'Arce',
+  '2002-01-01', 'F', 'AAALJ', 'AAALJ',
+  '5522114473', 'ARMENA@gmail.com', '123456', 3,
+  'Durazno', '12', '3', 'la cruz',
+  'CDMX', 'magdalena', '10800',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Gabriela', 'Romero', 'Soria',
+  '1992-01-01', 'F', 'RRSGA', 'RRSGA',
+  '5522115878', 'sangabus@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Victoria', 'Romero', 'Soria',
+  '1990-01-01', 'F', 'VVSGA', 'VVSGA',
+  '5546115878', 'romerov@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Xochilt', 'Romero', 'Soria',
+  '1992-01-01', 'F', 'XXSGA', 'XXSGA',
+  '5511115878', 'xoch@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Ericka', 'Nayelhi', 'Zavala',
+  '1990-01-01', 'F', 'EZAVA', 'EZAVA',
+  '5522115812', 'ezavalar@gmail.com', '123456', 3,
+  'av civilizaciones', '12', '3', 'Rosario',
+  'EDOMEX', 'Tlalnepantla', '55478',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Marisol', 'Arce', 'Soria',
+  '1988-01-01', 'F', 'ARGA', 'ARGA',
+  '5522115878', 'solarce@gmail.com', '123456', 3,
+  'av mexico', '12', '3', 'Pedregal',
+  'CDMX', 'Tlalpan', '01258',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+-- ADDING TYPE ROOMS --
+--Empiezan 10 Tipos de Habitaciones---
+
+--1--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Economica Estudiantes', 1, 1, 300, 'INSERT'
+GO
+
+--2--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Economica General', 1, 2, 600, 'INSERT'
+GO
+
+--3--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Individual', 1, 1, 650, 'INSERT'
+GO
+
+--4--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Inicial', 2, 2, 900, 'INSERT'
+GO
+
+--5--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Media', 2, 3, 1600, 'INSERT'
+GO
+
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Alta', 2, 4, 2000, 'INSERT'
+GO
+
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Lujo', 2, 5, 2000, 'INSERT'
+GO
+
+--8--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Para Fiesta', 2, 5, 3000, 'INSERT'
+GO
+
+--9--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar para Trabajo', 3, 5, 2800, 'INSERT'
+GO
+
+--10--
+EXEC sp_tipo_habitacion_crud
+  NULL, 'Estandar Familiar', 3, 6, 3200, 'INSERT'
+GO
+
+
+-- ADDING ROOMS --
+--Empiezan 10 Habitaciones---
+
+EXEC sp_habitacion_crud
+  NULL, 'Economica para chavos','Habitacion para estudiantes de 18 a 27 años con una cama',
+  1,1,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Economica para parejitas','Habitacion para pareja con una cama',
+  1,2,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Economica Forever Alone','Habitacion para una sola persona con una cama',
+  1,3,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Economica De paso','Habitacion para una sola persona con una cama y aditamentos de un solo uso',
+  1,3,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion best friends','Habitacion para 2 personas con camas separadas',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion Viaje en Familia','Habitacion con 3 camas para familias de 6 integrantes',
+  1,10,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion Saca la Chamba','Habitacion para grupo de 5 personas acondicionada para trabajar',
+  1,9,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion Relajacion','Habitacion para grupo de 5 personas que quieran pasar dias de relajacion',
+  1,8,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion escape ','Habitacion para estudiantes que buscan lugar de paso a buen precio',
+  1,1,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion grupito','Habitacion para 3 personas con servicios basicos de relajacion',
+  1,5,'INSERT'
+GO
 
 ----

@@ -3,7 +3,7 @@ USE MASTER;
 
 DROP DATABASE IF EXISTS ESCOM_HOTEL;
 
-GO; 
+GO;
 
 CREATE DATABASE ESCOM_HOTEL;
 
@@ -33,7 +33,7 @@ CREATE TABLE Usuario (
     curp VARCHAR (18) NOT NULL UNIQUE,
     rfc VARCHAR (13) UNIQUE,
     telefono VARCHAR (10) NOT NULL,
-    correo VARCHAR (100) NOT NULL,
+    correo VARCHAR (100) NOT NULL UNIQUE,
     contrasenia BINARY(64) NOT NULL,
     idRol INT,
     fechaRegistro DATETIME NOT NULL DEFAULT GETDATE(),
@@ -260,7 +260,7 @@ CREATE TABLE ReservacionCargoExtra (
     idReservacionCargoExtra INT IDENTITY(1,1) NOT NULL,
     idCargoExtra INT NOT NULL,
     idReservacion INT NOT NULL,
-    -- PRIMARY KEY 
+    -- PRIMARY KEY
     CONSTRAINT PK_ReservacionCargoExtra_idReservacionCargoExtra
     PRIMARY KEY CLUSTERED (idReservacionCargoExtra),
     -- FOREIGN KEY Cargo Extra
@@ -315,73 +315,27 @@ CREATE TABLE Tarea (
 
 GO
 
-----------------
--- LOG TABLES --
-----------------
-
-CREATE TABLE HabitacionLogs (
-    idHabitacionLogs INT IDENTITY(1,1) NOT NULL,
-    idTrabajador INT,
-    idHabitacion INT NOT NULL,
-    fecha TIMESTAMP NOT NULL,
-    -- PRIMARY KEY  Habitacionlogs
-    CONSTRAINT PK_HabitacionLogs_idHabitacionLogs
-    PRIMARY KEY CLUSTERED (idHabitacionLogs),
-    -- FOREIGN KEY Habitacion
-    CONSTRAINT FK_HabitacionLogs_Habitacion
-    FOREIGN KEY (idHabitacion)
-    REFERENCES Habitacion (idHabitacion)
-    ON DELETE CASCADE,
-    -- FOREIGN KEY Trabajador
-    CONSTRAINT FK_HabitacionesLogs_Trabajador
-    FOREIGN KEY (idTrabajador)
-    REFERENCES Trabajador (idTrabajador)
-    ON DELETE SET NULL
+---------------------
+-- BITACORA TABLES --
+---------------------
+CREATE TABLE bitacora_habitacion (
+    idBitacora INT IDENTITY (1,1) NOT NULL,
+    operacion VARCHAR(10) DEFAULT NULL,
+    fecha DATETIME NOT NULL,
+    usuario VARCHAR(30) DEFAULT NULL,
+    query VARCHAR(2000) DEFAULT NULL,
+    PRIMARY KEY (idBitacora)
 );
 
-GO
+GO;
 
-CREATE TABLE TareaLogs (
-    idTareaLogs INT IDENTITY(1,1) NOT NULL,
-    idTarea INT NOT NULL,
-    idTrabajador INT,
-    fecha TIMESTAMP NOT NULL,
-    -- PRIMARY KEY TareaLogs
-    CONSTRAINT PK_TareaLogs_idTareaLogs
-    PRIMARY KEY CLUSTERED (idTareaLogs),
-    -- FOREIGN KEY Tarea
-    CONSTRAINT FK_TareaLogs_Tarea
-    FOREIGN KEY (idTarea)
-    REFERENCES Tarea (idTarea)
-    ON DELETE CASCADE,
-    -- FOREIGN KEY Trabajador
-    CONSTRAINT FK_TareaLogs_Trabajador
-    FOREIGN KEY (idTrabajador)
-    REFERENCES Trabajador (idTrabajador)
-    ON DELETE SET NULL
+CREATE TABLE bitacora_reservacion (
+    idBitacora INT IDENTITY (1,1) NOT NULL,
+    operacion VARCHAR(10) DEFAULT NULL,
+    fecha DATETIME NOT NULL,
+    usuario VARCHAR(30) DEFAULT NULL,
+    query VARCHAR(2000) DEFAULT NULL,
+    PRIMARY KEY (idBitacora)
 );
 
-GO
-
-CREATE TABLE ReservacionLogs (
-    idReservacionLogs INT IDENTITY(1,1) NOT NULL,
-    idReservacion INT NOT NULL,
-    idTrabajador INT,
-    fecha TIMESTAMP NOT NULL,
-    -- PRIMARY KEY ReservacionLogs
-    CONSTRAINT PK_ReservacionLogs_idReservacionLogs
-    PRIMARY KEY CLUSTERED (idReservacionLogs),
-    -- FOREIGN KEY Reservacion
-    CONSTRAINT FK_ReservacionLogs_Reservacion
-    FOREIGN KEY (idReservacion)
-    REFERENCES Reservacion (idReservacion)
-    ON DELETE CASCADE,
-    -- FOREIGN KEY Trabajador
-    CONSTRAINT FK_ReservacionLogs_Trabajador
-    FOREIGN KEY (idTrabajador)
-    REFERENCES Trabajador (idTrabajador)
-    ON DELETE SET NULL
-);
-
-GO
-
+GO;
