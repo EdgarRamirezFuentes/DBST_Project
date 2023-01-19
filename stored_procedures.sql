@@ -75,6 +75,7 @@ BEGIN
             IF @ERROR = 0
             BEGIN
                 COMMIT TRANSACTION
+                RETURN
                 SELECT * FROM @data
             END
             ELSE
@@ -124,6 +125,7 @@ BEGIN
             IF @ERROR = 0
             BEGIN
                 COMMIT TRANSACTION
+                RETURN
                 SELECT * FROM @data
             END
             ELSE
@@ -152,6 +154,7 @@ BEGIN
             IF @ERROR = 0
             BEGIN
                 COMMIT TRANSACTION
+                RETURN
                 SELECT * FROM @data
             END
             ELSE
@@ -341,6 +344,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     ELSE IF @accion = 'FINDALL'
@@ -352,6 +356,7 @@ BEGIN
         INNER JOIN Area a
         ON t.idArea = a.idArea
         WHERE s.activo = 1
+        RETURN
     END
 
     ELSE IF @accion = 'FIND'
@@ -376,6 +381,7 @@ BEGIN
         ON ce.idUsuario = s.idUsuario
         WHERE s.activo = 1
         AND s.idUsuario = @idUsuario
+        RETURN
     END
 
     ELSE IF @accion = 'UPDATE'
@@ -486,6 +492,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     ELSE IF @accion = 'DELETE'
@@ -514,14 +521,12 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     TRANSACTION_ERROR:
-        IF @ERROR <> 0
-        BEGIN
-            ROLLBACK TRANSACTION
-            RAISERROR(@MSG, 16, 1)
-        END
+        ROLLBACK TRANSACTION
+        RAISERROR(@MSG, 16, 1)
 END
 
 GO
@@ -701,6 +706,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     ELSE IF @accion = 'FINDALL'
@@ -712,6 +718,7 @@ BEGIN
         INNER JOIN Cliente c
         ON s.idUsuario = c.idUsuario
         WHERE s.activo = 1
+        RETURN
     END
 
     ELSE IF @accion = 'FIND'
@@ -741,6 +748,7 @@ BEGIN
         ON ce.idUsuario = u.idUsuario
         WHERE u.activo = 1
         AND u.idUsuario = @idUsuario
+        RETURN
     END
 
     ELSE IF @accion = 'UPDATE'
@@ -828,6 +836,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     ELSE IF @accion = 'DELETE'
@@ -856,14 +865,12 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     TRANSACTION_ERROR:
-        IF @ERROR <> 0
-        BEGIN
-            ROLLBACK TRANSACTION
-            RAISERROR(@MSG, 16, 1)
-        END
+        ROLLBACK TRANSACTION
+        RAISERROR(@MSG, 16, 1)
 END
 
 GO
@@ -895,6 +902,7 @@ BEGIN
 	IF @accion = 'FINDALL'
 	BEGIN
 		SELECT * FROM TipoHabitacion
+        RETURN
 	END
 
 	ELSE IF @accion = 'INSERT'
@@ -922,6 +930,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
 	END
 
 	ELSE IF @accion = 'FIND'
@@ -934,6 +943,7 @@ BEGIN
 
 		SELECT * FROM TipoHabitacion
         WHERE idTipoHabitacion = @idTipoHabitacion
+        RETURN
 	END
 
 	ELSE IF @accion = 'UPDATE'
@@ -969,6 +979,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
 	END
 
 	ELSE IF @accion = 'DELETE'
@@ -995,14 +1006,12 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     TRANSACTION_ERROR:
-        IF @ERROR <> 0
-        BEGIN
-            ROLLBACK TRANSACTION
-            RAISERROR(@MSG, 16, 1)
-        END
+        ROLLBACK TRANSACTION
+        RAISERROR(@MSG, 16, 1)
 END
 
 GO
@@ -1039,6 +1048,7 @@ BEGIN
         INNER JOIN TipoHabitacion th
 		ON th.idTipoHabitacion = h.idTipoHabitacion
 		WHERE h.isActive = 1
+        RETURN
 	END
 
     ELSE IF @accion = 'FINDALLINACTIVE'
@@ -1050,6 +1060,7 @@ BEGIN
         INNER JOIN TipoHabitacion th
         ON th.idTipoHabitacion = h.idTipoHabitacion
         WHERE h.isActive = 0
+        RETURN
     END
 
 	ELSE IF @accion = 'INSERT'
@@ -1077,6 +1088,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
 	END
 
     ELSE IF @accion = 'FIND'
@@ -1089,6 +1101,7 @@ BEGIN
 		ON th.idTipoHabitacion = h.idTipoHabitacion
 		WHERE h.idHabitacion  = @idHabitacion
 		AND h.isActive = 1
+        RETURN
 	END
 
     ELSE IF @accion = 'FINDINACTIVE'
@@ -1101,6 +1114,7 @@ BEGIN
         ON th.idTipoHabitacion = h.idTipoHabitacion
         WHERE h.idHabitacion  = @idHabitacion
         AND h.isActive = 0
+        RETURN
     END
 
 	ELSE IF @accion = 'UPDATE'
@@ -1136,6 +1150,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
 	END
 
     ELSE IF @accion = 'DELETE'
@@ -1163,14 +1178,12 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
 	END
 
     TRANSACTION_ERROR:
-        IF @ERROR <> 0
-        BEGIN
-            ROLLBACK TRANSACTION
-            RAISERROR(@MSG, 16, 1)
-        END
+        ROLLBACK TRANSACTION
+        RAISERROR(@MSG, 16, 1)
 END
 
 GO
@@ -1215,6 +1228,7 @@ BEGIN
         INNER JOIN Usuario u
         ON u.idUsuario = c.idUsuario
         ORDER BY r.fechaInicio DESC
+        RETURN
     END
 
     ELSE IF @accion = 'FINDALLACTIVE'
@@ -1232,6 +1246,7 @@ BEGIN
         ON u.idUsuario = c.idUsuario
         WHERE r.fechaFin >= GETDATE()
         ORDER BY r.fechaInicio DESC
+        RETURN
     END
 
     ELSE IF @accion = 'FINDALLBYUSER'
@@ -1263,6 +1278,7 @@ BEGIN
             ON u.idUsuario = c.idUsuario
             WHERE r.idCliente = @idCliente
             ORDER BY r.fechaInicio DESC
+            RETURN
         END
     END
 
@@ -1283,15 +1299,6 @@ BEGIN
                 GOTO TRANSACTION_ERROR
             END
 
-
-            IF NOT EXISTS (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
-            BEGIN
-                SET @MSG = 'The user id is not valid'
-                GOTO TRANSACTION_ERROR
-            END
-
-            SET @idCliente = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
-
             IF EXISTS  (
                 SELECT * FROM Reservacion r WHERE ( -- AVAILABLE IN THAT DATE
                 @fechaInicio BETWEEN r.fechaInicio AND DATEADD(DAY, -1, r.fechaFin)
@@ -1301,6 +1308,15 @@ BEGIN
                 SET @MSG = 'The room is not available in that date'
                 GOTO TRANSACTION_ERROR
             END
+
+
+            IF NOT EXISTS (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
+            BEGIN
+                SET @MSG = 'The user id is not valid'
+                GOTO TRANSACTION_ERROR
+            END
+
+            SET @idCliente = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
 
             INSERT INTO Reservacion (
                 fechaInicio,
@@ -1327,6 +1343,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     ELSE IF @accion = 'FIND'
@@ -1349,6 +1366,7 @@ BEGIN
         INNER JOIN Usuario u
         ON u.idUsuario = c.idUsuario
         where r.idReservacion = @idReservacion
+        RETURN
     END
 
     ELSE IF @accion = 'UPDATE' -- UPDATE THE DATE OF THE RESERVATION
@@ -1393,6 +1411,7 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     ELSE IF @accion = 'DELETE'
@@ -1427,14 +1446,12 @@ BEGIN
 
             SELECT * FROM @data
             COMMIT TRANSACTION
+            RETURN
     END
 
     TRANSACTION_ERROR:
-        IF @ERROR <> 0
-        BEGIN
-            ROLLBACK TRANSACTION
-            RAISERROR(@MSG, 16, 1)
-        END
+        ROLLBACK TRANSACTION
+        RAISERROR(@MSG, 16, 1)
 END
 
 GO
@@ -1523,6 +1540,7 @@ BEGIN
         ON u.idUsuario = c.idUsuario
         WHERE t.fecha <= GETDATE()
         ORDER BY t.fecha DESC
+        RETURN
     END
     ELSE IF @accion = 'INSERT'
     BEGIN 
@@ -1556,6 +1574,7 @@ BEGIN
         
         SELECT * FROM @inserted
         COMMIT TRANSACTION
+        RETURN
     END
     ELSE IF @accion = 'FIND'
     BEGIN
@@ -1569,6 +1588,7 @@ BEGIN
         INNER JOIN Usuario u
         ON u.idUsuario = c.idUsuario
         WHERE r.idReservacion = @idReservacion
+        RETURN
     END
     ELSE IF @accion = 'DELETE'
     BEGIN
@@ -1585,15 +1605,13 @@ BEGIN
         WHERE idTicket = @idTicket
 
         SELECT * FROM @deleted
+        RETURN
     END
     
     
     TRANSACTION_ERROR:
-        IF @ERROR <> 0
-        BEGIN
-            ROLLBACK TRANSACTION
-            RAISERROR(@MSG, 16, 1)
-        END
+        ROLLBACK TRANSACTION
+        RAISERROR(@MSG, 16, 1)
 END
 	
 
@@ -1625,6 +1643,7 @@ BEGIN
         SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio 
         FROM CargoExtra ce  
         ORDER BY ce.nombre DESC
+        RETURN
     END
     ELSE IF @accion = 'INSERT'
     BEGIN 
@@ -1657,6 +1676,7 @@ BEGIN
         
         SELECT * FROM @inserted
         COMMIT TRANSACTION
+        RETURN
     END
     ELSE IF @accion = 'FINDBYID'
     BEGIN
@@ -1664,6 +1684,7 @@ BEGIN
         SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio 
         FROM CargoExtra ce  
         WHERE idCargoExtra = @idCargoExtra
+        RETURN
     END
     ELSE IF @accion = 'FINDBYNAME'
     BEGIN
@@ -1671,6 +1692,7 @@ BEGIN
         SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio 
         FROM CargoExtra ce  
         WHERE nombre = @nombre
+        RETURN
     END
     ELSE IF @accion = 'DELETE'
     BEGIN
@@ -1687,15 +1709,13 @@ BEGIN
         WHERE idCargoExtra = @idCargoExtra
 
         SELECT * FROM @deleted
+        RETURN
     END
     
     
     TRANSACTION_ERROR:
-        IF @ERROR <> 0
-        BEGIN
-            ROLLBACK TRANSACTION
-            RAISERROR(@MSG, 16, 1)
-        END
+        ROLLBACK TRANSACTION
+        RAISERROR(@MSG, 16, 1)
 END
 
 GO
@@ -1719,7 +1739,7 @@ BEGIN
     BEGIN
         SELECT rce.idReservacionCargoExtra,rce.idCargoExtra,rce.idReservacion
         FROM ReservacionCargoExtra rce
- 
+        RETURN
     END
     ELSE IF @accion = 'INSERT'
     BEGIN 
@@ -1752,6 +1772,7 @@ BEGIN
         
         SELECT * FROM @inserted
         COMMIT TRANSACTION
+        RETURN
     END
     ELSE IF @accion = 'FINDBYRESERVATION'
     BEGIN
@@ -1759,6 +1780,7 @@ BEGIN
         SELECT rce.idReservacionCargoExtra,rce.idCargoExtra,rce.idReservacion
         FROM ReservacionCargoExtra rce  
         WHERE idReservacion = @idReservacion
+        RETURN
     END
     ELSE IF @accion = 'DELETE'
     BEGIN
@@ -1774,14 +1796,12 @@ BEGIN
         WHERE idReservacionCargoExtra = @idReservacionCargoExtra
 
         SELECT * FROM @deleted
+        RETURN
     END
     
     
     TRANSACTION_ERROR:
-        IF @ERROR <> 0
-        BEGIN
-            ROLLBACK TRANSACTION
-            RAISERROR(@MSG, 16, 1)
-        END
+        ROLLBACK TRANSACTION
+        RAISERROR(@MSG, 16, 1)
 END
 

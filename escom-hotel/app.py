@@ -877,6 +877,7 @@ def customer():
                 response = cursor.fetchall()
                 return jsonify(response), 200
         except OperationalError as e:
+            print(e)
             return jsonify({}), 200
         except DatabaseError as e:
             app.logger.error(str(e))
