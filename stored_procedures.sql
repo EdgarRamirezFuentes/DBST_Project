@@ -1507,11 +1507,7 @@ BEGIN
 		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
 	DECLARE @fechaFin DATE
 		SELECT @fechaFin = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
-<<<<<<< HEAD
 	DECLARE @totalCargosExtra MONEY 
-=======
-	DECLARE @totalCargosExtra MONEY
->>>>>>> 2194f5fbe9504d8b9c22c693e880131aa77bb0b2
         SELECT @totalCargosExtra = dbo.fn_totalCargosExtra(@idReservacion);
     DECLARE @total MONEY
    		SET @total = @subTotal + @totalCargosExtra;
@@ -1548,30 +1544,8 @@ BEGIN
                 SET @MSG = 'The ACCION is required'
                 GOTO TRANSACTION_ERROR
         END
-<<<<<<< HEAD
     	
         
-=======
-
-        IF @fechaFin > @fecha
-        BEGIN
-        	SET @total = @total + 1000;
-        END
-
-        IF @totalCargosExtra <> NULL
-        BEGIN
-        	SET @total = @total + @totalCargosExtra;
-        END
-        ELSE IF @totalCargosExtra IS NULL
-	    BEGIN
-        	SET @total = @total + 0;
-        END
-
-
-
-
-
->>>>>>> 2194f5fbe9504d8b9c22c693e880131aa77bb0b2
         --INSERT TICKET--
         INSERT INTO Ticket (fecha,idReservacion,total)
         OUTPUT INSERTED.*
@@ -1627,10 +1601,7 @@ BEGIN
             RAISERROR(@MSG, 16, 1)
         END
 END
-<<<<<<< HEAD
 	
-=======
->>>>>>> 2194f5fbe9504d8b9c22c693e880131aa77bb0b2
 
 GO
 
@@ -1656,25 +1627,25 @@ BEGIN
     );
     IF @accion = 'FINDALL'
     BEGIN
-        SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio
-        FROM CargoExtra ce
+        SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio 
+        FROM CargoExtra ce  
         ORDER BY ce.nombre DESC
     END
     ELSE IF @accion = 'INSERT'
-    BEGIN
-    	BEGIN TRANSACTION
-    	IF @nombre = '' OR @descripcion = '' OR @precio = 0
+    BEGIN 
+    	BEGIN TRANSACTION 
+    	IF @nombre = '' OR @descripcion = '' OR @precio = 0 
     	BEGIN
                 SET @MSG = 'Information missing'
                 GOTO TRANSACTION_ERROR
         END
-
+        
         IF @accion = ''
         BEGIN
                 SET @MSG = 'The ACCION is required'
                 GOTO TRANSACTION_ERROR
         END
-
+    	
         --INSERT EXTRACHARGES--
         INSERT INTO CargoExtra (nombre,descripcion,precio)
         OUTPUT INSERTED.*
@@ -1682,28 +1653,28 @@ BEGIN
         VALUES (@nombre,@descripcion,@precio)
 
         SELECT @ERROR = @@ERROR;
-
+       
         IF @ERROR <> 0
         BEGIN
         SET @MSG = 'There was an error trying to insert the extra charge'
             GOTO TRANSACTION_ERROR;
         END
-
+        
         SELECT * FROM @inserted
         COMMIT TRANSACTION
     END
     ELSE IF @accion = 'FINDBYID'
     BEGIN
 
-        SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio
-        FROM CargoExtra ce
+        SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio 
+        FROM CargoExtra ce  
         WHERE idCargoExtra = @idCargoExtra
     END
     ELSE IF @accion = 'FINDBYNAME'
     BEGIN
 
-        SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio
-        FROM CargoExtra ce
+        SELECT ce.idCargoExtra, ce.nombre, ce.descripcion, ce.precio 
+        FROM CargoExtra ce  
         WHERE nombre = @nombre
     END
     ELSE IF @accion = 'DELETE'
@@ -1722,8 +1693,8 @@ BEGIN
 
         SELECT * FROM @deleted
     END
-
-
+    
+    
     TRANSACTION_ERROR:
         IF @ERROR <> 0
         BEGIN
@@ -1734,9 +1705,6 @@ END
 
 GO
 
----------------------------------------
--- RESERVACIONCARGOEXTRA PROCEDURES ---
----------------------------------------
 
 CREATE PROCEDURE sp_reservacionCargoExtra_crud
 @idReservacionCargoExtra INT,

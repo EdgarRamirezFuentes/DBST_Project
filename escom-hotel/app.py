@@ -2150,13 +2150,12 @@ def get_available_rooms():
 @app.route('/api/v1/ticket', methods=['GET', 'POST'])
 @jwt_required()
 def ticket():
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
         try:
             conn = db.connect()
-
-            active = request.args.get('active', None)
 
             with conn.cursor(as_dict=True) as cursor:
                 if not cursor:
@@ -2236,28 +2235,26 @@ def ticket():
             if db:
                 db.close()
 
+###############################
+### CARGO EXTRA ENDPOINTS #####
+###############################
 
-################################
-### CARGOS EXTRA ENDPOINTS #####
-################################
-
-@app.route('/api/v1/cargosExtra', methods=['GET', 'POST'])
+@app.route('/api/v1/cargoExtra', methods=['GET', 'POST'])
 @jwt_required()
 def ticket():
+    user = get_jwt_identity()
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
         try:
             conn = db.connect()
 
-            active = request.args.get('active', None)
-
             with conn.cursor(as_dict=True) as cursor:
                 if not cursor:
                     app.logger.critical( f'Database unavailable')
                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_ticket_crud',
+                cursor.callproc('sp_cargoExtra_crud',
                 (
                     None, None,
                     'FINDALL'
@@ -2277,7 +2274,7 @@ def ticket():
             app.logger.error(str(e))
             return jsonify({'message' : 'Error' }), 500
         finally:
-            app.logger.info( f'User ID({user_id}) retrieved the tickets')
+            app.logger.info( f'User ID({user_id}) retrieved the extra charges')
             if cursor:
                 cursor.close()
             if db:
@@ -2297,16 +2294,19 @@ def ticket():
                 if not data:
                     return jsonify({'msg': 'Missing data.'}), 400
 
-                current_date = datetime.now().strftime('%Y-%m-%d')
-                reservation_id = data['reservation_id']
+                nombre_cargo = data['nombre_cargo']
+                descripcion_cargo = data['descripcion_cargo'] 
+                precio_cargo = data['precio_cargo']
 
-                if not reservation_id:
+                if not nombre_cargo or not descripcion_cargo or not precio_cargo:
                     return jsonify({'msg': 'Missing data.'}), 400
 
-                cursor.callproc('sp_ticket_crud',
+                cursor.callproc('sp_cargoExtra_crud',
                 (
                     None,
-                    reservation_id,
+                    nombre_cargo,
+                    descripcion_cargo, 
+                    precio_cargo,
                     'INSERT'
                 ))
                 response = cursor.fetchone()
@@ -2324,11 +2324,12 @@ def ticket():
             conn.rollback()
             return jsonify({'message' : 'Error' }), 500
         finally:
-            app.logger.info(f'User ID({user_id}> created ticket')
+            app.logger.info(f'User ID({user_id}> created cargo extra')
             if cursor:
                 cursor.close()
             if db:
                 db.close()
+
 
 
 

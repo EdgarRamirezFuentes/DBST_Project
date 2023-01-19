@@ -290,6 +290,9 @@ EXEC sp_cliente_crud
   'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
 GO 
 
+
+
+
 -- ADDING TYPE ROOMS --
 --Empiezan 10 Tipos de Habitaciones---
 
