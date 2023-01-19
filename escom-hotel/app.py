@@ -93,8 +93,8 @@ def main():
     return jsonify('Hello.')
 
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port='5000')
+#if __name__ == '__main__':
+#    app.run(debug=True, host='0.0.0.0', port='5000')
 
 
 #################
@@ -2157,29 +2157,29 @@ def ticket():
     user_id = get_jwt_identity()['user_id']
 
     if request.method == 'GET':
-    try:
-        conn = db.connect()
+        try:
+            conn = db.connect()
 
-        with conn.cursor(as_dict=True) as cursor:
-            if not cursor:
-                app.logger.critical( f'Database unavailable')
-                return jsonify({'msg': 'Service unavailable.'}), 500
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
 #             active = request.args.get('active', None)
 
-        with conn.cursor(as_dict=True) as cursor:
-            if not cursor:
-                app.logger.critical( f'Database unavailable')
-                return jsonify({'msg': 'Service unavailable.'}), 500
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_ticket_crud',
-                (
-                    None, None,
-                    'FINDALL'
-                ))
+                    cursor.callproc('sp_ticket_crud',
+                    (
+                        None, None,
+                        'FINDALL'
+                    ))
 
-                response = cursor.fetchall()
+                    response = cursor.fetchall()
 
-                return jsonify(response), 200
+                    return jsonify(response), 200
         except OperationalError as e:
             return jsonify({}), 200
         except DatabaseError as e:
@@ -2246,5 +2246,6 @@ def ticket():
 
 
 
-
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port='5000')
 
