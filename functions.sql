@@ -188,6 +188,12 @@ BEGIN
 		INNER JOIN ReservacionCargoExtra rce 
 		ON ce.idCargoExtra = rce.idCargoExtra 
 		WHERE rce.idReservacion = @idReservacion
+	
+	IF @totalCargosExtra IS NULL 
+	BEGIN 
+		SET @totalCargosExtra = 0;
+	END
+	
 	RETURN @totalCargosExtra
 END
 
