@@ -725,7 +725,7 @@ GO
 EXEC sp_cliente_crud
   NULL, 'Claudia', 'Ivette', 'Miranda',
   '1988-01-01', 'M', 'IEMCC', 'IEMCC',
-  '5577917850', 'claudia@gmail.com', 'claudia', 3,
+  '5577917850', 'claudia1@gmail.com', 'claudia', 3,
   'bosques', '10', '3', 'Natura',
   'CDMX', 'Tlalpan', '29580',
   'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
@@ -797,7 +797,7 @@ GO
 EXEC sp_cliente_crud
   NULL, 'Maria', 'Aguirre', 'Sanchez',
   '1985-01-01', 'F', 'AGSM', 'AGSM',
-  '5577901851', 'maria@gmail.com', 'maria', 3,
+  '5577901851', 'maria1@gmail.com', 'maria', 3,
   'mani', '250', '3', 'glorieta',
   'CDMX', 'Azcapotzalco', '51247',
   'Antonio', 'Arce', 'Gudiño', '144745135', 'INSERT'
