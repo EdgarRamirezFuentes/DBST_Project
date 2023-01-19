@@ -18,11 +18,33 @@ GO
 
 -- TABLA AREA
 INSERT INTO Area (nombre) VALUES ('recepcion');
-
 GO
 
 INSERT INTO Area (nombre) VALUES ('limpieza');
+GO
 
+INSERT INTO Area (nombre) VALUES ('bar');
+GO
+
+INSERT INTO Area (nombre) VALUES ('pasillos');
+GO
+
+INSERT INTO Area (nombre) VALUES ('chequeo');
+GO
+
+INSERT INTO Area (nombre) VALUES ('medico');
+GO
+
+INSERT INTO Area (nombre) VALUES ('chef');
+GO
+
+INSERT INTO Area (nombre) VALUES ('contador');
+GO
+
+INSERT INTO Area (nombre) VALUES ('Arquitecto');
+GO
+
+INSERT INTO Area (nombre) VALUES ('Soporte');
 GO
 
 -- TABLA ESTADO TAREA
@@ -294,7 +316,197 @@ EXEC sp_trabajador_crud
   '5516787762', 17000.50, 1, 'INSERT'
 GO
 
---Terminan 10 empleados---
+EXEC sp_trabajador_crud
+  NULL, 'Chimino', 'Cruz', 'Cruz',
+  '1996-10-13', 'M', 'CUCC978846DF',
+  'CUCC978846DF', '5627871153', 'chimino@gmail.com', 'chimino123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516787762', 17000.50, 1, 'INSERT'
+GO
+--
+EXEC sp_trabajador_crud
+  NULL, 'Yaga', 'Benitez', 'Cruz',
+  '1996-10-13', 'M', 'BECY78846DF',
+  'BECY978846DF', '5627871153', 'yaga@gmail.com', 'yaga123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516787762', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Karin', 'Medina', 'Medina',
+  '1996-10-13', 'M', 'MEMK78846DF',
+  'MEMK978846DF', '5627871121', 'karin@gmail.com', 'karin123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516787762', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Meredi', 'Madrigal', 'Romero',
+  '1996-10-13', 'F', 'MARM78846DF',
+  'MARM978846DF', '5628871121', 'meredi@gmail.com', 'meredi123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516777762', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Lucio', 'Madrigal', 'Fedora',
+  '1996-10-13', 'M', 'MAFL78846DF',
+  'MAFL978846DF', '5621171121', 'lucio@gmail.com', 'lucio123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516777762', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Pepa', 'Madrigal', 'Henestrosa',
+  '1990-10-13', 'F', 'MAHP78846DF',
+  'MAHP978846DF', '5621171121', 'pepa@gmail.com', 'pepa123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516777762', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Bruno', 'Madrigal', 'Hela',
+  '1990-10-13', 'M', 'MAHB78846DF',
+  'MAHB978846DF', '5621171121', 'bruno@gmail.com', 'bruno123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516777762', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Dinorah', 'Madrigal', 'Gelacio',
+  '1990-10-13', 'F', 'MAGD78846DF',
+  'MAGD978846DF', '5621171121', 'dinora@gmail.com', 'dinora123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516777762', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Mime', 'Ruiz', 'Gelacio',
+  '1990-10-13', 'M', 'RUGM78846DF',
+  'RUGM978846DF', '5521171121', 'mime@gmail.com', 'mime123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Eris', 'Lopez', 'Lautaro',
+  '1990-10-13', 'F', 'LOLE78846DF',
+  'LOLE978846DF', '5521171121', 'eris@gmail.com', 'eris123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Guillermo', 'Lagoañe', 'Lopez',
+  '1990-10-13', 'F', 'LALG78846DF',
+  'LALG978846DF', '5521171121', 'guillermo@gmail.com', 'guillermo123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Oliver', 'Yoshimar', 'Lopez',
+  '1990-10-13', 'M', 'YOLO78846DF',
+  'YOLO978846DF', '5511171121', 'oliver@gmail.com', 'oliver123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Renata', 'Alvares', 'Nau',
+  '1990-10-13', 'F', 'AANR78846DF',
+  'AANR978846DF', '5558171121', 'renata@gmail.com', 'renata123',
+  2, 'gondola', '654', '4',
+  'dinosaurio', 'Mexico', 'Tlalpan', '97881',
+  'Romina', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Federico', 'Gomez', 'Noe',
+  '1990-10-13', 'F', 'GONE78846DF',
+  'GONE978846DF', '5558171691', 'federico@gmail.com', 'federico123',
+  2, 'gondola', '654', '4',
+  'dinosaurio', 'Mexico', 'Tlalpan', '97881',
+  'Romina', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Morgana', 'Stark', 'Poros',
+  '1990-10-13', 'F', 'SAPM78846DF',
+  'SAPM978846DF', '5558171691', 'morgana@gmail.com', 'morgana123',
+  2, 'gondola', '654', '4',
+  'dinosaurio', 'Mexico', 'Tlalpan', '97881',
+  'Romina', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Joaquin', 'Hernandez', 'Hernandez',
+  '1990-10-13', 'M', 'HEHJ78846DF',
+  'HEHJ978846DF', '5558198691', 'joaquin@gmail.com', 'joaquin123',
+  2, 'gondola', '654', '4',
+  'dinosaurio', 'Mexico', 'Tlalpan', '97881',
+  'Romina', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Jenni', 'Hernandez', 'Plutarco',
+  '1990-10-13', 'F', 'HEPJ78846DF',
+  'HEPJ978846DF', '5558198691', 'jenni@gmail.com', 'jenni123',
+  2, 'gondola', '654', '4',
+  'dinosaurio', 'Mexico', 'Tlalpan', '97881',
+  'Romina', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Luis', 'Mendoza', 'Acevedo',
+  '1990-10-13', 'F', 'MEAL78846DF',
+  'MEAL978846DF', '5558198871', 'luis@gmail.com', 'luis123',
+  2, 'gondola', '654', '4',
+  'uppicsa', 'Mexico', 'Iztacalco', '94781',
+  'Romina', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Michelle', 'Roma', 'Camacho',
+  '1996-10-13', 'F', 'ROCM78846DF',
+  'ROCM978846DF', '5558198871', 'michelle@gmail.com', 'michelle123',
+  2, 'gondola', '654', '4',
+  'uppicsa', 'Mexico', 'Iztacalco', '94771',
+  'Romina', 'Angel', 'Romero',
+  '5516777762', 20000.50, 1, 'INSERT'
+GO
+
+--Terminan 20 empleados---
 
 
 -- ADDING CUSTOMERS --
