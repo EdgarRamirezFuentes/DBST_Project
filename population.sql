@@ -194,6 +194,106 @@ EXEC sp_trabajador_crud
   '5609347472', 17000.50, 1, 'INSERT'
 GO
 
+EXEC sp_trabajador_crud
+  NULL, 'Juan', 'Felix', 'Arce',
+  '1974-12-13', 'M', 'AEGA548846DF',
+  'AEGA548846DF', '5576473453', 'FELIX@gmail.com', 'felix123',
+  2, 'La cruz', '12', '3',
+  'EX-NORMAL', 'Mexico', 'TUXTEPEC', '68370',
+  'Antonio', 'BENITEZ', 'JUAN',
+  '5591287521', 12000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Alma', 'Lilia', 'Arce',
+  '1972-12-13', 'F', 'LEGA548846DF',
+  'LEGA548846DF', '5576443453', 'alma@gmail.com', 'alma123',
+  2, 'La cruz', '12', '3',
+  'Dorantes', 'Mexico', 'TUXTEPEC', '63370',
+  'Antonio', 'Zavala', 'Romero',
+  '5591787521', 12000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Saori', 'Lilith', 'Arce',
+  '1985-12-13', 'F', 'LISA548846DF',
+  'LISA548846DF', '5570443453', 'lilith@gmail.com', 'li123',
+  2, 'Mexico', '12', '3',
+  'Dorantes', 'Mexico', 'TUXTEPEC', '62370',
+  'Antonio', 'Arce', 'Zavala',
+  '5591787529', 12000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Luisa', 'Huitch', 'Gonzales',
+  '1995-10-13', 'F', 'HUGL548846DF',
+  'HUGL548846DF', '5670443453', 'luisa@gmail.com', 'luisa123',
+  2, 'tizimin', '12', '3',
+  'Tultepec', 'Mexico', 'TUXTEPEC', '67370',
+  'Antonio', 'Arce', 'Zavala',
+  '5591787529', 12000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Diana', 'Jaramillo', 'Perez',
+  '1999-10-13', 'F', 'JAPD548846DF',
+  'JAPD548846DF', '5677443453', 'diana@gmail.com', 'diana123',
+  2, 'de los paraderos', '11', '3',
+  'ROMA', 'Mexico', 'Cuahutemoc', '48370',
+  'Tania', 'tanibeth', 'Romero',
+  '5591787530', 12000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Yael', 'Medina', 'Ramirez',
+  '1997-10-13', 'M', 'MERY978846DF',
+  'MERY978846DF', '5677444153', 'yael@gmail.com', 'yael123',
+  2, 'universidad', '10', '3',
+  'Cisneros', 'Mexico', 'Tlalpan', '23370',
+  'Fernanda', 'Lopez', 'Romero',
+  '5516787530', 13250.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Ivan', 'Medina', 'Ramirez',
+  '1997-10-13', 'M', 'MERI978846DF',
+  'MERI978846DF', '5677444153', 'ivan@gmail.com', 'ivan123',
+  2, 'luna', '10', '3',
+  'Durazno', 'Mexico', 'Naucalpan', '23371',
+  'Angela', 'Aguilar', 'Romero',
+  '5516787512', 18000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Angel', 'David', 'Revilla',
+  '1985-10-13', 'M', 'DARA978846DF',
+  'DARA978846DF', '5614744153', 'angeld@gmail.com', 'angel123',
+  2, 'caracas', '10', '3',
+  'Narvarte', 'Mexico', 'Miguel Hidalgo', '27371',
+  'Federico', 'Angel', 'Romero',
+  '5516787762', 18000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Carla', 'Cruz', 'Romero',
+  '1996-10-13', 'F', 'CURC978846DF',
+  'CURC978846DF', '5614771153', 'carla@gmail.com', 'carla123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516787762', 17000.50, 1, 'INSERT'
+GO
+
+EXEC sp_trabajador_crud
+  NULL, 'Fabricio', 'Santa', 'Cruz',
+  '1996-10-13', 'F', 'SACF978846DF',
+  'SACF978846DF', '5617871153', 'fabricio@gmail.com', 'carla123',
+  2, 'tinoco', '100', '3',
+  'santa fe', 'Mexico', 'Alvaro Obregon', '27381',
+  'David', 'Angel', 'Romero',
+  '5516787762', 17000.50, 1, 'INSERT'
+GO
+
 --Terminan 10 empleados---
 
 
@@ -346,7 +446,7 @@ GO
 --Empiezan 10 Habitaciones---
 
 EXEC sp_habitacion_crud
-  NULL, 'Economica para chavos','Habitacion para estudiantes de 18 a 27 años con una cama',
+  NULL, 'Economica para chavos','Habitacion para estudiantes de 18 a 27',
   1,1,'INSERT'
 GO
 
@@ -361,7 +461,7 @@ EXEC sp_habitacion_crud
 GO
 
 EXEC sp_habitacion_crud
-  NULL, 'Economica De paso','Habitacion para una sola persona con una cama y aditamentos de un solo uso',
+  NULL, 'Economica De paso','Habitacion para una sola persona con una cama',
   1,3,'INSERT'
 GO
 
@@ -371,27 +471,27 @@ EXEC sp_habitacion_crud
 GO
 
 EXEC sp_habitacion_crud
-  NULL, 'Habitacion Viaje en Familia','Habitacion con 3 camas para familias de 6 integrantes',
+  NULL, 'Habitacion Viaje en Familia','Habitacion con 3 camas para familias 6 integrantes',
   1,10,'INSERT'
 GO
 
 EXEC sp_habitacion_crud
-  NULL, 'Habitacion Saca la Chamba','Habitacion para grupo de 5 personas acondicionada para trabajar',
+  NULL, 'Habitacion Saca la Chamba','Habitacion para grupo de 5 personas paratrabajar',
   1,9,'INSERT'
 GO
 
 EXEC sp_habitacion_crud
-  NULL, 'Habitacion Relajacion','Habitacion para grupo de 5 personas que quieran pasar dias de relajacion',
+  NULL, 'Habitacion Relajacion','Habitacion para grupo de 5 personas de wasa',
   1,8,'INSERT'
 GO
 
 EXEC sp_habitacion_crud
-  NULL, 'Habitacion escape ','Habitacion para estudiantes que buscan lugar de paso a buen precio',
+  NULL, 'Habitacion escape ','Habitacion para estudiantes de paso a buen precio',
   1,1,'INSERT'
 GO
 
 EXEC sp_habitacion_crud
-  NULL, 'Habitacion grupito','Habitacion para 3 personas con servicios basicos de relajacion',
+  NULL, 'Habitacion grupito','Habitacion para 3 con servicios de relajacion',
   1,5,'INSERT'
 GO
 
