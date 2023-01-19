@@ -602,10 +602,8 @@ EXEC sp_cliente_crud
   'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
 GO 
 
-<<<<<<< HEAD
 
 
-=======
 EXEC sp_cliente_crud
   NULL, 'Juan', 'Arce', 'Garduño',
   '1988-01-01', 'F', 'AEGJ', 'AEGJ',
@@ -875,7 +873,6 @@ EXEC sp_cliente_crud
   'CDMX', 'Magdalena Contreras', '14247',
   'Antonio', 'Arce', 'Gudiño', '144365135', 'INSERT'
 GO 
->>>>>>> 15e8f51e3f0145cbc3df0b7c6afa2d145c180199
 
 -- ADDING TYPE ROOMS --
 --Empiezan 10 Tipos de Habitaciones---
