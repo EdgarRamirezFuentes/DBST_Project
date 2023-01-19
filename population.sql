@@ -925,7 +925,7 @@ GO
 
 
 -- ADDING ROOMS --
---Empiezan 10 Habitaciones---
+--Empiezan 40 Habitaciones---
 
 EXEC sp_habitacion_crud
   NULL, 'Economica para chavos','Habitacion para estudiantes de 18 a 27',
@@ -976,5 +976,156 @@ EXEC sp_habitacion_crud
   NULL, 'Habitacion grupito','Habitacion para 3 con servicios de relajacion',
   1,5,'INSERT'
 GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion game','Habitacion para 3 con servicios gaming',
+  1,5,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion doble c','Habitacion para 2 parejas citas',
+  1,5,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion derroche','Habitacion para 5 con bebidas',
+  1,7,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion borrachos','Habitacion para 5 con bebidas',
+  1,7,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion despedida','Habitacion para 5 estilo fiesta',
+  1,8,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion graduacion','Habitacion ambientada estudiantes $',
+  1,7,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion amigos','Habitacion para 2 camas indiv',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion solo pa mi','Habitacion con dos camas ',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion estudiambre','Cuarto estudiante solo 1 cama',
+  1,1,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion MATRIMONIO','Habitacion para pareja economica',
+  1,2,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion amigos','Habitacion para 2 camas indiv',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion solo pa mi','Habitacion con dos camas ',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion estudiambre','Cuarto estudiante solo 1 cama',
+  1,1,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion toy solo','Habitacion 1 cama solo dormir',
+  1,3,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion solitario','Habitacion 1 cama 1 persona',
+  1,3,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion lujito','Habitacion para 4 personas bebida',
+  1,6,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion no mas','Habitacion para 4 personas comida',
+  1,6,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion pa eso trabajo','Habitacion para 4 personas comida',
+  1,6,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion reunion','Habitacion para 4 personas buffet',
+  1,6,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion como jijos no','Habitacion para 5 bebida y comida',
+  1,7,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion nosotros','Habitacion para pareja comida',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion inclusiva','Habitacion lgbt',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion luna miel','Habitacion para pareja casada',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion preboda','Habitacion para pareja-solteras!',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion solo amigos','Habitacion para pareja amigos ',
+  1,4,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion juegos','Habitacion para fam con hijos',
+  1,10,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion ya grandes','Habitacion fam hijos jovenes ',
+  1,10,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion mezclas','Habitacion familiar peques y jovenes ',
+  1,10,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion childfree','Habitacion para familia sin niños ',
+  1,10,'INSERT'
+GO
+
+EXEC sp_habitacion_crud
+  NULL, 'Habitacion compadres','Habitacion para carnita asada',
+  1,5,'INSERT'
+GO
+
 
 ----
