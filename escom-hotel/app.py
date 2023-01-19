@@ -2246,6 +2246,215 @@ def ticket():
 
 
 
+##########################
+### CARGOS EXTRA     #####
+##########################
+
+@app.route('/api/v1/cargos', methods=['GET', 'POST'])
+@jwt_required()
+def cargos():
+    user = get_jwt_identity()
+    user_id = get_jwt_identity()['user_id']
+
+    if request.method == 'GET':
+        try:
+            conn = db.connect()
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+#             active = request.args.get('active', None)
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                    cursor.callproc('sp_cargoExtra_crud',
+                    (
+                        None, None,
+                        None, None, 
+                        'FINDALL'
+                    ))
+
+                    response = cursor.fetchall()
+
+                    return jsonify(response), 200
+        except OperationalError as e:
+            return jsonify({}), 200
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        finally:
+            app.logger.info( f'User ID({user_id}) retrieved the extra charges')
+            if cursor:
+                cursor.close()
+            if db:
+                conn.close()
+
+    if request.method == 'POST':
+        try:
+            conn = db.connect()
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                data = request.get_json()
+
+                if not data:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+
+                nombre_cargoE = data['nombre_cargoE']
+                descripcion_cargoE = data['descripcion_cargoE']
+                precio_cargoE = data['precio_cargoE']
+
+                if not nombre_cargoE or not descripcion_cargoE or not precio_cargoE:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+                cursor.callproc('sp_cargoExtra_crud',
+                (
+                    None,
+                    nombre_cargoE,
+                    descripcion_cargoE,
+                    precio_cargoE,
+                    'INSERT'
+                ))
+                response = cursor.fetchone()
+                conn.commit()
+
+                return jsonify(response), 200
+
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> created ticket')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+
+######################################
+### RESERVACION CARGOS EXTRA     #####
+######################################
+
+@app.route('/api/v1/reservacionCargos', methods=['GET', 'POST'])
+@jwt_required()
+def reservacionCargos():
+    user = get_jwt_identity()
+    user_id = get_jwt_identity()['user_id']
+
+    if request.method == 'GET':
+        try:
+            conn = db.connect()
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+#             active = request.args.get('active', None)
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                    cursor.callproc('sp_reservacionCargoExtra_crud',
+                    (
+                        None, None,
+                        None,  
+                        'FINDALL'
+                    ))
+
+                    response = cursor.fetchall()
+
+                    return jsonify(response), 200
+        except OperationalError as e:
+            return jsonify({}), 200
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
+            app.logger.error(str(e))
+            return jsonify({'message' : 'Error' }), 500
+        finally:
+            app.logger.info( f'User ID({user_id}) retrieved the extra charges')
+            if cursor:
+                cursor.close()
+            if db:
+                conn.close()
+
+    if request.method == 'POST':
+        try:
+            conn = db.connect()
+
+            with conn.cursor(as_dict=True) as cursor:
+                if not cursor:
+                    app.logger.critical( f'Database unavailable')
+                    return jsonify({'msg': 'Service unavailable.'}), 500
+
+                data = request.get_json()
+
+                if not data:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+
+                cargoExtra_id = data ['cargoExtra_id']
+                reservacion_id = data ['reservacion_id']
+                
+                
+
+                if not nombre_cargoE or not descripcion_cargoE or not precio_cargoE:
+                    return jsonify({'msg': 'Missing data.'}), 400
+
+                cursor.callproc('sp_cargoExtra_crud',
+                (
+                    None,
+                    cargoExtra_id,
+                    reservacion_id,
+                    'INSERT'
+                ))
+                response = cursor.fetchone()
+                conn.commit()
+
+                return jsonify(response), 200
+
+        except DatabaseError as e:
+            app.logger.error(str(e))
+            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+            conn.rollback()
+            return jsonify({'message' : response}), 500
+        except Error as e:
+            app.logger.error(str(e))
+            conn.rollback()
+            return jsonify({'message' : 'Error' }), 500
+        finally:
+            app.logger.info(f'User ID({user_id}> created ticket')
+            if cursor:
+                cursor.close()
+            if db:
+                db.close()
+
+
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port='5000')
 
