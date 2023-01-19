@@ -390,6 +390,186 @@ EXEC sp_cliente_crud
   'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
 GO 
 
+EXEC sp_cliente_crud
+  NULL, 'Juan', 'Arce', 'Garduño',
+  '1988-01-01', 'F', 'AEGJ', 'AEGJ',
+  '5572915878', 'juan@gmail.com', '123456j', 3,
+  'av mexico', '12', '3', 'Pedregal',
+  'CDMX', 'Magdalena Contreras', '1258',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Sabina', 'Lopez', 'Alejo',
+  '1988-01-01', 'F', 'LOAS', 'LOAS',
+  '5572911778', 'sabi@gmail.com', 'sabi', 3,
+  'luis donaldo', '12', '3', 'Pedregal',
+  'CDMX', 'Tlalpan', '1258',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Erandi', 'Flores', 'Nuño',
+  '1988-01-01', 'F', 'FONE', 'FONE',
+  '5572915885', 'erandi@gmail.com', 'erandi', 3,
+  'civilizaciones', '12', '3', 'Pedregal',
+  'CDMX', 'Xochimilco', '12544',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Manuel', 'Lule', 'Guzman',
+  '1988-01-01', 'F', 'LUGM', 'LUGM',
+  '5572915870', 'manuel@gmail.com', 'manuel', 3,
+  'filantrop', '1', '3', 'Ozuna',
+  'CDMX', 'Tlalpan', '12580',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Sabina', 'Lopez', 'Alejo',
+  '1988-01-01', 'F', 'LOAS', 'LOAS',
+  '5572911778', 'sabi@gmail.com', 'sabi', 3,
+  'luis donaldo', '12', '3', 'Pedregal',
+  'CDMX', 'Tlalpan', '1258',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Erandi', 'Flores', 'Nuño',
+  '1988-01-01', 'F', 'FONE', 'FONE',
+  '5572915885', 'erandi@gmail.com', 'erandi', 3,
+  'civilizaciones', '12', '3', 'Pedregal',
+  'CDMX', 'Xochimilco', '12544',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Nicandro', 'Castillo', 'Guzman',
+  '1988-01-01', 'F', 'CAGN', 'CAGN',
+  '5577915870', 'nicandro@gmail.com', 'nicandro', 3,
+  'de la luz', '1', '3', 'Ozuna',
+  'CDMX', 'Tlalpan', '12580',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Enrique', 'Castillo', 'Guzman',
+  '1998-01-01', 'M', 'CAGE', 'CAGE',
+  '5577915850', 'enrique@gmail.com', 'enrique', 3,
+  'lince', '1', '3', 'Natura',
+  'CDMX', 'Tlalpan', '12580',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Jazmine', 'Carrillo', 'Gondola',
+  '1998-01-01', 'M', 'CAGJ', 'CAGJ',
+  '5577915850', 'jazmine@gmail.com', 'jazmine', 3,
+  'de los doctores', '1', '3', 'Natura',
+  'CDMX', 'Tlalpan', '12580',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Ana', 'Ramirez', 'Norte',
+  '1988-01-01', 'M', 'RANA', 'RANA',
+  '5577915850', 'ana@gmail.com', 'ana', 3,
+  'bosques', '10', '3', 'Natura',
+  'CDMX', 'Tlalpan', '29580',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Claudia', 'Ivette', 'Miranda',
+  '1988-01-01', 'M', 'IEMC', 'IEMC',
+  '5577917850', 'claudia@gmail.com', 'claudia', 3,
+  'bosques', '10', '3', 'Natura',
+  'CDMX', 'Tlalpan', '29580',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Carlos', 'Roma', 'Cisneros',
+  '1988-01-01', 'M', 'ROCC', 'ROCC',
+  '5577115550', 'carlos@gmail.com', 'carlos', 3,
+  'bosques', '10', '3', 'Natura',
+  'CDMX', 'Tlalpan', '29580',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Ary', 'Shared', 'Carrillo',
+  '1988-01-01', 'M', 'SACA', 'SACA',
+  '5577905850', 'ary@gmail.com', 'ary', 3,
+  'politecnico', '10', '3', 'Natura',
+  'CDMX', 'Gustavo Madero', '54947',
+  'Antonio', 'Arce', 'Gudiño', '144745135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Claudia', 'Ivette', 'Miranda',
+  '1988-01-01', 'M', 'IEMC', 'IEMC',
+  '5577917850', 'claudia@gmail.com', 'claudia', 3,
+  'bosques', '10', '3', 'Natura',
+  'CDMX', 'Tlalpan', '29580',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Carlos', 'Roma', 'Cisneros',
+  '1988-01-01', 'M', 'ROCC', 'ROCC',
+  '5577115550', 'carlos@gmail.com', 'carlos', 3,
+  'bosques', '10', '3', 'Natura',
+  'CDMX', 'Tlalpan', '29580',
+  'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Mario', 'Ramirez', 'Odette',
+  '1988-01-01', 'M', 'RAOM', 'RAOM',
+  '5577904110', 'mario@gmail.com', 'mario', 3,
+  'politecnico', '10', '3', 'Natura',
+  'CDMX', 'Gustavo Madero', '54947',
+  'Antonio', 'Arce', 'Gudiño', '144745135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Estefania', 'Nuño', 'Morales',
+  '1988-01-01', 'M', 'NUME', 'NUME',
+  '5577905850', 'estefani@gmail.com', 'estefani', 3,
+  'politecnico', '10', '3', 'Natura',
+  'CDMX', 'Gustavo Madero', '54947',
+  'Antonio', 'Arce', 'Gudiño', '144745135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Xiadani', 'Mora', 'Morales',
+  '1988-01-01', 'M', 'MOMX', 'MOMX',
+  '5577905851', 'xiadani@gmail.com', 'xiadani', 3,
+  'arbustos', '100', '3', 'Natura',
+  'CDMX', 'Azcapotzalco', '54947',
+  'Antonio', 'Arce', 'Gudiño', '144745135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Brigguite', 'Gray', 'Morales',
+  '1988-01-01', 'F', 'GAMB', 'GAMB',
+  '5577905851', 'brig@gmail.com', 'brig', 3,
+  'arbustos', '25', '3', 'Natura',
+  'CDMX', 'Azcapotzalco', '54947',
+  'Antonio', 'Arce', 'Gudiño', '144745135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Raquel', 'Bigorra', 'Sanchez',
+  '1985-01-01', 'F', 'BISR', 'BISR',
+  '5577901851', 'raquel@gmail.com', 'raquel', 3,
+  'arbustos', '25', '3', 'Natura',
+  'CDMX', 'Azcapotzalco', '54947',
+  'Antonio', 'Arce', 'Gudiño', '144745135', 'INSERT'
+GO 
+
 -- ADDING TYPE ROOMS --
 --Empiezan 10 Tipos de Habitaciones---
 
