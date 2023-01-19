@@ -1478,9 +1478,7 @@ BEGIN
 
     SET @idCliente = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
 
-    DECLARE @isOwner BIT = (SELECT COUNT(*) FROM Reservacion WHERE idReservacion = @idReservacion AND idCliente = @idCliente)
-
-    RETURN @isOwner
+    SELECT idReservacion FROM Reservacion WHERE idReservacion = @idReservacion AND idCliente = @idCliente
 END
 
 GO
@@ -1503,11 +1501,7 @@ BEGIN
 		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
 	DECLARE @fechaFin DATE
 		SELECT @fechaFin = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
-<<<<<<< HEAD
-	DECLARE @totalCargosExtra MONEY 
-=======
 	DECLARE @totalCargosExtra MONEY
->>>>>>> 2194f5fbe9504d8b9c22c693e880131aa77bb0b2
         SELECT @totalCargosExtra = dbo.fn_totalCargosExtra(@idReservacion);
     DECLARE @total MONEY
    		SET @total = @subTotal + @totalCargosExtra;
@@ -1544,10 +1538,6 @@ BEGIN
                 SET @MSG = 'The ACCION is required'
                 GOTO TRANSACTION_ERROR
         END
-<<<<<<< HEAD
-    	
-        
-=======
 
         IF @fechaFin > @fecha
         BEGIN
@@ -1567,7 +1557,6 @@ BEGIN
 
 
 
->>>>>>> 2194f5fbe9504d8b9c22c693e880131aa77bb0b2
         --INSERT TICKET--
         INSERT INTO Ticket (fecha,idReservacion,total)
         OUTPUT INSERTED.*
@@ -1623,10 +1612,6 @@ BEGIN
             RAISERROR(@MSG, 16, 1)
         END
 END
-<<<<<<< HEAD
-	
-=======
->>>>>>> 2194f5fbe9504d8b9c22c693e880131aa77bb0b2
 
 GO
 

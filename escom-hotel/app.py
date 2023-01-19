@@ -1926,9 +1926,9 @@ def reservation_by_id(reservation_id):
                 if not data:
                     return jsonify({'msg': 'Missing data.'}), 400
 
-                if user_role == 'client':
-                    is_owner = cursor.callproc('sp_validarPertenenciaReservacion', (reservation_id, reservation_user_id))
-
+                if user_role == 'cliente':
+                    cursor.callproc('sp_validarPertenenciaReservacion', (reservation_id, reservation_user_id))
+                    is_owner = cursor.fetchall()
                     if not is_owner:
                         return jsonify({'msg': 'Unauthorized.'}), 401
 
@@ -2148,188 +2148,188 @@ def get_available_rooms():
 ### TICKER ENDPOINTS #####
 ##########################
 
-@app.route('/api/v1/ticket', methods=['GET', 'POST'])
-@jwt_required()
-def ticket():
-    user_id = get_jwt_identity()['user_id']
+# @app.route('/api/v1/ticket', methods=['GET', 'POST'])
+# @jwt_required()
+# def ticket():
+#     user_id = get_jwt_identity()['user_id']
 
-    if request.method == 'GET':
-        try:
-            conn = db.connect()
+#     if request.method == 'GET':
+#         try:
+#             conn = db.connect()
 
-            active = request.args.get('active', None)
+#             active = request.args.get('active', None)
 
-            with conn.cursor(as_dict=True) as cursor:
-                if not cursor:
-                    app.logger.critical( f'Database unavailable')
-                    return jsonify({'msg': 'Service unavailable.'}), 500
+#             with conn.cursor(as_dict=True) as cursor:
+#                 if not cursor:
+#                     app.logger.critical( f'Database unavailable')
+#                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_ticket_crud',
-                (
-                    None, None,
-                    'FINDALL'
-                ))
+#                 cursor.callproc('sp_ticket_crud',
+#                 (
+#                     None, None,
+#                     'FINDALL'
+#                 ))
 
-                response = cursor.fetchall()
+#                 response = cursor.fetchall()
 
-                return jsonify(response), 200
-        except OperationalError as e:
-            return jsonify({}), 200
-        except DatabaseError as e:
-            app.logger.error(str(e))
-            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
-            conn.rollback()
-            return jsonify({'message' : response}), 500
-        except Error as e:
-            app.logger.error(str(e))
-            return jsonify({'message' : 'Error' }), 500
-        finally:
-            app.logger.info( f'User ID({user_id}) retrieved the tickets')
-            if cursor:
-                cursor.close()
-            if db:
-                conn.close()
+#                 return jsonify(response), 200
+#         except OperationalError as e:
+#             return jsonify({}), 200
+#         except DatabaseError as e:
+#             app.logger.error(str(e))
+#             response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+#             conn.rollback()
+#             return jsonify({'message' : response}), 500
+#         except Error as e:
+#             app.logger.error(str(e))
+#             return jsonify({'message' : 'Error' }), 500
+#         finally:
+#             app.logger.info( f'User ID({user_id}) retrieved the tickets')
+#             if cursor:
+#                 cursor.close()
+#             if db:
+#                 conn.close()
 
-    if request.method == 'POST':
-        try:
-            conn = db.connect()
+#     if request.method == 'POST':
+#         try:
+#             conn = db.connect()
 
-            with conn.cursor(as_dict=True) as cursor:
-                if not cursor:
-                    app.logger.critical( f'Database unavailable')
-                    return jsonify({'msg': 'Service unavailable.'}), 500
+#             with conn.cursor(as_dict=True) as cursor:
+#                 if not cursor:
+#                     app.logger.critical( f'Database unavailable')
+#                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                data = request.get_json()
+#                 data = request.get_json()
 
-                if not data:
-                    return jsonify({'msg': 'Missing data.'}), 400
+#                 if not data:
+#                     return jsonify({'msg': 'Missing data.'}), 400
 
-                current_date = datetime.now().strftime('%Y-%m-%d')
-                reservation_id = data['reservation_id']
+#                 current_date = datetime.now().strftime('%Y-%m-%d')
+#                 reservation_id = data['reservation_id']
 
-                if not reservation_id:
-                    return jsonify({'msg': 'Missing data.'}), 400
+#                 if not reservation_id:
+#                     return jsonify({'msg': 'Missing data.'}), 400
 
-                cursor.callproc('sp_ticket_crud',
-                (
-                    None,
-                    reservation_id,
-                    'INSERT'
-                ))
-                response = cursor.fetchone()
-                conn.commit()
+#                 cursor.callproc('sp_ticket_crud',
+#                 (
+#                     None,
+#                     reservation_id,
+#                     'INSERT'
+#                 ))
+#                 response = cursor.fetchone()
+#                 conn.commit()
 
-                return jsonify(response), 200
+#                 return jsonify(response), 200
 
-        except DatabaseError as e:
-            app.logger.error(str(e))
-            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
-            conn.rollback()
-            return jsonify({'message' : response}), 500
-        except Error as e:
-            app.logger.error(str(e))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        finally:
-            app.logger.info(f'User ID({user_id}> created ticket')
-            if cursor:
-                cursor.close()
-            if db:
-                db.close()
+#         except DatabaseError as e:
+#             app.logger.error(str(e))
+#             response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+#             conn.rollback()
+#             return jsonify({'message' : response}), 500
+#         except Error as e:
+#             app.logger.error(str(e))
+#             conn.rollback()
+#             return jsonify({'message' : 'Error' }), 500
+#         finally:
+#             app.logger.info(f'User ID({user_id}> created ticket')
+#             if cursor:
+#                 cursor.close()
+#             if db:
+#                 db.close()
 
 
 ################################
 ### CARGOS EXTRA ENDPOINTS #####
 ################################
 
-@app.route('/api/v1/cargosExtra', methods=['GET', 'POST'])
-@jwt_required()
-def ticket():
-    user_id = get_jwt_identity()['user_id']
+# @app.route('/api/v1/cargosExtra', methods=['GET', 'POST'])
+# @jwt_required()
+# def ticket():
+#     user_id = get_jwt_identity()['user_id']
 
-    if request.method == 'GET':
-        try:
-            conn = db.connect()
+#     if request.method == 'GET':
+#         try:
+#             conn = db.connect()
 
-            active = request.args.get('active', None)
+#             active = request.args.get('active', None)
 
-            with conn.cursor(as_dict=True) as cursor:
-                if not cursor:
-                    app.logger.critical( f'Database unavailable')
-                    return jsonify({'msg': 'Service unavailable.'}), 500
+#             with conn.cursor(as_dict=True) as cursor:
+#                 if not cursor:
+#                     app.logger.critical( f'Database unavailable')
+#                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                cursor.callproc('sp_ticket_crud',
-                (
-                    None, None,
-                    'FINDALL'
-                ))
+#                 cursor.callproc('sp_ticket_crud',
+#                 (
+#                     None, None,
+#                     'FINDALL'
+#                 ))
 
-                response = cursor.fetchall()
+#                 response = cursor.fetchall()
 
-                return jsonify(response), 200
-        except OperationalError as e:
-            return jsonify({}), 200
-        except DatabaseError as e:
-            app.logger.error(str(e))
-            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
-            conn.rollback()
-            return jsonify({'message' : response}), 500
-        except Error as e:
-            app.logger.error(str(e))
-            return jsonify({'message' : 'Error' }), 500
-        finally:
-            app.logger.info( f'User ID({user_id}) retrieved the tickets')
-            if cursor:
-                cursor.close()
-            if db:
-                conn.close()
+#                 return jsonify(response), 200
+#         except OperationalError as e:
+#             return jsonify({}), 200
+#         except DatabaseError as e:
+#             app.logger.error(str(e))
+#             response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+#             conn.rollback()
+#             return jsonify({'message' : response}), 500
+#         except Error as e:
+#             app.logger.error(str(e))
+#             return jsonify({'message' : 'Error' }), 500
+#         finally:
+#             app.logger.info( f'User ID({user_id}) retrieved the tickets')
+#             if cursor:
+#                 cursor.close()
+#             if db:
+#                 conn.close()
 
-    if request.method == 'POST':
-        try:
-            conn = db.connect()
+#     if request.method == 'POST':
+#         try:
+#             conn = db.connect()
 
-            with conn.cursor(as_dict=True) as cursor:
-                if not cursor:
-                    app.logger.critical( f'Database unavailable')
-                    return jsonify({'msg': 'Service unavailable.'}), 500
+#             with conn.cursor(as_dict=True) as cursor:
+#                 if not cursor:
+#                     app.logger.critical( f'Database unavailable')
+#                     return jsonify({'msg': 'Service unavailable.'}), 500
 
-                data = request.get_json()
+#                 data = request.get_json()
 
-                if not data:
-                    return jsonify({'msg': 'Missing data.'}), 400
+#                 if not data:
+#                     return jsonify({'msg': 'Missing data.'}), 400
 
-                current_date = datetime.now().strftime('%Y-%m-%d')
-                reservation_id = data['reservation_id']
+#                 current_date = datetime.now().strftime('%Y-%m-%d')
+#                 reservation_id = data['reservation_id']
 
-                if not reservation_id:
-                    return jsonify({'msg': 'Missing data.'}), 400
+#                 if not reservation_id:
+#                     return jsonify({'msg': 'Missing data.'}), 400
 
-                cursor.callproc('sp_ticket_crud',
-                (
-                    None,
-                    reservation_id,
-                    'INSERT'
-                ))
-                response = cursor.fetchone()
-                conn.commit()
+#                 cursor.callproc('sp_ticket_crud',
+#                 (
+#                     None,
+#                     reservation_id,
+#                     'INSERT'
+#                 ))
+#                 response = cursor.fetchone()
+#                 conn.commit()
 
-                return jsonify(response), 200
+#                 return jsonify(response), 200
 
-        except DatabaseError as e:
-            app.logger.error(str(e))
-            response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
-            conn.rollback()
-            return jsonify({'message' : response}), 500
-        except Error as e:
-            app.logger.error(str(e))
-            conn.rollback()
-            return jsonify({'message' : 'Error' }), 500
-        finally:
-            app.logger.info(f'User ID({user_id}> created ticket')
-            if cursor:
-                cursor.close()
-            if db:
-                db.close()
+#         except DatabaseError as e:
+#             app.logger.error(str(e))
+#             response = e.args[1].decode('utf8').split('DB-Lib error message')[0] if len(e.args) > 1 else 'Database error'
+#             conn.rollback()
+#             return jsonify({'message' : response}), 500
+#         except Error as e:
+#             app.logger.error(str(e))
+#             conn.rollback()
+#             return jsonify({'message' : 'Error' }), 500
+#         finally:
+#             app.logger.info(f'User ID({user_id}> created ticket')
+#             if cursor:
+#                 cursor.close()
+#             if db:
+#                 db.close()
 
 
 
