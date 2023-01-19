@@ -1430,13 +1430,9 @@ BEGIN
     END
 
     TRANSACTION_ERROR:
-        IF @@TRANCOUNT > 0
+        IF @ERROR <> 0
         BEGIN
             ROLLBACK TRANSACTION
-        END
-
-        IF @MSG IS NOT NULL
-        BEGIN
             RAISERROR(@MSG, 16, 1)
         END
 END
@@ -1482,9 +1478,7 @@ BEGIN
 
     SET @idCliente = (SELECT idCliente FROM Cliente WHERE idUsuario = @idUsuario)
 
-    DECLARE @isOwner BIT = (SELECT COUNT(*) FROM Reservacion WHERE idReservacion = @idReservacion AND idCliente = @idCliente)
-
-    RETURN @isOwner
+    SELECT idReservacion FROM Reservacion WHERE idReservacion = @idReservacion AND idCliente = @idCliente
 END
 
 GO
@@ -1507,7 +1501,11 @@ BEGIN
 		SELECT @subTotal = dbo.fn_SubTotal(@idReservacion);
 	DECLARE @fechaFin DATE
 		SELECT @fechaFin = fechaFin FROM Reservacion WHERE idReservacion = @idReservacion;
+<<<<<<< HEAD
 	DECLARE @totalCargosExtra MONEY 
+=======
+	DECLARE @totalCargosExtra MONEY
+>>>>>>> 15e8f51e3f0145cbc3df0b7c6afa2d145c180199
         SELECT @totalCargosExtra = dbo.fn_totalCargosExtra(@idReservacion);
     DECLARE @total MONEY
    		SET @total = @subTotal + @totalCargosExtra;
@@ -1544,8 +1542,30 @@ BEGIN
                 SET @MSG = 'The ACCION is required'
                 GOTO TRANSACTION_ERROR
         END
+<<<<<<< HEAD
     	
         
+=======
+
+        IF @fechaFin > @fecha
+        BEGIN
+        	SET @total = @total + 1000;
+        END
+
+        IF @totalCargosExtra <> NULL
+        BEGIN
+        	SET @total = @total + @totalCargosExtra;
+        END
+        ELSE IF @totalCargosExtra IS NULL
+	    BEGIN
+        	SET @total = @total + 0;
+        END
+
+
+
+
+
+>>>>>>> 15e8f51e3f0145cbc3df0b7c6afa2d145c180199
         --INSERT TICKET--
         INSERT INTO Ticket (fecha,idReservacion,total)
         OUTPUT INSERTED.*
@@ -1601,7 +1621,10 @@ BEGIN
             RAISERROR(@MSG, 16, 1)
         END
 END
+<<<<<<< HEAD
 	
+=======
+>>>>>>> 15e8f51e3f0145cbc3df0b7c6afa2d145c180199
 
 GO
 

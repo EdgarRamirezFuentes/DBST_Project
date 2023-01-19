@@ -29,12 +29,11 @@ END;
 
 GO
 
--- DELETE --
 
 
-----------------------------
--- Habitacion TRIGGERS --
-----------------------------
+--------------------------
+-- Reservacion TRIGGERS --
+--------------------------
 -- INSERT --
 CREATE TRIGGER TR_INS_Reservacion
 ON Reservacion
@@ -57,10 +56,41 @@ AS
 BEGIN
   SET NOCOUNT ON;
   INSERT INTO bitacora_reservacion (operacion, fecha, usuario, query)
-  SELECT 'UPDATE', GETDATE(), SUSER_NAME(), CONCAT('UPDATE Reservacion SET fechaInicio = ',fechaInicio,', fechaFin =',fechaFin,', idHabitacion = ',idHabitacion,', idCliente = ',idCliente,');')
+  SELECT 'UPDATE', GETDATE(), SUSER_NAME(), CONCAT('UPDATE Reservacion SET fechaInicio = ',fechaInicio,', fechaFin =',fechaFin,', idHabitacion = ',idHabitacion,', idCliente = ',idCliente, 'WHERE idReservacion =',idReservacion)
   FROM INSERTED
 END;
 
 GO
 
 -- DELETE --
+CREATE TRIGGER TR_DEL_Reservacion
+ON Reservacion
+AFTER DELETE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  INSERT INTO bitacora_reservacion (operacion, fecha, usuario, query)
+  SELECT 'DELETE', GETDATE(), SUSER_NAME(), CONCAT('DELETE Reservacion WHERE idReservacion = ',idReservacion)
+  FROM DELETED
+END;
+
+GO
+
+
+-----------------------------
+-- TipoHabitacion TRIGGERS --
+-----------------------------
+
+-- DELETE --
+CREATE TRIGGER TR_DEL_TipoHabitacion
+ON TipoHabitacion
+AFTER DELETE
+AS
+BEGIN
+  SET NOCOUNT ON;
+  INSERT INTO bitacora_tipohabitacion (operacion, fecha, usuario, query)
+  SELECT 'DELETE', GETDATE(), SUSER_NAME(), CONCAT('DELETE TipoHabitacion WHERE idTipoHabitacion = ',idTipoHabitacion)
+  FROM DELETED
+END;
+
+GO
