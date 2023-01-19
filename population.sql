@@ -1133,123 +1133,123 @@ GO
 
 ----TABLA TAREA
 -- 1
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,2,2)
 -- 2
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,2,2,3)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (2,2,3)
 -- 3
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,3,7,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (3,7,2)
 ---4
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,4,2,3)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (4,2,3)
 --5
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,5,5,1)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (5,5,1)
 ---6
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,6,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (6,2,2)
 --7
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,7,10,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (7,10,2)
 --8
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,8,11,1)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (8,11,1)
 --9
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,9,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (9,2,2)
 --10
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,10,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (10,2,2)
 --11
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,13,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,13,2)
 --12
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,2,3)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,2,3)
 --13
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,4,20,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (4,20,2)
 --14
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,20,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,20,2)
 --15
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,3,21,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (3,21,2)
 --16
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,22,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,22,2)
 --17
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,2,2)
 --18
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,7,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (7,2,2)
 --19
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,10,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,10,2)
 --20
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,7,9,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (7,9,2)
 --21
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,6,8,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (6,8,2)
 --22
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,5,12,1)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (5,12,1)
 --23
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,4,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (4,2,2)
 --24
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,15,3)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,15,3)
 --25
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,2,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (2,2,2)
 --26
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,2,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (2,2,2)
 --27
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,2,2)
 --28
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,3,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (3,2,2)
 --29
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,4,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (4,2,2)
 --30
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,3,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (3,2,2)
 -- 31
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,7,2,1)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (7,2,1)
 -- 32
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,2,2)
 -- 33
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,8,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (8,2,2)
 ---34
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,8,23,3)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (8,23,3)
 --35
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,5,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (5,2,2)
 ---36
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,4,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (4,2,2)
 --37
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,3,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (3,2,2)
 --38
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,2,2)
 --39
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,2,2)
 --40
-INSERT INTO Tarea (idTarea,idTrabajador,idHabitacion,idEstadoTarea)
-VALUES (NULL,1,2,2)
+INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
+VALUES (1,2,2)
 
