@@ -1253,3 +1253,161 @@ VALUES (1,2,2)
 INSERT INTO Tarea (idTrabajador,idHabitacion,idEstadoTarea)
 VALUES (1,2,2)
 
+exec sp_reservacion_crud
+NULL,'2023-02-01','2023-02-05',1,53,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-02-07','2023-02-10',2,53,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-02-10','2023-02-15',3,53,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-02-12','2023-02-18',4,53,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-02-01','2023-02-05',5,53,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-02-20','2023-02-25',6,53,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-03-20','2023-03-25',7,53,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-04-20','2023-04-25',8,54,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-05-20','2023-05-25',9,54,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-06-20','2023-06-25',10,54,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-07-20','2023-07-25',11,54,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-08-20','2023-08-25',12,56,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-09-20','2023-09-25',13,56,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-10-20','2023-10-25',14,56,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-11-20','2023-11-25',15,56,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2023-12-20','2023-12-25',16,56,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2024-01-20','2024-01-25',17,60,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2024-02-20','2024-02-25',18,60,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2024-03-20','2024-03-25',19,60,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2024-04-20','2024-04-25',20,60,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2024-05-20','2024-05-25',21,60,'INSERT'
+GO
+exec sp_reservacion_crud
+NULL,'2024-06-20','2024-06-25',7,60,'INSERT'
+GO
+exec sp_reservacion_crud
+NULL,'2024-07-20','2024-07-25',7,60,'INSERT'
+GO
+exec sp_reservacion_crud
+NULL,'2024-08-20','2024-08-25',7,60,'INSERT'
+GO
+exec sp_reservacion_crud
+NULL,'2024-09-20','2024-09-25',7,60,'INSERT'
+GO
+exec sp_reservacion_crud
+NULL,'2024-10-20','2024-10-25',7,60,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2024-11-20','2024-11-25',7,60,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2024-12-20','2024-12-25',7,61,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-01-20','2025-01-25',7,62,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-02-20','2025-02-25',9,60,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-03-20','2025-03-25',8,60,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-04-20','2025-04-25',8,65,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-05-20','2025-05-25',8,65,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-06-20','2025-06-25',8,65,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-07-20','2025-07-25',8,65,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-08-20','2025-08-25',8,65,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-09-20','2025-09-25',20,65,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-10-20','2025-10-25',11,65,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-11-20','2025-11-25',10,66,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2025-12-20','2025-12-25',2,69,'INSERT'
+GO
+
+exec sp_reservacion_crud
+NULL,'2026-12-20','2026-12-25',2,69,'INSERT'
+GO
