@@ -635,7 +635,7 @@ GO
 EXEC sp_cliente_crud
   NULL, 'Manuel', 'Lule', 'Guzman',
   '1988-01-01', 'F', 'LUGM', 'LUGM',
-  '5572915870', 'manuel@gmail.com', 'manuel', 3,
+  '5572915870', 'cualquiera@gmail.com', 'cualquiera', 3,
   'filantrop', '1', '3', 'Ozuna',
   'CDMX', 'Tlalpan', '12580',
   'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
@@ -643,8 +643,8 @@ GO
 
 EXEC sp_cliente_crud
   NULL, 'Sabina', 'Lopez', 'Alejo',
-  '1988-01-01', 'F', 'LOAS', 'LOAS',
-  '5572911778', 'sabi@gmail.com', 'sabi', 3,
+  '1988-01-01', 'F', 'LOASS', 'LOASS',
+  '5572911778', 'sabi1@gmail.com', 'sabi', 3,
   'luis donaldo', '12', '3', 'Pedregal',
   'CDMX', 'Tlalpan', '1258',
   'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
@@ -652,8 +652,8 @@ GO
 
 EXEC sp_cliente_crud
   NULL, 'Erandi', 'Flores', 'Nuño',
-  '1988-01-01', 'F', 'FONE', 'FONE',
-  '5572915885', 'erandi@gmail.com', 'erandi', 3,
+  '1988-01-01', 'F', 'FONEE', 'FONEE',
+  '5572915885', 'erandi1@gmail.com', 'erandi1', 3,
   'civilizaciones', '12', '3', 'Pedregal',
   'CDMX', 'Xochimilco', '12544',
   'Antonio', 'Arce', 'Gudiño', '144845135', 'INSERT'
