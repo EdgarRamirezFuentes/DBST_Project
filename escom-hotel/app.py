@@ -1819,7 +1819,8 @@ def reservation():
                 begin_date = data['begin_date']
                 end_date = data['end_date']
                 room_id = data['room_id']
-                user_id = data['user_id']
+                reservation_user_id = data['user_id']
+
                 current_date = datetime.now().strftime('%Y-%m-%d')
 
 
@@ -1838,7 +1839,7 @@ def reservation():
                     begin_date,
                     end_date,
                     room_id,
-                    user_id,
+                    reservation_user_id,
                     'INSERT'
                 ))
                 response = cursor.fetchone()

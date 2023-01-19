@@ -1430,13 +1430,9 @@ BEGIN
     END
 
     TRANSACTION_ERROR:
-        IF @@TRANCOUNT > 0
+        IF @ERROR <> 0
         BEGIN
             ROLLBACK TRANSACTION
-        END
-
-        IF @MSG IS NOT NULL
-        BEGIN
             RAISERROR(@MSG, 16, 1)
         END
 END
