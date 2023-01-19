@@ -298,7 +298,7 @@ GO
 
 
 -- ADDING CUSTOMERS --
---Empiezan 10 usuarios---
+--Empiezan 40 usuarios---
 
 EXEC sp_cliente_crud
   NULL, 'Edgar', 'Martinez', 'Ruiz',
@@ -568,6 +568,96 @@ EXEC sp_cliente_crud
   'arbustos', '25', '3', 'Natura',
   'CDMX', 'Azcapotzalco', '54947',
   'Antonio', 'Arce', 'Gudiño', '144745135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Rocio', 'Sanchez', 'Azuara',
+  '1985-01-01', 'F', 'SAAR', 'SAAR',
+  '5587901851', 'rocio@gmail.com', 'rocio', 3,
+  'aztecas', '25', '3', 'Polanco',
+  'CDMX', 'Miguel Hidalgo', '54947',
+  'Antonio', 'Arce', 'Gudiño', '141745135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Maria', 'Aguirre', 'Sanchez',
+  '1985-01-01', 'F', 'AGSM', 'AGSM',
+  '5577901851', 'maria@gmail.com', 'maria', 3,
+  'mani', '250', '3', 'glorieta',
+  'CDMX', 'Azcapotzalco', '51247',
+  'Antonio', 'Arce', 'Gudiño', '144745135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Jose', 'Jose', 'Perez',
+  '1985-01-01', 'M', 'JOPJ', 'JOPJ',
+  '5577901851', 'jose@gmail.com', 'jose', 3,
+  'mani', '250', '3', 'glorieta',
+  'CDMX', 'Cuahutemoc', '14247',
+  'Antonio', 'Arce', 'Gudiño', '144365135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Sara', 'Jay', 'Portales',
+  '1985-01-01', 'F', 'JAPS', 'JAPS',
+  '5577901851', 'sara@gmail.com', 'sara', 3,
+  'york', '250', '3', 'San Nicolas',
+  'CDMX', 'Tlalpan', '14247',
+  'Antonio', 'Arce', 'Gudiño', '144365135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Karla', 'Rosas', 'Duran',
+  '1985-01-01', 'M', 'RODK', 'RODK',
+  '5577901851', 'karla@gmail.com', 'karla', 3,
+  'mani', '250', '3', 'glorieta',
+  'CDMX', 'Cuahutemoc', '14247',
+  'Antonio', 'Arce', 'Gudiño', '144365135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Roxana', 'Morales', 'Casas',
+  '1985-01-01', 'M', 'MOCR', 'MOCR',
+  '5577901851', 'roxana@gmail.com', 'roxana', 3,
+  'mani', '250', '3', 'glorieta',
+  'CDMX', 'Cuahutemoc', '14247',
+  'Antonio', 'Arce', 'Gudiño', '144365135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Alberto', 'Alcantara', 'Duran',
+  '1985-01-01', 'M', 'AADA', 'AADA',
+  '5577901851', 'alberto@gmail.com', 'alberto', 3,
+  'mani', '250', '3', 'glorieta',
+  'CDMX', 'Cuahutemoc', '14247',
+  'Antonio', 'Arce', 'Gudiño', '144365135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Yazmin', 'Gonzales', 'Dinamarca',
+  '1985-01-01', 'F', 'GODY', 'GODY',
+  '5577901851', 'yazmin@gmail.com', 'yazmin', 3,
+  'mani', '250', '3', 'glorieta',
+  'CDMX', 'Cuahutemoc', '14247',
+  'Antonio', 'Arce', 'Gudiño', '144365135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Johny', 'Ruiz', 'Duran',
+  '1990-01-01', 'M', 'RUDJ', 'RUDJ',
+  '5577901851', 'johny@gmail.com', 'johny', 3,
+  'mani', '250', '3', 'glorieta',
+  'CDMX', 'Cuahutemoc', '14247',
+  'Antonio', 'Arce', 'Gudiño', '144365135', 'INSERT'
+GO 
+
+EXEC sp_cliente_crud
+  NULL, 'Rusty', 'Cage', 'Morat',
+  '1985-01-01', 'M', 'CAMR', 'CAMR',
+  '5577901851', 'rusty@gmail.com', 'rusty', 3,
+  'clark 11', '25', '3', 'apple big',
+  'CDMX', 'Magdalena Contreras', '14247',
+  'Antonio', 'Arce', 'Gudiño', '144365135', 'INSERT'
 GO 
 
 -- ADDING TYPE ROOMS --
